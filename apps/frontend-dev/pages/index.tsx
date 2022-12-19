@@ -1,139 +1,52 @@
-import { useState } from "react";
-// @ts-ignore
-import { WasmBoy } from "wasmboy";
-import saveState from "./save-state.json";
+import { useEffect, useRef } from "react";
+import axios from "axios";
 
-// import { Button } from "ui";
+const CELL_SIZE = 4; // px
+const GAMEBOY_CAMERA_WIDTH = 160;
+const GAMEBOY_CAMERA_HEIGHT = 144;
 
-const WasmBoyOptions = {
-  headless: false,
-  useGbcWhenOptional: true,
-  isAudioEnabled: true,
-  frameSkip: 1,
-  audioBatchProcessing: true,
-  timersBatchProcessing: false,
-  audioAccumulateSamples: true,
-  graphicsBatchProcessing: false,
-  graphicsDisableScanlineRendering: false,
-  tileRendering: true,
-  tileCaching: true,
-  gameboyFPSCap: 60,
-  updateGraphicsCallback: false,
-  updateAudioCallback: false,
-  saveStateCallback: false,
+const getIndex = (row: number, column: number) => {
+  return row * GAMEBOY_CAMERA_WIDTH + column;
 };
 
-interface SaveStateEncoded {
-  gameboyMemory: Uint8Array;
-  paletteMemory: Uint8Array;
-  wasmboyState: Uint8Array;
-  cartridgeRam: Uint8Array;
-}
+const drawCells = (cells: string[], ctx: CanvasRenderingContext2D) => {
+  ctx.beginPath();
 
-interface SaveStateDecoded {
-  gameboyMemory: string;
-  paletteMemory: string;
-  wasmboyState: string;
-}
+  for (let row = 0; row < GAMEBOY_CAMERA_HEIGHT; row++) {
+    for (let col = 0; col < GAMEBOY_CAMERA_WIDTH; col++) {
+      const idx = getIndex(row, col);
 
-const encodeSaveState = (saveState: SaveStateDecoded) => ({
-  date: 1671208448872,
-  isAuto: false,
-  wasmboyMemory: {
-    gameBoyMemory: new Uint8Array(
-      Buffer.from(saveState.gameboyMemory, "base64")
-    ),
-    wasmBoyPaletteMemory: new Uint8Array(
-      Buffer.from(saveState.paletteMemory, "base64")
-    ),
-    wasmBoyInternalState: new Uint8Array(
-      Buffer.from(saveState.wasmboyState, "base64")
-    ),
-    cartridgeRam: new Uint8Array(Array.from({ length: 32768 }, () => 0)),
-  },
-});
+      ctx.fillStyle = cells[idx];
+
+      ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+    }
+  }
+
+  ctx.stroke();
+};
 
 export default function Web() {
-  const [loaded, setLoaded] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (canvasRef.current) {
+      const canvas = canvasRef.current;
+      canvas.height = (CELL_SIZE + 1) * GAMEBOY_CAMERA_HEIGHT + 1;
+      canvas.width = (CELL_SIZE + 1) * GAMEBOY_CAMERA_WIDTH + 1;
+      const ctx = canvas.getContext("2d");
+
+      if (ctx) {
+        axios.patch("http://localhost:5000").then((res) => {
+          drawCells(res.data, ctx);
+        });
+      }
+    }
+  }, []);
 
   return (
     <div>
-      <h1>Web</h1>
-      <canvas
-        ref={(canvasElement) => {
-          WasmBoy.config(WasmBoyOptions, canvasElement)
-            .then(() => {
-              console.log("WasmBoy is configured!");
-              return WasmBoy.loadROM("/rom.gb");
-            })
-            .then(() => {
-              console.log("WasmBoy ROM loaded!");
-              return WasmBoy.play();
-            })
-            .then(() => {
-              setLoaded(true);
-              console.log("WasmBoy is playing!");
-            })
-            .catch(() => {
-              console.error("Error Configuring WasmBoy...");
-            });
-        }}
-      />
-      {loaded && (
-        <button
-          onClick={() => {
-            WasmBoy.saveState()
-              .then(() => {
-                console.log("WasmBoy saved the state!");
-                return WasmBoy.play();
-              })
-              .then(() => {
-                return WasmBoy.getSaveStates();
-              })
-              .then((array: any) => {
-                console.log(array);
-                return WasmBoy.loadState(array[1]);
-              })
-              .then(() => {
-                console.log("state loaded");
-                return WasmBoy.play();
-              })
-              .catch(() => {
-                console.error("WasmBoy had an error saving the state...");
-              });
-          }}
-        >
-          Save state
-        </button>
-      )}
-      {loaded && (
-        <button
-          onClick={() => {
-            const encodedSaveState = encodeSaveState(saveState);
-            WasmBoy.loadState(encodedSaveState)
-              .then(() => {
-                console.log("WasmBoy loaded the state!");
-                // Call .play() here to continue playing the ROM.
-                return WasmBoy.play();
-              })
-              .then(
-                () =>
-                  new Promise((resolve) =>
-                    setTimeout(resolve, (1 / 60) * 16 * 1000)
-                  )
-              )
-              .then(() => {
-                return WasmBoy.pause();
-              })
-              .catch((e: any) => {
-                console.log(e);
-                console.error("WasmBoy had an error loading the state...");
-              });
-          }}
-        >
-          Load state
-        </button>
-      )}
+      <h1>Hello world</h1>
+      <canvas ref={canvasRef} />
     </div>
   );
 }

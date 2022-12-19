@@ -1,5 +1,9 @@
 import * as fs from "fs/promises";
 import * as path from "path";
+import {
+  GAMEBOY_CAMERA_HEIGHT,
+  GAMEBOY_CAMERA_WIDTH,
+} from "./display.constant";
 import { decodeSaveState } from "./encode-decde-save-state.util";
 import wasmImportObject from "./import-object.util";
 
@@ -9,7 +13,7 @@ export class WasmboyService {
 
   // wasmboy config
   private enableBootRom = false;
-  private preferGbc = true;
+  private preferGbc = false;
   private audioBatchProcessing = false;
   private graphicsBatchProcessing = false;
   private timersBatchProcessing = false;
@@ -103,6 +107,58 @@ export class WasmboyService {
       JSON.stringify(decodedSaveState),
     );
 
-    return decodedSaveState;
+    const imageDataArray = this.getImageDataFromGraphicsFrameBuffer();
+
+    return imageDataArray;
+  }
+
+  private getImageDataFromGraphicsFrameBuffer() {
+    const frameInProgressVideoOutputLocation =
+      this.instance.exports.FRAME_LOCATION;
+
+    const frameInProgressMemory = this.wasmByteMemory.slice(
+      frameInProgressVideoOutputLocation,
+      frameInProgressVideoOutputLocation +
+        GAMEBOY_CAMERA_HEIGHT * GAMEBOY_CAMERA_WIDTH * 3 +
+        1,
+    );
+
+    const imageDataArray = new Uint8ClampedArray(
+      GAMEBOY_CAMERA_HEIGHT * GAMEBOY_CAMERA_WIDTH * 4,
+    );
+    const rgbColor = [];
+
+    for (let y = 0; y < GAMEBOY_CAMERA_HEIGHT; y++) {
+      for (let x = 0; x < GAMEBOY_CAMERA_WIDTH; x++) {
+        // Each color has an R G B component
+        const pixelStart = (y * GAMEBOY_CAMERA_WIDTH + x) * 3;
+
+        for (let color = 0; color < 3; color++) {
+          rgbColor[color] = frameInProgressMemory[pixelStart + color];
+        }
+
+        // Doing graphics using second answer on:
+        // https://stackoverflow.com/questions/4899799/whats-the-best-way-to-set-a-single-pixel-in-an-html5-canvas
+        // Image Data mapping
+        const imageDataIndex = (x + y * GAMEBOY_CAMERA_WIDTH) * 4;
+
+        imageDataArray[imageDataIndex] = rgbColor[0];
+        imageDataArray[imageDataIndex + 1] = rgbColor[1];
+        imageDataArray[imageDataIndex + 2] = rgbColor[2];
+        // Alpha, no transparency
+        imageDataArray[imageDataIndex + 3] = 255;
+      }
+    }
+
+    const result = [];
+    for (let i = 0; i < imageDataArray.length - 4; i = i + 4) {
+      result.push(
+        `rgba(${imageDataArray[i]}, ${imageDataArray[i + 1]},${
+          imageDataArray[i + 2]
+        }, ${imageDataArray[i + 3]})`,
+      );
+    }
+
+    return result;
   }
 }

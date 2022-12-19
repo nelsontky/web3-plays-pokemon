@@ -1,0 +1,2 @@
+export const GAMEBOY_CAMERA_WIDTH = 160;
+export const GAMEBOY_CAMERA_HEIGHT = 144;
