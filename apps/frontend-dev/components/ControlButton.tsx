@@ -11,9 +11,10 @@ const styles = {
     bg-white
     border-2
     border-black
-    text-7xl
+    min-[400px]:text-5xl
     py-1
     px-6
+    whitespace-nowrap
   `,
   background: tw`
     bg-black
