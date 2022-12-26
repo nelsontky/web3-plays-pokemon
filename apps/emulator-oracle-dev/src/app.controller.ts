@@ -10,7 +10,7 @@ export class AppController {
 
   @Patch()
   update() {
-    this.wasmboyService.executeFrames(16);
+    this.wasmboyService.executeFrames(1000);
     return this.wasmboyService.saveState();
   }
 }
