@@ -15,6 +15,7 @@ const styles = {
     py-1
     px-6
     whitespace-nowrap
+    select-none
   `,
   background: tw`
     bg-black
