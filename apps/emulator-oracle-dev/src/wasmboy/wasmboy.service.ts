@@ -1,7 +1,10 @@
 import { GAMEBOY_CAMERA_HEIGHT, GAMEBOY_CAMERA_WIDTH } from "common";
 import * as fs from "fs/promises";
 import * as path from "path";
-import { decodeSaveState } from "./encode-decde-save-state.util";
+import {
+  decodeSaveState,
+  encodeSaveState,
+} from "./encode-decde-save-state.util";
 import wasmImportObject from "./import-object.util";
 
 export class WasmboyService {
@@ -68,13 +71,21 @@ export class WasmboyService {
     return new WasmboyService(instance, wasmByteMemory);
   }
 
-  executeFrames(frames: number) {
+  async executeFrames(frames: number) {
+    await this.loadState();
+
+    const frameImages = [];
     for (let i = 0; i < frames; i++) {
       this.instance.exports.executeFrame();
+      frameImages.push(this.getImageDataFromGraphicsFrameBuffer());
     }
+
+    await this.saveState();
+
+    return frameImages;
   }
 
-  async saveState() {
+  private async saveState() {
     this.instance.exports.saveState();
 
     const gameboyMemory = this.wasmByteMemory.slice(
@@ -107,6 +118,30 @@ export class WasmboyService {
     const imageDataArray = this.getImageDataFromGraphicsFrameBuffer();
 
     return imageDataArray;
+  }
+
+  private async loadState() {
+    const decodedSaveState = await fs.readFile(
+      path.join(__dirname, "save-state.json"),
+    );
+    const encodedSaveState = encodeSaveState(
+      JSON.parse(decodedSaveState.toString()),
+    );
+
+    this.wasmByteMemory.set(
+      encodedSaveState.gameboyMemory,
+      this.instance.exports.GAMEBOY_INTERNAL_MEMORY_LOCATION,
+    );
+    this.wasmByteMemory.set(
+      encodedSaveState.paletteMemory,
+      this.instance.exports.GBC_PALETTE_LOCATION,
+    );
+    this.wasmByteMemory.set(
+      encodedSaveState.wasmboyState,
+      this.instance.exports.WASMBOY_STATE_LOCATION,
+    );
+
+    this.instance.exports.loadState();
   }
 
   private getImageDataFromGraphicsFrameBuffer() {
