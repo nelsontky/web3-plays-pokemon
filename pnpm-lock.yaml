@@ -90,6 +90,7 @@ importers:
       axios: ^1.2.1
       babel-loader: ^9.1.0
       babel-plugin-macros: ^3.1.0
+      common: workspace:*
       eslint: 7.32.0
       eslint-config-custom: workspace:*
       next: 13.1.0
@@ -106,6 +107,7 @@ importers:
       '@emotion/server': 11.10.0_@emotion+css@11.10.5
       '@next/font': 13.1.1
       axios: 1.2.1
+      common: link:../../packages/common
       next: 13.1.0_wvxvo4o63qi3k3k4wbsk7rwchi
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0

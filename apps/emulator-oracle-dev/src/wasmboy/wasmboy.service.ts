@@ -72,7 +72,9 @@ export class WasmboyService {
   }
 
   async executeFrames(frames: number) {
-    await this.loadState();
+    // try {
+    //   await this.loadState();
+    // } catch {}
 
     const frameImages = [];
     for (let i = 0; i < frames; i++) {
@@ -155,42 +157,41 @@ export class WasmboyService {
         1,
     );
 
-    const imageDataArray = new Uint8ClampedArray(
-      GAMEBOY_CAMERA_HEIGHT * GAMEBOY_CAMERA_WIDTH * 4,
-    );
-    const rgbColor = [];
-
+    const imageDataArray = [];
     for (let y = 0; y < GAMEBOY_CAMERA_HEIGHT; y++) {
       for (let x = 0; x < GAMEBOY_CAMERA_WIDTH; x++) {
         // Each color has an R G B component
         const pixelStart = (y * GAMEBOY_CAMERA_WIDTH + x) * 3;
 
         for (let color = 0; color < 3; color++) {
-          rgbColor[color] = frameInProgressMemory[pixelStart + color];
+          imageDataArray.push(frameInProgressMemory[pixelStart + color]);
         }
 
         // Doing graphics using second answer on:
         // https://stackoverflow.com/questions/4899799/whats-the-best-way-to-set-a-single-pixel-in-an-html5-canvas
         // Image Data mapping
-        const imageDataIndex = (x + y * GAMEBOY_CAMERA_WIDTH) * 4;
+        // const imageDataIndex = (x + y * GAMEBOY_CAMERA_WIDTH) * 4;
 
-        imageDataArray[imageDataIndex] = rgbColor[0];
-        imageDataArray[imageDataIndex + 1] = rgbColor[1];
-        imageDataArray[imageDataIndex + 2] = rgbColor[2];
-        // Alpha, no transparency
-        imageDataArray[imageDataIndex + 3] = 255;
+        // imageDataArray[imageDataIndex] = rgbColor[0];
+        // imageDataArray[imageDataIndex + 1] = rgbColor[1];
+        // imageDataArray[imageDataIndex + 2] = rgbColor[2];
+
+        // // Alpha, no transparency
+        // imageDataArray[imageDataIndex + 3] = 255;
       }
     }
 
-    const result = [];
-    for (let i = 0; i < imageDataArray.length - 4; i = i + 4) {
-      result.push(
-        `rgba(${imageDataArray[i]}, ${imageDataArray[i + 1]},${
-          imageDataArray[i + 2]
-        }, ${imageDataArray[i + 3]})`,
-      );
-    }
+    return imageDataArray;
 
-    return result;
+    // const result = [];
+    // for (let i = 0; i < imageDataArray.length - 4; i = i + 4) {
+    //   result.push(
+    //     `rgba(${imageDataArray[i]}, ${imageDataArray[i + 1]},${
+    //       imageDataArray[i + 2]
+    //     }, ${imageDataArray[i + 3]})`,
+    //   );
+    // }
+
+    // return result;
   }
 }

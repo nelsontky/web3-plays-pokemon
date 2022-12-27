@@ -9,7 +9,7 @@ export class AppController {
   ) {}
 
   @Patch()
-  update() {
+  async update() {
     return this.wasmboyService.executeFrames(60);
   }
 }
