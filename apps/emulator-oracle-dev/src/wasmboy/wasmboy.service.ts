@@ -1,9 +1,6 @@
+import { GAMEBOY_CAMERA_HEIGHT, GAMEBOY_CAMERA_WIDTH } from "common";
 import * as fs from "fs/promises";
 import * as path from "path";
-import {
-  GAMEBOY_CAMERA_HEIGHT,
-  GAMEBOY_CAMERA_WIDTH,
-} from "./display.constant";
 import { decodeSaveState } from "./encode-decde-save-state.util";
 import wasmImportObject from "./import-object.util";
 

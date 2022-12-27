@@ -9,6 +9,11 @@ const styles = {
     items-end
     gap-5
   `,
+  actionButtons: tw`
+    flex
+    flex-wrap
+    justify-end
+  `,
   directionalPadContainer: tw`
     inline-block
   `,
@@ -51,7 +56,7 @@ export default function Controls() {
             <ControlButton>→</ControlButton>
           </div>
         </div>
-        <div>
+        <div css={styles.actionButtons}>
           <ControlButton>B</ControlButton>
           <ControlButton>A</ControlButton>
         </div>
