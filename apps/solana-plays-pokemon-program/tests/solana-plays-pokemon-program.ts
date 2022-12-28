@@ -19,7 +19,11 @@ describe("solana-plays-pokemon-program", () => {
       "bafkreiajqssnp7kgdly427gkmdkl42zjpjlcbhat33ob2dlu4ngeabkriq";
 
     const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
-      [gameData.publicKey.toBuffer(), Buffer.from("0")],
+      [
+        gameData.publicKey.toBuffer(),
+        Buffer.from("game_state"),
+        Buffer.from("0"),
+      ],
       program.programId
     );
 

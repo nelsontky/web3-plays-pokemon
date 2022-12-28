@@ -43,7 +43,7 @@ pub struct Initialize<'info> {
         init, 
         payer = authority, 
         space = 8 + 1 + (10 * 8) + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
-        seeds = [game_data.key().as_ref(), b"0"], // seeds comprise of game_data key and the second when the state begins
+        seeds = [game_data.key().as_ref(), b"game_state", b"0"], // seeds comprise of game_data key, a static text, and the second when the state begins
         bump
     )]
     pub game_state: Account<'info, GameState>,
