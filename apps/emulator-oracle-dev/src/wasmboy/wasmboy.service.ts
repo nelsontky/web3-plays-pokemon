@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import {
+  FPS,
   GAMEBOY_CAMERA_HEIGHT,
   GAMEBOY_CAMERA_WIDTH,
   JoypadButton,
@@ -13,7 +14,7 @@ import {
 import wasmImportObject from "./import-object.util";
 import * as pako from "pako";
 
-const FRAMES_TO_HOLD_BUTTON_FOR = 5;
+const FRAMES_TO_HOLD_BUTTON = 5;
 
 @Injectable()
 export class WasmboyService {
@@ -58,14 +59,16 @@ export class WasmboyService {
   ) {
     this.setJoypadState(wasmBoy, joypadButton);
 
+    const framesToExecutePerStep = frames / FPS;
     const framesImageData: number[][] = [];
-    for (let i = 0; i < frames; i++) {
-      wasmBoy.executeFrame();
+    for (let i = 0; i < frames / framesToExecutePerStep; i++) {
+      wasmBoy.executeMultipleFrames(framesToExecutePerStep);
       framesImageData.push(
         this.getImageDataFromGraphicsFrameBuffer(wasmBoy, wasmByteMemory),
       );
 
-      const isReleaseJoyPad = i === FRAMES_TO_HOLD_BUTTON_FOR - 1;
+      const isReleaseJoyPad =
+        i * framesToExecutePerStep >= FRAMES_TO_HOLD_BUTTON;
       if (isReleaseJoyPad) {
         this.setJoypadState(wasmBoy, null);
       }

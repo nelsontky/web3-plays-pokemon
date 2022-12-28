@@ -60,18 +60,16 @@ export default function Controls({ canvasRef }: ControlsProps) {
         { responseType: "arraybuffer" }
       )
       .then((res) => {
-        const imageDataArrays = JSON.parse(inflate(res.data, { to: "string" }));
+        const imageDataArrays: number[][] = JSON.parse(
+          inflate(res.data, { to: "string" })
+        );
 
-        let frame = 0;
         const renderLoop = () => {
-          const imageDataArray = imageDataArrays[frame++];
+          const imageDataArray = imageDataArrays.shift();
           const ctx = canvasRef.getContext("2d");
 
-          if (ctx) {
+          if (ctx && imageDataArray) {
             renderFrame(imageDataArray, ctx);
-          }
-
-          if (frame < imageDataArrays.length) {
             requestAnimationFrame(renderLoop);
           }
         };

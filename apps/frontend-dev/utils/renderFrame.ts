@@ -7,7 +7,7 @@ const getIndex = (row: number, column: number) => {
 };
 
 const renderFrame = (
-  imageDataArray: string[],
+  imageDataArray: number[],
   ctx: CanvasRenderingContext2D
 ) => {
   ctx.beginPath();
