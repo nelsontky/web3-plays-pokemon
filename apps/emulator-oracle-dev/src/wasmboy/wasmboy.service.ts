@@ -11,6 +11,7 @@ import {
   encodeSaveState,
 } from "./encode-decde-save-state.util";
 import wasmImportObject from "./import-object.util";
+import * as pako from "pako";
 
 const FRAMES_TO_HOLD_BUTTON_FOR = 5;
 
@@ -30,9 +31,11 @@ export class WasmboyService {
   async run(frames: number, joypadButton: JoypadButton) {
     const [wasmBoy, wasmByteMemory] = await this.getWasmBoyCore();
     await this.loadRom(wasmBoy, wasmByteMemory);
-    await this.loadState(wasmBoy, wasmByteMemory);
+    try {
+      await this.loadState(wasmBoy, wasmByteMemory);
+    } catch {}
 
-    const frameImagesData = this.executeFrames(
+    const framesImageData = this.executeFrames(
       wasmBoy,
       wasmByteMemory,
       frames,
@@ -41,7 +44,10 @@ export class WasmboyService {
 
     await this.saveState(wasmBoy, wasmByteMemory);
 
-    return frameImagesData;
+    const compressedFramesImageData = pako.deflate(
+      JSON.stringify(framesImageData),
+    );
+    return compressedFramesImageData;
   }
 
   private executeFrames(
@@ -52,32 +58,33 @@ export class WasmboyService {
   ) {
     this.setJoypadState(wasmBoy, joypadButton);
 
-    const frameImagesData: number[][] = [];
+    const framesImageData: number[][] = [];
     for (let i = 0; i < frames; i++) {
       wasmBoy.executeFrame();
-      frameImagesData.push(
+      framesImageData.push(
         this.getImageDataFromGraphicsFrameBuffer(wasmBoy, wasmByteMemory),
       );
 
-      if (i === FRAMES_TO_HOLD_BUTTON_FOR - 1) {
+      const isReleaseJoyPad = i === FRAMES_TO_HOLD_BUTTON_FOR - 1;
+      if (isReleaseJoyPad) {
         this.setJoypadState(wasmBoy, null);
       }
     }
 
     // prevent last frame from being a white or black screen
     while (
-      frameImagesData[frameImagesData.length - 1].every(
+      framesImageData[framesImageData.length - 1].every(
         (value) => value === 255,
       ) ||
-      frameImagesData[frameImagesData.length - 1].every((value) => value === 0)
+      framesImageData[framesImageData.length - 1].every((value) => value === 0)
     ) {
       wasmBoy.executeMultipleFrames(5);
-      frameImagesData.push(
+      framesImageData.push(
         this.getImageDataFromGraphicsFrameBuffer(wasmBoy, wasmByteMemory),
       );
     }
 
-    return frameImagesData;
+    return framesImageData;
   }
 
   private async getWasmBoyCore() {
@@ -168,13 +175,6 @@ export class WasmboyService {
       path.join(".", "save-state.json"),
       JSON.stringify(decodedSaveState),
     );
-
-    const imageDataArray = this.getImageDataFromGraphicsFrameBuffer(
-      wasmBoy,
-      wasmByteMemory,
-    );
-
-    return imageDataArray;
   }
 
   private getImageDataFromGraphicsFrameBuffer(

@@ -4,6 +4,7 @@ import { JoypadButton } from "common";
 import tw from "twin.macro";
 import renderFrame from "../utils/renderFrame";
 import ControlButton from "./ControlButton";
+import { inflate } from "pako";
 
 const styles = {
   root: tw`
@@ -52,24 +53,31 @@ interface ControlsProps {
 
 export default function Controls({ canvasRef }: ControlsProps) {
   const executeGame = (joypadButton: JoypadButton) => {
-    axios.patch("http://localhost:5000", { joypadButton }).then((res) => {
-      let frame = 0;
+    axios
+      .patch(
+        "http://localhost:5000",
+        { joypadButton },
+        { responseType: "arraybuffer" }
+      )
+      .then((res) => {
+        const imageDataArrays = JSON.parse(inflate(res.data, { to: "string" }));
 
-      const renderLoop = () => {
-        const imageDataArray = res.data[frame++];
-        const ctx = canvasRef.getContext("2d");
+        let frame = 0;
+        const renderLoop = () => {
+          const imageDataArray = imageDataArrays[frame++];
+          const ctx = canvasRef.getContext("2d");
 
-        if (ctx) {
-          renderFrame(imageDataArray, ctx);
-        }
+          if (ctx) {
+            renderFrame(imageDataArray, ctx);
+          }
 
-        if (frame < res.data.length) {
-          requestAnimationFrame(renderLoop);
-        }
-      };
+          if (frame < imageDataArrays.length) {
+            requestAnimationFrame(renderLoop);
+          }
+        };
 
-      renderLoop();
-    });
+        renderLoop();
+      });
   };
 
   return (
