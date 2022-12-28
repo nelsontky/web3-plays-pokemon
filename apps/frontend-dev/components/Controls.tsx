@@ -1,6 +1,6 @@
 import { css } from "@emotion/react";
 import axios from "axios";
-import { JoypadButton } from "common";
+import { FPS, JoypadButton } from "common";
 import tw from "twin.macro";
 import renderFrame from "../utils/renderFrame";
 import ControlButton from "./ControlButton";
@@ -69,8 +69,11 @@ export default function Controls({ canvasRef }: ControlsProps) {
           const ctx = canvasRef.getContext("2d");
 
           if (ctx && imageDataArray) {
-            renderFrame(imageDataArray, ctx);
             requestAnimationFrame(renderLoop);
+
+            setTimeout(() => {
+              renderFrame(imageDataArray, ctx);
+            }, 1000 / FPS);
           }
         };
 
