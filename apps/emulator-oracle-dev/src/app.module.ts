@@ -1,11 +1,11 @@
 import { Module } from "@nestjs/common";
 import { AppController } from "./app.controller";
 import { WasmboyModule } from "./wasmboy/wasmboy.module";
-import { wasmboyProvider } from "./wasmboy/wasmboy.provider";
+import { WasmboyService } from "./wasmboy/wasmboy.service";
 
 @Module({
   imports: [WasmboyModule],
   controllers: [AppController],
-  providers: [wasmboyProvider],
+  providers: [WasmboyService],
 })
 export class AppModule {}

@@ -1,3 +1,4 @@
+import { Injectable } from "@nestjs/common";
 import { GAMEBOY_CAMERA_HEIGHT, GAMEBOY_CAMERA_WIDTH } from "common";
 import * as fs from "fs/promises";
 import * as path from "path";
@@ -7,10 +8,8 @@ import {
 } from "./encode-decde-save-state.util";
 import wasmImportObject from "./import-object.util";
 
+@Injectable()
 export class WasmboyService {
-  private instance: any;
-  private wasmByteMemory: Uint8Array;
-
   // wasmboy config
   private enableBootRom = false;
   private preferGbc = false;
@@ -22,11 +21,50 @@ export class WasmboyService {
   private tileRendering = false;
   private tileCaching = false;
 
-  constructor(instance: WebAssembly.Instance, wasmByteMemory: Uint8Array) {
-    this.wasmByteMemory = wasmByteMemory;
+  async executeFrames(frames: number) {
+    const [wasmBoy, wasmByteMemory] = await this.getWasmBoyCore();
+    await this.loadRom(wasmBoy, wasmByteMemory);
+    await this.loadState(wasmBoy, wasmByteMemory);
 
-    this.instance = instance;
-    this.instance.exports.config(
+    const frameImages = [];
+    for (let i = 0; i < frames; i++) {
+      wasmBoy.executeFrame();
+      frameImages.push(
+        this.getImageDataFromGraphicsFrameBuffer(wasmBoy, wasmByteMemory),
+      );
+    }
+
+    await this.saveState(wasmBoy, wasmByteMemory);
+
+    return frameImages;
+  }
+
+  private async getWasmBoyCore() {
+    const wasmBinary = await fs.readFile(
+      path.join(__dirname, "..", "assets", "core.untouched.wasm"),
+    );
+    const instantiatedWasm = await WebAssembly.instantiate(
+      wasmBinary,
+      wasmImportObject,
+    );
+    const wasmBoy = instantiatedWasm.instance.exports as any;
+    const wasmByteMemory = new Uint8Array((wasmBoy.memory as any).buffer);
+
+    return [wasmBoy, wasmByteMemory];
+  }
+
+  private async loadRom(wasmBoy: any, wasmByteMemory: Uint8Array) {
+    const pokemonRedBuffer = await fs.readFile(
+      path.join(
+        __dirname,
+        "..",
+        "assets",
+        "Pokemon - Red Version (USA, Europe) (SGB Enhanced).gb",
+      ),
+    );
+    wasmByteMemory.set(pokemonRedBuffer, wasmBoy.CARTRIDGE_ROM_LOCATION);
+
+    wasmBoy.config(
       this.enableBootRom ? 1 : 0,
       this.preferGbc ? 1 : 0,
       this.audioBatchProcessing ? 1 : 0,
@@ -39,71 +77,44 @@ export class WasmboyService {
     );
   }
 
-  static async new() {
-    const wasmBinary = await fs.readFile(
-      path.join(__dirname, "..", "assets", "core.untouched.wasm"),
+  private async loadState(wasmBoy: any, wasmByteMemory: Uint8Array) {
+    const decodedSaveState = await fs.readFile(
+      path.join(".", "save-state.json"),
     );
-    const instantiatedWasm = await WebAssembly.instantiate(
-      wasmBinary,
-      wasmImportObject,
-    );
-    const instance = instantiatedWasm.instance;
-    const wasmByteMemory = new Uint8Array(
-      (instance.exports.memory as any).buffer,
+    const encodedSaveState = encodeSaveState(
+      JSON.parse(decodedSaveState.toString()),
     );
 
-    const pokemonRedBuffer = await fs.readFile(
-      path.join(
-        __dirname,
-        "..",
-        "assets",
-        "Pokemon - Red Version (USA, Europe) (SGB Enhanced).gb",
-      ),
+    wasmByteMemory.set(
+      encodedSaveState.gameboyMemory,
+      wasmBoy.GAMEBOY_INTERNAL_MEMORY_LOCATION,
     );
-    // Load the game data
-    for (let i = 0; i < pokemonRedBuffer.length; i++) {
-      if (pokemonRedBuffer[i]) {
-        wasmByteMemory[(instance.exports as any).CARTRIDGE_ROM_LOCATION + i] =
-          pokemonRedBuffer[i];
-      }
-    }
-
-    return new WasmboyService(instance, wasmByteMemory);
+    wasmByteMemory.set(
+      encodedSaveState.paletteMemory,
+      wasmBoy.GBC_PALETTE_LOCATION,
+    );
+    wasmByteMemory.set(
+      encodedSaveState.wasmboyState,
+      wasmBoy.WASMBOY_STATE_LOCATION,
+    );
+    wasmBoy.loadState();
   }
 
-  async executeFrames(frames: number) {
-    // try {
-    //   await this.loadState();
-    // } catch {}
+  private async saveState(wasmBoy: any, wasmByteMemory: Uint8Array) {
+    wasmBoy.saveState();
 
-    const frameImages = [];
-    for (let i = 0; i < frames; i++) {
-      this.instance.exports.executeFrame();
-      frameImages.push(this.getImageDataFromGraphicsFrameBuffer());
-    }
-
-    await this.saveState();
-
-    return frameImages;
-  }
-
-  private async saveState() {
-    this.instance.exports.saveState();
-
-    const gameboyMemory = this.wasmByteMemory.slice(
-      this.instance.exports.GAMEBOY_INTERNAL_MEMORY_LOCATION,
-      this.instance.exports.GAMEBOY_INTERNAL_MEMORY_LOCATION +
-        this.instance.exports.GAMEBOY_INTERNAL_MEMORY_SIZE,
+    const gameboyMemory = wasmByteMemory.slice(
+      wasmBoy.GAMEBOY_INTERNAL_MEMORY_LOCATION,
+      wasmBoy.GAMEBOY_INTERNAL_MEMORY_LOCATION +
+        wasmBoy.GAMEBOY_INTERNAL_MEMORY_SIZE,
     );
-    const paletteMemory = this.wasmByteMemory.slice(
-      this.instance.exports.GBC_PALETTE_LOCATION,
-      this.instance.exports.GBC_PALETTE_LOCATION +
-        this.instance.exports.GBC_PALETTE_SIZE,
+    const paletteMemory = wasmByteMemory.slice(
+      wasmBoy.GBC_PALETTE_LOCATION,
+      wasmBoy.GBC_PALETTE_LOCATION + wasmBoy.GBC_PALETTE_SIZE,
     );
-    const wasmboyState = this.wasmByteMemory.slice(
-      this.instance.exports.WASMBOY_STATE_LOCATION,
-      this.instance.exports.WASMBOY_STATE_LOCATION +
-        this.instance.exports.WASMBOY_STATE_SIZE,
+    const wasmboyState = wasmByteMemory.slice(
+      wasmBoy.WASMBOY_STATE_LOCATION,
+      wasmBoy.WASMBOY_STATE_LOCATION + wasmBoy.WASMBOY_STATE_SIZE,
     );
 
     const decodedSaveState = decodeSaveState({
@@ -113,44 +124,25 @@ export class WasmboyService {
     });
 
     await fs.writeFile(
-      path.join(__dirname, "save-state.json"),
+      path.join(".", "save-state.json"),
       JSON.stringify(decodedSaveState),
     );
 
-    const imageDataArray = this.getImageDataFromGraphicsFrameBuffer();
+    const imageDataArray = this.getImageDataFromGraphicsFrameBuffer(
+      wasmBoy,
+      wasmByteMemory,
+    );
 
     return imageDataArray;
   }
 
-  private async loadState() {
-    const decodedSaveState = await fs.readFile(
-      path.join(__dirname, "save-state.json"),
-    );
-    const encodedSaveState = encodeSaveState(
-      JSON.parse(decodedSaveState.toString()),
-    );
+  private getImageDataFromGraphicsFrameBuffer(
+    wasmBoy: any,
+    wasmByteMemory: Uint8Array,
+  ) {
+    const frameInProgressVideoOutputLocation = wasmBoy.FRAME_LOCATION;
 
-    this.wasmByteMemory.set(
-      encodedSaveState.gameboyMemory,
-      this.instance.exports.GAMEBOY_INTERNAL_MEMORY_LOCATION,
-    );
-    this.wasmByteMemory.set(
-      encodedSaveState.paletteMemory,
-      this.instance.exports.GBC_PALETTE_LOCATION,
-    );
-    this.wasmByteMemory.set(
-      encodedSaveState.wasmboyState,
-      this.instance.exports.WASMBOY_STATE_LOCATION,
-    );
-
-    this.instance.exports.loadState();
-  }
-
-  private getImageDataFromGraphicsFrameBuffer() {
-    const frameInProgressVideoOutputLocation =
-      this.instance.exports.FRAME_LOCATION;
-
-    const frameInProgressMemory = this.wasmByteMemory.slice(
+    const frameInProgressMemory = wasmByteMemory.slice(
       frameInProgressVideoOutputLocation,
       frameInProgressVideoOutputLocation +
         GAMEBOY_CAMERA_HEIGHT * GAMEBOY_CAMERA_WIDTH * 3 +
@@ -166,32 +158,9 @@ export class WasmboyService {
         for (let color = 0; color < 3; color++) {
           imageDataArray.push(frameInProgressMemory[pixelStart + color]);
         }
-
-        // Doing graphics using second answer on:
-        // https://stackoverflow.com/questions/4899799/whats-the-best-way-to-set-a-single-pixel-in-an-html5-canvas
-        // Image Data mapping
-        // const imageDataIndex = (x + y * GAMEBOY_CAMERA_WIDTH) * 4;
-
-        // imageDataArray[imageDataIndex] = rgbColor[0];
-        // imageDataArray[imageDataIndex + 1] = rgbColor[1];
-        // imageDataArray[imageDataIndex + 2] = rgbColor[2];
-
-        // // Alpha, no transparency
-        // imageDataArray[imageDataIndex + 3] = 255;
       }
     }
 
     return imageDataArray;
-
-    // const result = [];
-    // for (let i = 0; i < imageDataArray.length - 4; i = i + 4) {
-    //   result.push(
-    //     `rgba(${imageDataArray[i]}, ${imageDataArray[i + 1]},${
-    //       imageDataArray[i + 2]
-    //     }, ${imageDataArray[i + 3]})`,
-    //   );
-    // }
-
-    // return result;
   }
 }

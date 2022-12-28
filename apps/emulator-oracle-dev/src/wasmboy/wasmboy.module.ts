@@ -1,8 +1,8 @@
 import { Module } from "@nestjs/common";
-import { wasmboyProvider } from "./wasmboy.provider";
+import { WasmboyService } from "./wasmboy.service";
 
 @Module({
-  providers: [wasmboyProvider],
-  exports: [wasmboyProvider],
+  providers: [WasmboyService],
+  exports: [WasmboyService],
 })
 export class WasmboyModule {}
