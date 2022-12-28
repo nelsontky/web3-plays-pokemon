@@ -10,21 +10,57 @@ describe("solana-plays-pokemon-program", () => {
   const program = anchor.workspace
     .SolanaPlaysPokemonProgram as Program<SolanaPlaysPokemonProgram>;
 
-  const saveState = anchor.web3.Keypair.generate();
+  const gameData = anchor.web3.Keypair.generate();
 
   it("Is initialized!", async () => {
-    const tx = await program.methods
-      .initialize()
+    const FRAMES_IMAGES_CID =
+      "bafkreihkf2i57avdqabigv4a2haz7u7burj573rk4mpfzlfb2cnbg7fgue";
+    const SAVE_STATE_CID =
+      "bafkreiajqssnp7kgdly427gkmdkl42zjpjlcbhat33ob2dlu4ngeabkriq";
+
+    const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [gameData.publicKey.toBuffer(), Buffer.from("0")],
+      program.programId
+    );
+
+    await program.methods
+      .initialize(FRAMES_IMAGES_CID, SAVE_STATE_CID)
       .accounts({
-        saveState: saveState.publicKey,
+        authority: anchor.getProvider().publicKey,
+        gameData: gameData.publicKey,
+        gameState: gameStatePda,
+        systemProgram: anchor.web3.SystemProgram.programId,
       })
-      .preInstructions([
-        await program.account.saveState.createInstruction(saveState),
-      ])
-      .signers([saveState])
+      .signers([gameData])
       .rpc();
 
-    const account = await program.account.saveState.fetch(saveState.publicKey);
-    assert.strictEqual(account.secondsPlayed.toNumber(), 0);
+    const gameDataAccount = await program.account.gameData.fetch(
+      gameData.publicKey
+    );
+    assert.strictEqual(gameDataAccount.secondsPlayed, 1);
+    assert.strictEqual(
+      gameDataAccount.authority.toBase58(),
+      anchor.getProvider().publicKey.toBase58()
+    );
+
+    const gameStateAccount = await program.account.gameState.fetch(
+      gameStatePda
+    );
+    assert.strictEqual(gameStateAccount.isVotingClosed, true);
+    assert.strictEqual(gameStateAccount.second, 0);
+
+    assert.strictEqual(gameStateAccount.upCount, 0);
+    assert.strictEqual(gameStateAccount.downCount, 0);
+    assert.strictEqual(gameStateAccount.leftCount, 0);
+    assert.strictEqual(gameStateAccount.leftCount, 0);
+    assert.strictEqual(gameStateAccount.rightCount, 0);
+    assert.strictEqual(gameStateAccount.aCount, 0);
+    assert.strictEqual(gameStateAccount.bCount, 0);
+    assert.strictEqual(gameStateAccount.startCount, 0);
+    assert.strictEqual(gameStateAccount.selectCount, 0);
+    assert.strictEqual(gameStateAccount.nothingCount, 1);
+
+    assert.strictEqual(gameStateAccount.framesImageCid, FRAMES_IMAGES_CID);
+    assert.strictEqual(gameStateAccount.saveStateCid, SAVE_STATE_CID);
   });
 });

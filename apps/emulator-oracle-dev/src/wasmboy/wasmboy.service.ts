@@ -13,6 +13,7 @@ import {
 } from "./encode-decde-save-state.util";
 import wasmImportObject from "./import-object.util";
 import * as pako from "pako";
+import { NFTStorage, Blob } from "nft.storage";
 
 const FRAMES_TO_HOLD_BUTTON = 5;
 
@@ -43,11 +44,27 @@ export class WasmboyService {
       joypadButton,
     );
 
-    await this.saveState(wasmBoy, wasmByteMemory);
+    const saveState = await this.saveState(wasmBoy, wasmByteMemory);
 
     const compressedFramesImageData = pako.deflate(
       JSON.stringify(framesImageData),
     );
+    const compressedSaveState = pako.deflate(JSON.stringify(saveState));
+
+    // const NFT_STORAGE_TOKEN = "token";
+    // const client = new NFTStorage({ token: NFT_STORAGE_TOKEN });
+
+    // const framesImageDataCid = await client.storeBlob(
+    //   new Blob([compressedFramesImageData]),
+    // );
+    // const saveStateCid = await client.storeBlob(
+    //   new Blob([compressedSaveState]),
+    // );
+
+    // console.log({
+    //   framesImageDataCid,
+    //   saveStateCid,
+    // });
     return compressedFramesImageData;
   }
 
@@ -178,6 +195,12 @@ export class WasmboyService {
       path.join(".", "save-state.json"),
       JSON.stringify(decodedSaveState),
     );
+
+    return {
+      gameboyMemory,
+      paletteMemory,
+      wasmboyState,
+    };
   }
 
   private getImageDataFromGraphicsFrameBuffer(
