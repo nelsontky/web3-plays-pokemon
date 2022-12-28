@@ -1,5 +1,9 @@
 import { Injectable } from "@nestjs/common";
-import { GAMEBOY_CAMERA_HEIGHT, GAMEBOY_CAMERA_WIDTH } from "common";
+import {
+  GAMEBOY_CAMERA_HEIGHT,
+  GAMEBOY_CAMERA_WIDTH,
+  JoypadButton,
+} from "common";
 import * as fs from "fs/promises";
 import * as path from "path";
 import {
@@ -7,6 +11,8 @@ import {
   encodeSaveState,
 } from "./encode-decde-save-state.util";
 import wasmImportObject from "./import-object.util";
+
+const FRAMES_TO_HOLD_BUTTON_FOR = 5;
 
 @Injectable()
 export class WasmboyService {
@@ -21,10 +27,12 @@ export class WasmboyService {
   private tileRendering = false;
   private tileCaching = false;
 
-  async executeFrames(frames: number) {
+  async executeFrames(frames: number, joypadButton: JoypadButton) {
     const [wasmBoy, wasmByteMemory] = await this.getWasmBoyCore();
     await this.loadRom(wasmBoy, wasmByteMemory);
     await this.loadState(wasmBoy, wasmByteMemory);
+
+    this.setJoypadState(wasmBoy, joypadButton);
 
     const frameImages = [];
     for (let i = 0; i < frames; i++) {
@@ -32,6 +40,10 @@ export class WasmboyService {
       frameImages.push(
         this.getImageDataFromGraphicsFrameBuffer(wasmBoy, wasmByteMemory),
       );
+
+      if (i === FRAMES_TO_HOLD_BUTTON_FOR - 1) {
+        this.setJoypadState(wasmBoy, null);
+      }
     }
 
     await this.saveState(wasmBoy, wasmByteMemory);
@@ -162,5 +174,18 @@ export class WasmboyService {
     }
 
     return imageDataArray;
+  }
+
+  private setJoypadState(wasmboy: any, joypadButton: JoypadButton | null) {
+    wasmboy.setJoypadState(
+      JoypadButton.Up === joypadButton ? 1 : 0,
+      JoypadButton.Right === joypadButton ? 1 : 0,
+      JoypadButton.Down === joypadButton ? 1 : 0,
+      JoypadButton.Left === joypadButton ? 1 : 0,
+      JoypadButton.A === joypadButton ? 1 : 0,
+      JoypadButton.B === joypadButton ? 1 : 0,
+      JoypadButton.Select === joypadButton ? 1 : 0,
+      JoypadButton.Start === joypadButton ? 1 : 0,
+    );
   }
 }
