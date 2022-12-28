@@ -8,6 +8,6 @@ export class AppController {
 
   @Patch()
   async update(@Body() updateWasmboyDto: UpdateWasmboyDto) {
-    return this.wasmboyService.executeFrames(60, updateWasmboyDto.joypadButton);
+    return this.wasmboyService.run(60, updateWasmboyDto.joypadButton);
   }
 }

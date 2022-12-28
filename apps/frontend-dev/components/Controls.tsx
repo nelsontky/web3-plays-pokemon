@@ -1,5 +1,6 @@
 import { css } from "@emotion/react";
 import axios from "axios";
+import { JoypadButton } from "common";
 import tw from "twin.macro";
 import renderFrame from "../utils/renderFrame";
 import ControlButton from "./ControlButton";
@@ -50,8 +51,8 @@ interface ControlsProps {
 }
 
 export default function Controls({ canvasRef }: ControlsProps) {
-  const executeGame = () => {
-    axios.patch("http://localhost:5000").then((res) => {
+  const executeGame = (joypadButton: JoypadButton) => {
+    axios.patch("http://localhost:5000", { joypadButton }).then((res) => {
       let frame = 0;
 
       const renderLoop = () => {
@@ -62,7 +63,7 @@ export default function Controls({ canvasRef }: ControlsProps) {
           renderFrame(imageDataArray, ctx);
         }
 
-        if (frame < 60) {
+        if (frame < res.data.length) {
           requestAnimationFrame(renderLoop);
         }
       };
@@ -77,24 +78,78 @@ export default function Controls({ canvasRef }: ControlsProps) {
         <div css={styles.directionalPadContainer}>
           <div css={styles.padUpContainer}>
             <div css={styles.padUpNeighbor} />
-            <ControlButton>↑</ControlButton>
+            <ControlButton
+              onClick={() => {
+                executeGame(JoypadButton.Up);
+              }}
+            >
+              ↑
+            </ControlButton>
             <div css={styles.padUpNeighbor} />
           </div>
           <div css={tw`flex`}>
-            <ControlButton>←</ControlButton>
-            <ControlButton>↓</ControlButton>
-            <ControlButton>→</ControlButton>
+            <ControlButton
+              onClick={() => {
+                executeGame(JoypadButton.Left);
+              }}
+            >
+              ←
+            </ControlButton>
+            <ControlButton
+              onClick={() => {
+                executeGame(JoypadButton.Down);
+              }}
+            >
+              ↓
+            </ControlButton>
+            <ControlButton
+              onClick={() => {
+                executeGame(JoypadButton.Right);
+              }}
+            >
+              →
+            </ControlButton>
           </div>
         </div>
         <div css={styles.actionButtons}>
-          <ControlButton>B</ControlButton>
-          <ControlButton>A</ControlButton>
+          <ControlButton
+            onClick={() => {
+              executeGame(JoypadButton.B);
+            }}
+          >
+            B
+          </ControlButton>
+          <ControlButton
+            onClick={() => {
+              executeGame(JoypadButton.A);
+            }}
+          >
+            A
+          </ControlButton>
         </div>
       </div>
       <div css={styles.menuButtons}>
-        <ControlButton>SELECT</ControlButton>
-        <ControlButton onClick={executeGame}>DO NOTHING</ControlButton>
-        <ControlButton>START</ControlButton>
+        <ControlButton
+          onClick={() => {
+            executeGame(JoypadButton.Select);
+          }}
+        >
+          SELECT
+        </ControlButton>
+        <ControlButton
+          onClick={() => {
+            executeGame(JoypadButton.Nothing);
+          }}
+        >
+          DO NOTHING
+        </ControlButton>
+        <ControlButton
+          onClick={() => {
+            executeGame(JoypadButton.Start);
+          }}
+        >
+          START
+        </ControlButton>
       </div>
     </div>
   );

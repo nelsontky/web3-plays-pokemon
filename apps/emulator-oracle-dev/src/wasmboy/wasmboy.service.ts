@@ -27,17 +27,35 @@ export class WasmboyService {
   private tileRendering = false;
   private tileCaching = false;
 
-  async executeFrames(frames: number, joypadButton: JoypadButton) {
+  async run(frames: number, joypadButton: JoypadButton) {
     const [wasmBoy, wasmByteMemory] = await this.getWasmBoyCore();
     await this.loadRom(wasmBoy, wasmByteMemory);
     await this.loadState(wasmBoy, wasmByteMemory);
 
+    const frameImagesData = this.executeFrames(
+      wasmBoy,
+      wasmByteMemory,
+      frames,
+      joypadButton,
+    );
+
+    await this.saveState(wasmBoy, wasmByteMemory);
+
+    return frameImagesData;
+  }
+
+  private executeFrames(
+    wasmBoy: any,
+    wasmByteMemory: Uint8Array,
+    frames: number,
+    joypadButton: JoypadButton,
+  ) {
     this.setJoypadState(wasmBoy, joypadButton);
 
-    const frameImages = [];
+    const frameImagesData: number[][] = [];
     for (let i = 0; i < frames; i++) {
       wasmBoy.executeFrame();
-      frameImages.push(
+      frameImagesData.push(
         this.getImageDataFromGraphicsFrameBuffer(wasmBoy, wasmByteMemory),
       );
 
@@ -46,9 +64,20 @@ export class WasmboyService {
       }
     }
 
-    await this.saveState(wasmBoy, wasmByteMemory);
+    // prevent last frame from being a white or black screen
+    while (
+      frameImagesData[frameImagesData.length - 1].every(
+        (value) => value === 255,
+      ) ||
+      frameImagesData[frameImagesData.length - 1].every((value) => value === 0)
+    ) {
+      wasmBoy.executeMultipleFrames(5);
+      frameImagesData.push(
+        this.getImageDataFromGraphicsFrameBuffer(wasmBoy, wasmByteMemory),
+      );
+    }
 
-    return frameImages;
+    return frameImagesData;
   }
 
   private async getWasmBoyCore() {
@@ -161,7 +190,7 @@ export class WasmboyService {
         1,
     );
 
-    const imageDataArray = [];
+    const imageDataArray: number[] = [];
     for (let y = 0; y < GAMEBOY_CAMERA_HEIGHT; y++) {
       for (let x = 0; x < GAMEBOY_CAMERA_WIDTH; x++) {
         // Each color has an R G B component
