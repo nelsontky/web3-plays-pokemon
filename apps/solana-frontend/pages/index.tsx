@@ -18,7 +18,7 @@ export default function Web() {
   );
 
   return (
-    <div css={tw`max-w-2xl mx-auto px-4`}>
+    <div css={tw`max-w-2xl mx-auto px-4 pb-8`}>
       <canvas css={tw`mx-auto`} ref={setCanvasRef} />
       {!!canvasRef && <Controls canvasRef={canvasRef} />}
     </div>
