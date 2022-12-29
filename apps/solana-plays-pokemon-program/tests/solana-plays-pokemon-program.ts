@@ -161,7 +161,10 @@ describe("solana-plays-pokemon-program", () => {
         .rpc();
     } catch (e) {
       assert.instanceOf(e, AnchorError);
+      return;
     }
+
+    assert.fail();
   });
 
   it("Cannot vote to game state account with invalid game data account for previous game state", async () => {
@@ -200,7 +203,10 @@ describe("solana-plays-pokemon-program", () => {
         .rpc();
     } catch (e) {
       assert.instanceOf(e, AnchorError);
+      return;
     }
+
+    assert.fail();
   });
 
   it("Cannot vote to game state account with invalid seconds played count", async () => {
@@ -230,7 +236,10 @@ describe("solana-plays-pokemon-program", () => {
         .rpc();
     } catch (e) {
       assert.instanceOf(e, AnchorError);
+      return;
     }
+
+    assert.fail();
   });
 
   it("Cannot vote to game state account with invalid seconds played count for previous state", async () => {
@@ -260,7 +269,10 @@ describe("solana-plays-pokemon-program", () => {
         .rpc();
     } catch (e) {
       assert.instanceOf(e, AnchorError);
+      return;
     }
+
+    assert.fail();
   });
 
   it("Can vote for a move more than once", async () => {
@@ -313,5 +325,87 @@ describe("solana-plays-pokemon-program", () => {
 
     assert.strictEqual(currentGameState.aCount, 1);
     assert.strictEqual(currentGameState.bCount, 1);
+  });
+
+  it("Can allow game data authority to update executed game state", async () => {
+    const NEW_FRAMES_IMAGES_CID =
+      "bafkreidqdfmwj6dm4sd6ezb7cb2q3l3rng6anbqxww3oflwrvkmvm67h24";
+    const NEW_SAVE_STATE_CID =
+      "bafkreigtn4qciqcpocn3yvip6vnwvxxi4bzuq5cqnv2yhsyw43t2uq5axm";
+
+    const gameDataAccount = await program.account.gameData.fetch(
+      gameData.publicKey
+    );
+    const secondsPlayed = gameDataAccount.secondsPlayed;
+
+    const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        gameData.publicKey.toBuffer(),
+        Buffer.from("game_state"),
+        Buffer.from("" + (secondsPlayed - 1)),
+      ],
+      program.programId
+    );
+    const hasExecuted = (await program.account.gameState.fetch(gameStatePda))
+      .hasExecuted;
+    assert.isFalse(hasExecuted);
+
+    await program.methods
+      .updateGameState(
+        secondsPlayed - 1,
+        NEW_FRAMES_IMAGES_CID,
+        NEW_SAVE_STATE_CID
+      )
+      .accounts({
+        authority: anchor.getProvider().publicKey,
+        gameData: gameData.publicKey,
+        gameState: gameStatePda,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      })
+      .rpc();
+
+    const gameState = await program.account.gameState.fetch(gameStatePda);
+    assert.isTrue(gameState.hasExecuted);
+    assert.strictEqual(gameState.framesImageCid, NEW_FRAMES_IMAGES_CID);
+    assert.strictEqual(gameState.saveStateCid, NEW_SAVE_STATE_CID);
+  });
+
+  it("Does not allow wrong authority to update executed game state", async () => {
+    const invalidAuthority = anchor.web3.Keypair.generate();
+    const gameDataAccount = await program.account.gameData.fetch(
+      gameData.publicKey
+    );
+    const secondsPlayed = gameDataAccount.secondsPlayed;
+
+    const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        gameData.publicKey.toBuffer(),
+        Buffer.from("game_state"),
+        Buffer.from("" + (secondsPlayed - 1)),
+      ],
+      program.programId
+    );
+    const hasExecuted = (await program.account.gameState.fetch(gameStatePda))
+      .hasExecuted;
+    assert.isTrue(hasExecuted);
+
+    try {
+      await program.methods
+        .updateGameState(secondsPlayed - 1, "foo", "bar")
+        .accounts({
+          authority: invalidAuthority.publicKey,
+          gameData: gameData.publicKey,
+          gameState: gameStatePda,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .signers([invalidAuthority])
+        .rpc();
+    } catch (e) {
+      assert.include(e.toString(), "A has one constraint was violated");
+      assert.instanceOf(e, AnchorError);
+      return;
+    }
+
+    assert.fail();
   });
 });
