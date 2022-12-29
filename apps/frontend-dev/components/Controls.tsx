@@ -36,7 +36,7 @@ const styles = {
       flex
       justify-center
       mt-16
-  `,
+    `,
     css({
       "@media (min-width: 400px)": {
         "& button": {

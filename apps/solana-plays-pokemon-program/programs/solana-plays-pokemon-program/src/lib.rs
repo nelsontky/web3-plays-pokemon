@@ -35,6 +35,13 @@ pub mod solana_plays_pokemon_program {
 
     pub fn vote(ctx: Context<Vote>, joypad_button: JoypadButton) -> Result<()> {
         let current_game_state = &mut ctx.accounts.current_game_state;
+        let prev_game_state = &ctx.accounts.prev_game_state;
+
+        // initialize state if it wasn't initialized before
+        if current_game_state.second == 0 {
+            current_game_state.second = prev_game_state.second.checked_add(1).unwrap();
+        }
+
         match joypad_button {
             JoypadButton::Up => current_game_state.up_count = current_game_state.up_count.checked_add(1).unwrap(),
             JoypadButton::Down => current_game_state.down_count = current_game_state.down_count.checked_add(1).unwrap(),
@@ -46,7 +53,18 @@ pub mod solana_plays_pokemon_program {
             JoypadButton::Select => current_game_state.select_count = current_game_state.select_count.checked_add(1).unwrap(),
             JoypadButton::Nothing => current_game_state.nothing_count = current_game_state.nothing_count.checked_add(1).unwrap(),
         }
-        
+
+        let should_execute_curr_state = prev_game_state.has_executed;
+
+        if should_execute_curr_state {
+            let game_data = &mut ctx.accounts.game_data;
+            game_data.seconds_played = game_data.seconds_played.checked_add(1).unwrap();
+
+            emit!(ExecuteGameState {
+                second: current_game_state.second
+            });
+        }
+
         Ok(())
     }
 }
@@ -83,7 +101,16 @@ pub struct Vote<'info> {
         bump
     )]
     current_game_state: Account<'info, GameState>,
-    #[account()]
+    #[account(
+        seeds = [
+                game_data.key().as_ref(), 
+                b"game_state", 
+                (game_data.seconds_played - 1).to_string().as_ref()
+            ],
+        bump
+    )]
+    prev_game_state: Account<'info, GameState>,
+    #[account(mut)]
     pub game_data: Account<'info, GameData>,
     #[account(mut)]
     pub player: Signer<'info>,
@@ -130,4 +157,15 @@ pub enum JoypadButton {
     Start,
     Select,
     Nothing,
+}
+
+#[event]
+pub struct ExecuteGameState {
+    pub second: u32,
+}
+
+#[error_code]
+pub enum MyError {
+    #[msg("Code reahced here")]
+    Debug
 }
