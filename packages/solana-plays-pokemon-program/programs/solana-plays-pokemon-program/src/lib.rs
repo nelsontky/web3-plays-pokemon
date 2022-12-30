@@ -17,7 +17,6 @@ pub mod solana_plays_pokemon_program {
         msg!("Game data account initialized");
 
         let game_state = &mut ctx.accounts.game_state;
-        game_state.has_executed = true;
         game_state.second = 0;
 
         game_state.up_count = 0;
@@ -30,65 +29,60 @@ pub mod solana_plays_pokemon_program {
         game_state.select_count = 0;
         game_state.nothing_count = 1;
 
+        game_state.created_at = ctx.accounts.clock.unix_timestamp;
+
         game_state.frames_image_cid = frames_image_cid;
         game_state.save_state_cid = save_state_cid;
-        msg!("FIrst game state account initialized");
+        msg!("First game state account initialized");
 
         Ok(())
     }
 
     pub fn vote(ctx: Context<Vote>, joypad_button: JoypadButton) -> Result<()> {
-        let current_game_state = &mut ctx.accounts.current_game_state;
-        let prev_game_state = &ctx.accounts.prev_game_state;
+        let game_data = &mut ctx.accounts.game_data;
+        if game_data.is_executing {
+            return err!(ErrorCode::GameIsExecuting);
+        }
+
+        let game_state = &mut ctx.accounts.game_state;
 
         // initialize state if it wasn't initialized before
-        if current_game_state.second == 0 {
-            current_game_state.second = prev_game_state.second.checked_add(1).unwrap();
+        if game_state.second == 0 {
+            game_state.second = game_data.seconds_played;
+            game_state.created_at = ctx.accounts.clock.unix_timestamp;
         }
 
         match joypad_button {
-            JoypadButton::Up => {
-                current_game_state.up_count = current_game_state.up_count.checked_add(1).unwrap()
-            }
+            JoypadButton::Up => game_state.up_count = game_state.up_count.checked_add(1).unwrap(),
             JoypadButton::Down => {
-                current_game_state.down_count =
-                    current_game_state.down_count.checked_add(1).unwrap()
+                game_state.down_count = game_state.down_count.checked_add(1).unwrap()
             }
             JoypadButton::Left => {
-                current_game_state.left_count =
-                    current_game_state.left_count.checked_add(1).unwrap()
+                game_state.left_count = game_state.left_count.checked_add(1).unwrap()
             }
             JoypadButton::Right => {
-                current_game_state.right_count =
-                    current_game_state.right_count.checked_add(1).unwrap()
+                game_state.right_count = game_state.right_count.checked_add(1).unwrap()
             }
-            JoypadButton::A => {
-                current_game_state.a_count = current_game_state.a_count.checked_add(1).unwrap()
-            }
-            JoypadButton::B => {
-                current_game_state.b_count = current_game_state.b_count.checked_add(1).unwrap()
-            }
+            JoypadButton::A => game_state.a_count = game_state.a_count.checked_add(1).unwrap(),
+            JoypadButton::B => game_state.b_count = game_state.b_count.checked_add(1).unwrap(),
             JoypadButton::Start => {
-                current_game_state.start_count =
-                    current_game_state.start_count.checked_add(1).unwrap()
+                game_state.start_count = game_state.start_count.checked_add(1).unwrap()
             }
             JoypadButton::Select => {
-                current_game_state.select_count =
-                    current_game_state.select_count.checked_add(1).unwrap()
+                game_state.select_count = game_state.select_count.checked_add(1).unwrap()
             }
             JoypadButton::Nothing => {
-                current_game_state.nothing_count =
-                    current_game_state.nothing_count.checked_add(1).unwrap()
+                game_state.nothing_count = game_state.nothing_count.checked_add(1).unwrap()
             }
         }
 
-        let should_execute_curr_state = prev_game_state.has_executed;
-        if should_execute_curr_state {
-            let game_data = &mut ctx.accounts.game_data;
-            game_data.seconds_played = game_data.seconds_played.checked_add(1).unwrap();
+        // execute if game state is at least 10 seconds old
+        let should_execute = ctx.accounts.clock.unix_timestamp - game_state.created_at >= 10;
+        if should_execute {
+            game_data.is_executing = true;
 
             emit!(ExecuteGameState {
-                second: current_game_state.second
+                second: game_data.seconds_played
             });
         }
 
@@ -101,10 +95,13 @@ pub mod solana_plays_pokemon_program {
         frames_image_cid: String,
         save_state_cid: String,
     ) -> Result<()> {
-        let prev_game_state = &mut ctx.accounts.game_state;
-        prev_game_state.has_executed = true;
-        prev_game_state.frames_image_cid = frames_image_cid;
-        prev_game_state.save_state_cid = save_state_cid;
+        let game_state = &mut ctx.accounts.game_state;
+        game_state.frames_image_cid = frames_image_cid;
+        game_state.save_state_cid = save_state_cid;
+
+        let game_data = &mut ctx.accounts.game_data;
+        game_data.is_executing = false;
+        game_data.seconds_played = game_data.seconds_played.checked_add(1).unwrap();
 
         Ok(())
     }
@@ -113,12 +110,12 @@ pub mod solana_plays_pokemon_program {
 #[derive(Accounts)]
 #[instruction(frames_image_cid: String, save_state_cid: String)]
 pub struct Initialize<'info> {
-    #[account(init, payer = authority, space = GameData::LEN + 8)]
+    #[account(init, payer = authority, space = 8 + GameData::LEN)]
     pub game_data: Account<'info, GameData>,
     #[account(
         init,
         payer = authority,
-        space = 8 + 1 + (10 * 8) + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
+        space = 8 + GameState::LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
         seeds = [game_data.key().as_ref(), b"game_state", b"0"], // seeds comprise of game_data key, a static text, and the second when the state begins
         bump
     )]
@@ -126,6 +123,7 @@ pub struct Initialize<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
+    pub clock: Sysvar<'info, Clock>,
 }
 
 #[derive(Accounts)]
@@ -133,7 +131,7 @@ pub struct Vote<'info> {
     #[account(
         init_if_needed,
         payer = player,
-        space = 8 + 1 + (10 * 8) + 4 + 59 + 4 + 59, // nft.storage cids are 59 characters long by default
+        space = 8 + GameState::LEN + 4 + 59 + 4 + 59, // nft.storage cids are 59 characters long by default
         seeds = [
                 game_data.key().as_ref(),
                 b"game_state", 
@@ -141,21 +139,13 @@ pub struct Vote<'info> {
             ],
         bump
     )]
-    pub current_game_state: Account<'info, GameState>,
-    #[account(
-        seeds = [
-                game_data.key().as_ref(),
-                b"game_state", 
-                (game_data.seconds_played - 1).to_string().as_ref()
-            ],
-        bump
-    )]
-    pub prev_game_state: Account<'info, GameState>,
+    pub game_state: Account<'info, GameState>,
     #[account(mut)]
     pub game_data: Account<'info, GameData>,
     #[account(mut)]
     pub player: Signer<'info>,
     pub system_program: Program<'info, System>,
+    pub clock: Sysvar<'info, Clock>,
 }
 
 #[derive(Accounts)]
@@ -169,12 +159,12 @@ pub struct UpdateGameState<'info> {
             (second).to_string().as_ref()
         ],
         bump,
-        realloc = 8 + 1 + (10 * 8) + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
+        realloc = 8 + GameState::LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
         realloc::payer = authority,
         realloc::zero = true,
     )]
     pub game_state: Account<'info, GameState>,
-    #[account(has_one = authority)]
+    #[account(mut, has_one = authority)]
     pub game_data: Account<'info, GameData>,
     #[account(mut)]
     pub authority: Signer<'info>,
@@ -184,16 +174,16 @@ pub struct UpdateGameState<'info> {
 #[account]
 pub struct GameData {
     pub seconds_played: u32,
+    pub is_executing: bool,
     pub authority: Pubkey,
 }
 
 impl GameData {
-    pub const LEN: usize = 8 + 32;
+    pub const LEN: usize = 4 + 1 + 32;
 }
 
 #[account]
 pub struct GameState {
-    pub has_executed: bool,
     pub second: u32,
 
     pub up_count: u32,
@@ -206,8 +196,14 @@ pub struct GameState {
     pub select_count: u32,
     pub nothing_count: u32,
 
+    pub created_at: i64,
+
     pub frames_image_cid: String,
     pub save_state_cid: String,
+}
+
+impl GameState {
+    pub const LEN: usize = 4 + (9 * 4) + 8;
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize)]
@@ -226,4 +222,10 @@ pub enum JoypadButton {
 #[event]
 pub struct ExecuteGameState {
     pub second: u32,
+}
+
+#[error_code]
+pub enum ErrorCode {
+    #[msg("Button presses are not allowed when the game is executing.")]
+    GameIsExecuting,
 }
