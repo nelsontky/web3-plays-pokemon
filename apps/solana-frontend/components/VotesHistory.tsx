@@ -1,27 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import * as anchor from "@project-serum/anchor";
-import { GAME_DATA_ACCOUNT_ID } from "common";
 import { useReadonlyProgram } from "../hooks/useProgram";
-
-interface GameState {
-  hasExecuted: boolean;
-  second: number;
-  upCount: number;
-  downCount: number;
-  leftCount: number;
-  rightCount: number;
-  aCount: number;
-  bCount: number;
-  startCount: number;
-  selectCount: number;
-  nothingCount: number;
-  framesImageCid: string;
-  saveStateCid: string;
-}
-
-const GAME_DATA_ACCOUNT_PUBLIC_KEY = new anchor.web3.PublicKey(
-  GAME_DATA_ACCOUNT_ID
-);
+import { GAME_DATA_ACCOUNT_PUBLIC_KEY } from "../constants";
 
 export default function VotesHistory() {
   const program = useReadonlyProgram();
@@ -30,7 +10,7 @@ export default function VotesHistory() {
   const allGameStatesPdas = useMemo(
     () =>
       secondsPlayed !== undefined
-        ? Array.from({ length: secondsPlayed + 1 }, (_, i) => {
+        ? Array.from({ length: secondsPlayed }, (_, i) => {
             const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
               [
                 GAME_DATA_ACCOUNT_PUBLIC_KEY.toBuffer(),
@@ -52,6 +32,7 @@ export default function VotesHistory() {
           GAME_DATA_ACCOUNT_PUBLIC_KEY
         );
         const secondsPlayed = gameDataAccount.secondsPlayed;
+        console.log("secondsPlayed:", secondsPlayed);
         setSecondsPlayed(secondsPlayed);
       })();
     },
