@@ -3,6 +3,7 @@ import {
   FPS,
   GAMEBOY_CAMERA_HEIGHT,
   GAMEBOY_CAMERA_WIDTH,
+  GAMEBOY_FPS,
   JoypadButton,
 } from "common";
 import * as fs from "fs/promises";
@@ -27,43 +28,34 @@ export class WasmboyService {
   private tileRendering = false;
   private tileCaching = false;
 
-  async run(
-    frames: number,
-    joypadButton: JoypadButton,
-    prevSaveStateCid: string,
-  ) {
+  async run(joypadButton: JoypadButton, prevSaveStateCid: string) {
     const [wasmBoy, wasmByteMemory] = await this.getWasmBoyCore();
     await this.loadRom(wasmBoy, wasmByteMemory);
-    // await this.loadState(wasmBoy, wasmByteMemory, prevSaveStateCid);
+    await this.loadState(wasmBoy, wasmByteMemory, prevSaveStateCid);
 
-    // const framesImageData = this.executeFrames(
-    //   wasmBoy,
-    //   wasmByteMemory,
-    //   frames,
-    //   joypadButton,
-    // );
-
+    const framesImageData = this.executeFrames(
+      wasmBoy,
+      wasmByteMemory,
+      GAMEBOY_FPS,
+      joypadButton,
+    );
     const saveState = await this.saveState(wasmBoy, wasmByteMemory);
 
-    // const compressedFramesImageData = pako.deflate(
-    //   JSON.stringify(framesImageData),
-    // );
+    const compressedFramesImageData = pako.deflate(
+      JSON.stringify(framesImageData),
+    );
     const compressedSaveState = pako.deflate(JSON.stringify(saveState));
-    const decompressedSaveState = pako.inflate(compressedSaveState, {
-      to: "string",
-    });
-    console.log(JSON.parse(decompressedSaveState));
 
-    // const client = new NFTStorage({ token: process.env.NFT_STORAGE_TOKEN });
-    // const [framesImageDataCid, saveStateCid] = await Promise.all([
-    //   client.storeBlob(new Blob([compressedFramesImageData])),
-    //   client.storeBlob(new Blob([compressedSaveState])),
-    // ]);
+    const client = new NFTStorage({ token: process.env.NFT_STORAGE_TOKEN });
+    const [framesImageDataCid, saveStateCid] = await Promise.all([
+      client.storeBlob(new Blob([compressedFramesImageData])),
+      client.storeBlob(new Blob([compressedSaveState])),
+    ]);
 
-    // return {
-    //   framesImageDataCid: framesImageDataCid.toString(),
-    //   saveStateCid: saveStateCid.toString(),
-    // };
+    return {
+      framesImageDataCid: framesImageDataCid.toString(),
+      saveStateCid: saveStateCid.toString(),
+    };
   }
 
   private executeFrames(
@@ -82,9 +74,9 @@ export class WasmboyService {
         this.getImageDataFromGraphicsFrameBuffer(wasmBoy, wasmByteMemory),
       );
 
-      const isReleaseJoyPad =
+      const shouldReleaseJoyPad =
         i * framesToExecutePerStep >= FRAMES_TO_HOLD_BUTTON;
-      if (isReleaseJoyPad) {
+      if (shouldReleaseJoyPad) {
         this.setJoypadState(wasmBoy, null);
       }
     }
@@ -165,23 +157,23 @@ export class WasmboyService {
         responseType: "arraybuffer",
       },
     );
-    const array = [1, 2, 3];
-    const saveState = pako.inflate(response.data, { to: "string" });
-    // console.log(JSON.parse(saveState));
+    const inflated = pako.inflate(response.data, { to: "string" });
+    const saveState = JSON.parse(inflated);
 
-    // wasmByteMemory.set(
-    //   encodedSaveState.gameboyMemory,
-    //   wasmBoy.GAMEBOY_INTERNAL_MEMORY_LOCATION,
-    // );
-    // wasmByteMemory.set(
-    //   encodedSaveState.paletteMemory,
-    //   wasmBoy.GBC_PALETTE_LOCATION,
-    // );
-    // wasmByteMemory.set(
-    //   encodedSaveState.wasmboyState,
-    //   wasmBoy.WASMBOY_STATE_LOCATION,
-    // );
-    // wasmBoy.loadState();
+    wasmByteMemory.set(
+      new Uint8Array(saveState.gameboyMemory),
+      wasmBoy.GAMEBOY_INTERNAL_MEMORY_LOCATION,
+    );
+    wasmByteMemory.set(
+      new Uint8Array(saveState.paletteMemory),
+      wasmBoy.GBC_PALETTE_LOCATION,
+    );
+    wasmByteMemory.set(
+      new Uint8Array(saveState.wasmboyState),
+      wasmBoy.WASMBOY_STATE_LOCATION,
+    );
+
+    wasmBoy.loadState();
   }
 
   private async saveState(wasmBoy: any, wasmByteMemory: Uint8Array) {

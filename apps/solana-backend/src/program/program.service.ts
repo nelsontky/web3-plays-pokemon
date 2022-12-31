@@ -1,11 +1,6 @@
 import { HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
 import * as anchor from "@project-serum/anchor";
-import {
-  GAMEBOY_FPS,
-  GAME_DATA_ACCOUNT_ID,
-  JoypadButton,
-  PROGRAM_ID,
-} from "common";
+import { GAME_DATA_ACCOUNT_ID, JoypadButton, PROGRAM_ID } from "common";
 import { SolanaPlaysPokemonProgram } from "solana-plays-pokemon-program";
 import { WasmboyService } from "src/wasmboy/wasmboy.service";
 
@@ -17,6 +12,7 @@ export class ProgramService {
   private readonly logger = new Logger(ProgramService.name);
   private connection: anchor.web3.Connection;
   private program: anchor.Program<SolanaPlaysPokemonProgram>;
+  private wallet: anchor.Wallet;
 
   constructor(private readonly wasmboyService: WasmboyService) {
     this.connection = new anchor.web3.Connection(
@@ -26,7 +22,7 @@ export class ProgramService {
     const keypair = anchor.web3.Keypair.fromSecretKey(
       new Uint8Array(JSON.parse(process.env.WALLET_PRIVATE_KEY)),
     );
-    const wallet: anchor.Wallet = {
+    this.wallet = {
       publicKey: keypair.publicKey,
       payer: keypair,
       signTransaction: (tx: anchor.web3.Transaction) => {
@@ -42,7 +38,7 @@ export class ProgramService {
       },
     };
 
-    const provider = new anchor.AnchorProvider(this.connection, wallet, {
+    const provider = new anchor.AnchorProvider(this.connection, this.wallet, {
       commitment: "processed",
       skipPreflight: true,
     });
@@ -55,29 +51,41 @@ export class ProgramService {
 
   listen() {
     this.program.addEventListener("ExecuteGameState", async (event) => {
-      const gameDataId: anchor.web3.PublicKey = event.gameDataId;
-      if (gameDataId.toBase58() !== GAME_DATA_ACCOUNT_ID) {
-        this.logger.warn(
-          "Invalid game_data_id passed to ExecuteGameState. Event will be ignored",
-        );
-        return;
-      }
+      while (true) {
+        try {
+          const gameDataId: anchor.web3.PublicKey = event.gameDataId;
+          console.log(event);
+          if (gameDataId.toBase58() !== GAME_DATA_ACCOUNT_ID) {
+            this.logger.warn(
+              "Invalid game_data_id passed to ExecuteGameState. Event will be ignored",
+            );
+            return;
+          }
 
-      const secondsPlayed: number = event.second;
+          const secondsPlayed: number = event.second;
+          await this.executeGameState(secondsPlayed);
+          return;
+        } catch (e) {
+          // retry upon error
+          this.logger.error("Error occurred:", e);
+          this.logger.error("Retrying...");
+        }
+      }
     });
+    this.logger.log("Listener added");
   }
 
   async executeManually() {
     const gameDataId = new anchor.web3.PublicKey(GAME_DATA_ACCOUNT_ID);
     const gameData = await this.program.account.gameData.fetch(gameDataId);
 
-    // if (!gameData.isExecuting) {
-    //   this.logger.warn("Game is not executing");
-    //   throw new HttpException(
-    //     "Game is not executing",
-    //     HttpStatus.INTERNAL_SERVER_ERROR,
-    //   );
-    // }
+    if (!gameData.isExecuting) {
+      this.logger.warn("Game is not executing");
+      throw new HttpException(
+        "Game is not executing",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
 
     await this.executeGameState(gameData.secondsPlayed);
   }
@@ -88,7 +96,7 @@ export class ProgramService {
       [
         gameDataId.toBuffer(),
         Buffer.from("game_state"),
-        Buffer.from("" + (secondsPlayed - 1)),
+        Buffer.from("" + secondsPlayed),
       ],
       this.program.programId,
     );
@@ -106,10 +114,37 @@ export class ProgramService {
     ]);
 
     const joypadButton = this.computeButtonVotes(currentGameState);
-    await this.wasmboyService.run(
-      GAMEBOY_FPS,
+    const { framesImageDataCid, saveStateCid } = await this.wasmboyService.run(
       joypadButton,
       prevGameState.saveStateCid,
+    );
+
+    const instruction = await this.program.methods
+      .updateGameState(secondsPlayed, framesImageDataCid, saveStateCid)
+      .accounts({
+        authority: this.wallet.publicKey,
+        gameData: gameDataId,
+        gameState: currentGameStatePda,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      })
+      .signers([this.wallet.payer])
+      .instruction();
+    const transaction = new anchor.web3.Transaction().add(instruction);
+
+    const { blockhash, lastValidBlockHeight } =
+      await this.connection.getLatestBlockhash();
+
+    transaction.recentBlockhash = blockhash;
+    transaction.lastValidBlockHeight = lastValidBlockHeight;
+
+    await anchor.web3.sendAndConfirmTransaction(
+      this.connection,
+      transaction,
+      [this.wallet.payer],
+      {
+        skipPreflight: true,
+        commitment: "processed",
+      },
     );
   }
 
