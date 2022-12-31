@@ -36,3 +36,6 @@ lerna-debug.log*
 
 # Rom
 src/assets/*.gb
+
+# Environment
+.env

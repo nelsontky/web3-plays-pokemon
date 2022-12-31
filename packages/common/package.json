@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "./dist/index.js",
-  "source": "./index.ts",
+  "source": "./src/index.ts",
   "types": "./dist/index.d.ts",
   "files": [
     "dist/**"

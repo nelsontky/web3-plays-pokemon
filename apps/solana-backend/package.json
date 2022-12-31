@@ -22,8 +22,11 @@
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
+    "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
+    "@project-serum/anchor": "^0.26.0",
+    "axios": "^1.2.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "common": "workspace:*",
@@ -31,7 +34,8 @@
     "pako": "^2.1.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "rxjs": "^7.2.0"
+    "rxjs": "^7.2.0",
+    "solana-plays-pokemon-program": "workspace:*"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",

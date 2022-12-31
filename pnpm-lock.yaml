@@ -12,14 +12,16 @@ importers:
       prettier: 2.8.1
       turbo: 1.6.3
 
-  apps/emulator-oracle-dev:
+  apps/solana-backend:
     specifiers:
       '@nestjs/cli': ^9.0.0
       '@nestjs/common': ^9.0.0
+      '@nestjs/config': ^2.2.0
       '@nestjs/core': ^9.0.0
       '@nestjs/platform-express': ^9.0.0
       '@nestjs/schematics': ^9.0.0
       '@nestjs/testing': ^9.0.0
+      '@project-serum/anchor': ^0.26.0
       '@types/express': ^4.17.13
       '@types/jest': 28.1.8
       '@types/node': ^16.0.0
@@ -27,6 +29,7 @@ importers:
       '@types/supertest': ^2.0.11
       '@typescript-eslint/eslint-plugin': ^5.0.0
       '@typescript-eslint/parser': ^5.0.0
+      axios: ^1.2.1
       class-transformer: ^0.5.1
       class-validator: ^0.14.0
       common: workspace:*
@@ -40,6 +43,7 @@ importers:
       reflect-metadata: ^0.1.13
       rimraf: ^3.0.2
       rxjs: ^7.2.0
+      solana-plays-pokemon-program: workspace:*
       source-map-support: ^0.5.20
       supertest: ^6.1.3
       ts-jest: 28.0.8
@@ -49,8 +53,11 @@ importers:
       typescript: ^4.7.4
     dependencies:
       '@nestjs/common': 9.0.1_537f4dyna5eqdupcxnvaoq3vwa
+      '@nestjs/config': 2.2.0_pah5m7p5qr4f6cocjagvhc53iq
       '@nestjs/core': 9.0.1_sr2l2emoc3dhsjo4myggnihhnm
       '@nestjs/platform-express': 9.0.1_75qmzffkw5ecbb3mxgbk2g6nku
+      '@project-serum/anchor': 0.26.0
+      axios: 1.2.1
       class-transformer: 0.5.1
       class-validator: 0.14.0
       common: link:../../packages/common
@@ -59,6 +66,7 @@ importers:
       reflect-metadata: 0.1.13
       rimraf: 3.0.2
       rxjs: 7.6.0
+      solana-plays-pokemon-program: link:../../packages/solana-plays-pokemon-program
     devDependencies:
       '@nestjs/cli': 9.0.0
       '@nestjs/schematics': 9.0.3_typescript@4.9.4
@@ -1579,6 +1587,22 @@ packages:
       rxjs: 7.6.0
       tslib: 2.4.0
       uuid: 8.3.2
+
+  /@nestjs/config/2.2.0_pah5m7p5qr4f6cocjagvhc53iq:
+    resolution: {integrity: sha512-78Eg6oMbCy3D/YvqeiGBTOWei1Jwi3f2pSIZcZ1QxY67kYsJzTRTkwRT8Iv30DbK0sGKc1mcloDLD5UXgZAZtg==}
+    peerDependencies:
+      '@nestjs/common': ^7.0.0 || ^8.0.0 || ^9.0.0
+      reflect-metadata: ^0.1.13
+      rxjs: ^6.0.0 || ^7.2.0
+    dependencies:
+      '@nestjs/common': 9.0.1_537f4dyna5eqdupcxnvaoq3vwa
+      dotenv: 16.0.1
+      dotenv-expand: 8.0.3
+      lodash: 4.17.21
+      reflect-metadata: 0.1.13
+      rxjs: 7.6.0
+      uuid: 8.3.2
+    dev: false
 
   /@nestjs/core/9.0.1_sr2l2emoc3dhsjo4myggnihhnm:
     resolution: {integrity: sha512-gdrjQhqPN588pmlwzRWA0NsLhWiACUX4Me2Y1BI9Jm5dzmWMgde/zUfFmkvUKiONqKQoZagcCzFtWSWuYjTENQ==}
@@ -5377,6 +5401,16 @@ packages:
     dependencies:
       no-case: 3.0.4
       tslib: 2.4.1
+    dev: false
+
+  /dotenv-expand/8.0.3:
+    resolution: {integrity: sha512-SErOMvge0ZUyWd5B0NXMQlDkN+8r+HhVUsxgOO7IoPDOdDRD2JjExpN6y3KnFR66jsJMwSn1pqIivhU5rcJiNg==}
+    engines: {node: '>=12'}
+    dev: false
+
+  /dotenv/16.0.1:
+    resolution: {integrity: sha512-1K6hR6wtk2FviQ4kEiSjFiH5rpzEVi8WW0x96aztHVMhEspNpc4DVOUTEHtEva5VThQ8IaBX1Pe4gSzpVVUsKQ==}
+    engines: {node: '>=12'}
     dev: false
 
   /drbg.js/1.0.1:

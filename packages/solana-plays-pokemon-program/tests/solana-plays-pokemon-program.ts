@@ -155,14 +155,6 @@ describe("solana-plays-pokemon-program", () => {
       ],
       program.programId
     );
-    const [prevGameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
-      [
-        gameData.publicKey.toBuffer(),
-        Buffer.from("game_state"),
-        Buffer.from("" + (secondsPlayed - 1)),
-      ],
-      program.programId
-    );
 
     await program.methods
       .vote({ a: {} })

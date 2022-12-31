@@ -7,13 +7,10 @@ import {
 } from "common";
 import * as fs from "fs/promises";
 import * as path from "path";
-import {
-  decodeSaveState,
-  encodeSaveState,
-} from "./encode-decde-save-state.util";
 import wasmImportObject from "./import-object.util";
 import * as pako from "pako";
 import { NFTStorage, Blob } from "nft.storage";
+import axios from "axios";
 
 const FRAMES_TO_HOLD_BUTTON = 5;
 
@@ -30,42 +27,43 @@ export class WasmboyService {
   private tileRendering = false;
   private tileCaching = false;
 
-  async run(frames: number, joypadButton: JoypadButton) {
+  async run(
+    frames: number,
+    joypadButton: JoypadButton,
+    prevSaveStateCid: string,
+  ) {
     const [wasmBoy, wasmByteMemory] = await this.getWasmBoyCore();
     await this.loadRom(wasmBoy, wasmByteMemory);
-    try {
-      await this.loadState(wasmBoy, wasmByteMemory);
-    } catch {}
+    // await this.loadState(wasmBoy, wasmByteMemory, prevSaveStateCid);
 
-    const framesImageData = this.executeFrames(
-      wasmBoy,
-      wasmByteMemory,
-      frames,
-      joypadButton,
-    );
+    // const framesImageData = this.executeFrames(
+    //   wasmBoy,
+    //   wasmByteMemory,
+    //   frames,
+    //   joypadButton,
+    // );
 
     const saveState = await this.saveState(wasmBoy, wasmByteMemory);
 
-    const compressedFramesImageData = pako.deflate(
-      JSON.stringify(framesImageData),
-    );
+    // const compressedFramesImageData = pako.deflate(
+    //   JSON.stringify(framesImageData),
+    // );
     const compressedSaveState = pako.deflate(JSON.stringify(saveState));
+    const decompressedSaveState = pako.inflate(compressedSaveState, {
+      to: "string",
+    });
+    console.log(JSON.parse(decompressedSaveState));
 
-    // const NFT_STORAGE_TOKEN = "token";
-    // const client = new NFTStorage({ token: NFT_STORAGE_TOKEN });
+    // const client = new NFTStorage({ token: process.env.NFT_STORAGE_TOKEN });
+    // const [framesImageDataCid, saveStateCid] = await Promise.all([
+    //   client.storeBlob(new Blob([compressedFramesImageData])),
+    //   client.storeBlob(new Blob([compressedSaveState])),
+    // ]);
 
-    // const framesImageDataCid = await client.storeBlob(
-    //   new Blob([compressedFramesImageData]),
-    // );
-    // const saveStateCid = await client.storeBlob(
-    //   new Blob([compressedSaveState]),
-    // );
-
-    // console.log({
-    //   framesImageDataCid,
-    //   saveStateCid,
-    // });
-    return compressedFramesImageData;
+    // return {
+    //   framesImageDataCid: framesImageDataCid.toString(),
+    //   saveStateCid: saveStateCid.toString(),
+    // };
   }
 
   private executeFrames(
@@ -109,7 +107,15 @@ export class WasmboyService {
 
   private async getWasmBoyCore() {
     const wasmBinary = await fs.readFile(
-      path.join(__dirname, "..", "assets", "core.untouched.wasm"),
+      path.join(
+        __dirname,
+        "..",
+        "..",
+        "..",
+        "..",
+        "assets",
+        "core.untouched.wasm",
+      ),
     );
     const instantiatedWasm = await WebAssembly.instantiate(
       wasmBinary,
@@ -125,6 +131,9 @@ export class WasmboyService {
     const pokemonRedBuffer = await fs.readFile(
       path.join(
         __dirname,
+        "..",
+        "..",
+        "..",
         "..",
         "assets",
         "Pokemon - Red Version (USA, Europe) (SGB Enhanced).gb",
@@ -145,27 +154,34 @@ export class WasmboyService {
     );
   }
 
-  private async loadState(wasmBoy: any, wasmByteMemory: Uint8Array) {
-    const decodedSaveState = await fs.readFile(
-      path.join(".", "save-state.json"),
+  private async loadState(
+    wasmBoy: any,
+    wasmByteMemory: Uint8Array,
+    prevSaveStateCid: string,
+  ) {
+    const response = await axios.get(
+      `https://${prevSaveStateCid}.ipfs.cf-ipfs.com`,
+      {
+        responseType: "arraybuffer",
+      },
     );
-    const encodedSaveState = encodeSaveState(
-      JSON.parse(decodedSaveState.toString()),
-    );
+    const array = [1, 2, 3];
+    const saveState = pako.inflate(response.data, { to: "string" });
+    // console.log(JSON.parse(saveState));
 
-    wasmByteMemory.set(
-      encodedSaveState.gameboyMemory,
-      wasmBoy.GAMEBOY_INTERNAL_MEMORY_LOCATION,
-    );
-    wasmByteMemory.set(
-      encodedSaveState.paletteMemory,
-      wasmBoy.GBC_PALETTE_LOCATION,
-    );
-    wasmByteMemory.set(
-      encodedSaveState.wasmboyState,
-      wasmBoy.WASMBOY_STATE_LOCATION,
-    );
-    wasmBoy.loadState();
+    // wasmByteMemory.set(
+    //   encodedSaveState.gameboyMemory,
+    //   wasmBoy.GAMEBOY_INTERNAL_MEMORY_LOCATION,
+    // );
+    // wasmByteMemory.set(
+    //   encodedSaveState.paletteMemory,
+    //   wasmBoy.GBC_PALETTE_LOCATION,
+    // );
+    // wasmByteMemory.set(
+    //   encodedSaveState.wasmboyState,
+    //   wasmBoy.WASMBOY_STATE_LOCATION,
+    // );
+    // wasmBoy.loadState();
   }
 
   private async saveState(wasmBoy: any, wasmByteMemory: Uint8Array) {
@@ -185,21 +201,10 @@ export class WasmboyService {
       wasmBoy.WASMBOY_STATE_LOCATION + wasmBoy.WASMBOY_STATE_SIZE,
     );
 
-    const decodedSaveState = decodeSaveState({
-      gameboyMemory,
-      paletteMemory,
-      wasmboyState,
-    });
-
-    await fs.writeFile(
-      path.join(".", "save-state.json"),
-      JSON.stringify(decodedSaveState),
-    );
-
     return {
-      gameboyMemory,
-      paletteMemory,
-      wasmboyState,
+      gameboyMemory: Array.from(gameboyMemory),
+      paletteMemory: Array.from(paletteMemory),
+      wasmboyState: Array.from(wasmboyState),
     };
   }
 

@@ -9,7 +9,12 @@ export const useMutableProgram = () => {
   const wallet = useAnchorWallet();
 
   const provider = useMemo(
-    () => (wallet ? new anchor.AnchorProvider(connection, wallet, {}) : null),
+    () =>
+      wallet
+        ? new anchor.AnchorProvider(connection, wallet, {
+            commitment: "processed",
+          })
+        : null,
     [connection, wallet]
   );
 
@@ -24,13 +29,19 @@ export const useMutableProgram = () => {
   ) as unknown as anchor.Program<SolanaPlaysPokemonProgram>;
 };
 
-const readonlyWallet = anchor.web3.Keypair.generate();
+const readonlyKeypair = anchor.web3.Keypair.generate();
 export const useReadonlyProgram = () => {
   const { connection } = useConnection();
   const readonlyProvider = new anchor.AnchorProvider(
     connection,
-    { ...readonlyWallet } as any,
-    {}
+    {
+      publicKey: readonlyKeypair.publicKey,
+      signTransaction: (() => {}) as any,
+      signAllTransactions: (() => {}) as any,
+    },
+    {
+      commitment: "processed",
+    }
   );
 
   return new anchor.Program(

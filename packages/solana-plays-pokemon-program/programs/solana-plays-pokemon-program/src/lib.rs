@@ -82,7 +82,8 @@ pub mod solana_plays_pokemon_program {
             game_data.is_executing = true;
 
             emit!(ExecuteGameState {
-                second: game_data.seconds_played
+                second: game_data.seconds_played,
+                game_data_id: ctx.accounts.game_data.key()
             });
         }
 
@@ -95,13 +96,17 @@ pub mod solana_plays_pokemon_program {
         frames_image_cid: String,
         save_state_cid: String,
     ) -> Result<()> {
+        let game_data = &mut ctx.accounts.game_data;
+        if !game_data.is_executing {
+            return err!(ErrorCode::NoUpdatesIfNotExecuting);
+        }
+
+        game_data.is_executing = false;
+        game_data.seconds_played = game_data.seconds_played.checked_add(1).unwrap();
+
         let game_state = &mut ctx.accounts.game_state;
         game_state.frames_image_cid = frames_image_cid;
         game_state.save_state_cid = save_state_cid;
-
-        let game_data = &mut ctx.accounts.game_data;
-        game_data.is_executing = false;
-        game_data.seconds_played = game_data.seconds_played.checked_add(1).unwrap();
 
         Ok(())
     }
@@ -222,10 +227,13 @@ pub enum JoypadButton {
 #[event]
 pub struct ExecuteGameState {
     pub second: u32,
+    pub game_data_id: Pubkey,
 }
 
 #[error_code]
 pub enum ErrorCode {
     #[msg("Button presses are not allowed when the game is executing.")]
     GameIsExecuting,
+    #[msg("Game state cannot be updated when the game is not executing.")]
+    NoUpdatesIfNotExecuting,
 }
