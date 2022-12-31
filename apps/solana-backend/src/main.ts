@@ -5,6 +5,10 @@ import { ProgramService } from "./program/program.service";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Starts listening for shutdown hooks
+  app.enableShutdownHooks();
+
   app.useGlobalPipes(new ValidationPipe());
   app.enableCors();
   await app.listen(5000);

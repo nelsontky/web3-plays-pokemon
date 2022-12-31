@@ -52,6 +52,13 @@ export class WasmboyService {
       client.storeBlob(new Blob([compressedSaveState])),
     ]);
 
+    if (framesImageDataCid.toString().length <= 0) {
+      throw new Error("framesImageDataCid length is 0");
+    }
+    if (saveStateCid.toString().length <= 0) {
+      throw new Error("saveStateCid length is 0");
+    }
+
     return {
       framesImageDataCid: framesImageDataCid.toString(),
       saveStateCid: saveStateCid.toString(),

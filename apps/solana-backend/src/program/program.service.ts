@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+} from "@nestjs/common";
 import * as anchor from "@project-serum/anchor";
 import { GAME_DATA_ACCOUNT_ID, JoypadButton, PROGRAM_ID } from "common";
 import { SolanaPlaysPokemonProgram } from "solana-plays-pokemon-program";
@@ -8,15 +14,20 @@ import { WasmboyService } from "src/wasmboy/wasmboy.service";
 import * as idl from "../../../../packages/solana-plays-pokemon-program/target/idl/solana_plays_pokemon_program.json";
 
 @Injectable()
-export class ProgramService {
+export class ProgramService implements OnModuleDestroy {
   private readonly logger = new Logger(ProgramService.name);
   private connection: anchor.web3.Connection;
   private program: anchor.Program<SolanaPlaysPokemonProgram>;
   private wallet: anchor.Wallet;
+  private listener: number;
 
   constructor(private readonly wasmboyService: WasmboyService) {
     this.connection = new anchor.web3.Connection(
-      "https://api.devnet.solana.com",
+      "https://silent-side-firefly.solana-devnet.discover.quiknode.pro/71ad7ea43222277835b53cd7a66efe522cb201f3/",
+      {
+        wsEndpoint:
+          "wss://silent-side-firefly.solana-devnet.discover.quiknode.pro/71ad7ea43222277835b53cd7a66efe522cb201f3/",
+      },
     );
 
     const keypair = anchor.web3.Keypair.fromSecretKey(
@@ -49,29 +60,47 @@ export class ProgramService {
     ) as unknown as anchor.Program<SolanaPlaysPokemonProgram>;
   }
 
-  listen() {
-    this.program.addEventListener("ExecuteGameState", async (event) => {
-      while (true) {
-        try {
-          const gameDataId: anchor.web3.PublicKey = event.gameDataId;
-          console.log(event);
-          if (gameDataId.toBase58() !== GAME_DATA_ACCOUNT_ID) {
-            this.logger.warn(
-              "Invalid game_data_id passed to ExecuteGameState. Event will be ignored",
-            );
-            return;
-          }
+  async onModuleDestroy() {
+    if (typeof this.listener === "number") {
+      await this.program.removeEventListener(this.listener);
+      this.logger.log("Listener removed");
+    }
+  }
 
-          const secondsPlayed: number = event.second;
-          await this.executeGameState(secondsPlayed);
-          return;
-        } catch (e) {
-          // retry upon error
-          this.logger.error("Error occurred:", e);
-          this.logger.error("Retrying...");
+  listen() {
+    const RETRIES = 10;
+    this.listener = this.program.addEventListener(
+      "ExecuteGameState",
+      async (event) => {
+        this.logger.log(
+          "Executing game state with event: " + JSON.stringify(event),
+        );
+        for (let i = 0; i < RETRIES; i++) {
+          try {
+            const gameDataId: anchor.web3.PublicKey = event.gameDataId;
+            if (gameDataId.toBase58() !== GAME_DATA_ACCOUNT_ID) {
+              this.logger.warn(
+                "Invalid game_data_id passed to ExecuteGameState. Event will be ignored",
+              );
+              return;
+            }
+
+            const secondsPlayed: number = event.second;
+            await this.executeGameState(secondsPlayed);
+
+            this.logger.log("Execution success");
+            return;
+          } catch (e) {
+            // retry upon error
+            this.logger.error("Error occurred:", e);
+            await new Promise((resolve) => {
+              setTimeout(resolve, 1000);
+            });
+            this.logger.error(`(${i + 1} / ${RETRIES}) Retrying...`);
+          }
         }
-      }
-    });
+      },
+    );
     this.logger.log("Listener added");
   }
 
@@ -142,7 +171,6 @@ export class ProgramService {
       transaction,
       [this.wallet.payer],
       {
-        skipPreflight: true,
         commitment: "processed",
       },
     );

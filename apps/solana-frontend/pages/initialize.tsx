@@ -1,5 +1,4 @@
 import * as anchor from "@project-serum/anchor";
-import { useWallet } from "@solana/wallet-adapter-react";
 import AppButton from "../components/AppButton";
 import { useMutableProgram } from "../hooks/useProgram";
 
@@ -13,7 +12,6 @@ const gameData = anchor.web3.Keypair.fromSecretKey(
 );
 
 export default function Initialize() {
-  const { connected } = useWallet();
   const program = useMutableProgram();
   return (
     <AppButton

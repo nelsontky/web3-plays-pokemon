@@ -7,6 +7,7 @@ import ControlButton from "./ControlButton";
 import { inflate } from "pako";
 import { useMutableProgram } from "../hooks/useProgram";
 import * as anchor from "@project-serum/anchor";
+import { GAME_DATA_ACCOUNT_PUBLIC_KEY } from "../constants";
 
 const styles = {
   root: tw`
@@ -49,11 +50,7 @@ const styles = {
   ],
 };
 
-interface ControlsProps {
-  canvasRef: HTMLCanvasElement;
-}
-
-export default function Controls({ canvasRef }: ControlsProps) {
+export default function Controls() {
   const program = useMutableProgram();
   // const executeGame = (joypadButton: JoypadButton) => {
   //   axios
@@ -86,24 +83,15 @@ export default function Controls({ canvasRef }: ControlsProps) {
 
   const executeGame = async (joypadButton: JoypadButton) => {
     if (program) {
-      const gameDataPublicKey = new anchor.web3.PublicKey(GAME_DATA_ACCOUNT_ID);
       const gameDataAccount = await program.account.gameData.fetch(
-        gameDataPublicKey
+        GAME_DATA_ACCOUNT_PUBLIC_KEY
       );
       const secondsPlayed = gameDataAccount.secondsPlayed;
       const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
         [
-          gameDataPublicKey.toBuffer(),
+          GAME_DATA_ACCOUNT_PUBLIC_KEY.toBuffer(),
           Buffer.from("game_state"),
           Buffer.from("" + secondsPlayed),
-        ],
-        program.programId
-      );
-      const [prevGameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
-        [
-          gameDataPublicKey.toBuffer(),
-          Buffer.from("game_state"),
-          Buffer.from("" + (secondsPlayed - 1)),
         ],
         program.programId
       );
@@ -129,11 +117,11 @@ export default function Controls({ canvasRef }: ControlsProps) {
             : { nothing: {} }),
         })
         .accounts({
-          currentGameState: gameStatePda,
-          prevGameState: prevGameStatePda,
-          gameData: gameDataPublicKey,
+          gameState: gameStatePda,
+          gameData: GAME_DATA_ACCOUNT_PUBLIC_KEY,
           player: anchor.getProvider().publicKey,
           systemProgram: anchor.web3.SystemProgram.programId,
+          clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
         })
         .rpc();
     }
