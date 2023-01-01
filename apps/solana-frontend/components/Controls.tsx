@@ -36,7 +36,7 @@ const styles = {
     tw`
       flex
       justify-center
-      mt-16
+      mt-8
     `,
     css({
       "@media (min-width: 400px)": {

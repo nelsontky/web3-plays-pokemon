@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { CSSProperties, useState } from "react";
 import tw from "twin.macro";
 
 const styles = {
@@ -30,6 +30,7 @@ export interface AppButtonProps {
   onClick?: () => void;
   disabled?: boolean;
   css?: any;
+  containerStyles?: CSSProperties;
 }
 
 export default function AppButton({
@@ -37,12 +38,13 @@ export default function AppButton({
   onClick,
   disabled,
   css,
+  containerStyles,
   ...rest
 }: AppButtonProps) {
   const [isMouseDown, setIsMouseDown] = useState(false);
 
   return (
-    <div css={styles.container}>
+    <div css={styles.container} style={containerStyles}>
       <div css={styles.background} />
       <button
         css={[styles.button, css, disabled && tw`cursor-default`]}
