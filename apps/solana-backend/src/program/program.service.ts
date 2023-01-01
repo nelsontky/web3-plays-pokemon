@@ -6,7 +6,7 @@ import {
   OnModuleDestroy,
 } from "@nestjs/common";
 import * as anchor from "@project-serum/anchor";
-import { GAME_DATA_ACCOUNT_ID, JoypadButton, PROGRAM_ID } from "common";
+import { GAME_DATA_ACCOUNT_ID, computeButtonVotes, PROGRAM_ID } from "common";
 import { SolanaPlaysPokemonProgram } from "solana-plays-pokemon-program";
 import { WasmboyService } from "src/wasmboy/wasmboy.service";
 
@@ -139,7 +139,7 @@ export class ProgramService implements OnModuleDestroy {
       this.program.account.gameState.fetch(currentGameStatePda),
     ]);
 
-    const joypadButton = this.computeButtonVotes(currentGameState);
+    const joypadButton = computeButtonVotes(currentGameState);
     const { framesImageDataCid, saveStateCid } = await this.wasmboyService.run(
       joypadButton,
       prevGameState.saveStateCid,
@@ -171,61 +171,5 @@ export class ProgramService implements OnModuleDestroy {
         commitment: "processed",
       },
     );
-  }
-
-  private computeButtonVotes(currentGameState: any) {
-    const {
-      upCount,
-      downCount,
-      leftCount,
-      rightCount,
-      aCount,
-      bCount,
-      startCount,
-      selectCount,
-      nothingCount,
-    } = currentGameState;
-    const maxCount = Math.max(
-      upCount,
-      downCount,
-      leftCount,
-      rightCount,
-      aCount,
-      bCount,
-      startCount,
-      selectCount,
-      nothingCount,
-    );
-    let joypadButton: JoypadButton;
-    switch (maxCount) {
-      case upCount:
-        joypadButton = JoypadButton.Up;
-        break;
-      case downCount:
-        joypadButton = JoypadButton.Down;
-        break;
-      case leftCount:
-        joypadButton = JoypadButton.Left;
-        break;
-      case rightCount:
-        joypadButton = JoypadButton.Right;
-        break;
-      case aCount:
-        joypadButton = JoypadButton.A;
-        break;
-      case bCount:
-        joypadButton = JoypadButton.B;
-        break;
-      case startCount:
-        joypadButton = JoypadButton.Start;
-        break;
-      case selectCount:
-        joypadButton = JoypadButton.Select;
-        break;
-      default:
-        joypadButton = JoypadButton.Nothing;
-    }
-
-    return joypadButton;
   }
 }

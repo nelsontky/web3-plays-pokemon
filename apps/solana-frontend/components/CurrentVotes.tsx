@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import tw from "twin.macro";
 import { useAppSelector } from "../hooks/redux";
 import { selectGameStateById } from "../slices/gameStatesSlice";
-import AppButton from "./AppButton";
+import SmallControl from "./SmallControl";
 
 const styles = {
   root: tw`
@@ -24,18 +24,6 @@ const styles = {
     px-1
   `,
 };
-
-const HeaderButton = ({ children }: { children: React.ReactNode }) => (
-  <AppButton
-    containerStyles={{
-      transform: "scale(0.6)",
-    }}
-    css={tw`px-3`}
-    disabled
-  >
-    {children}
-  </AppButton>
-);
 
 export default function CurrentVotes() {
   const secondsPlayed = useAppSelector((state) => state.gameData.secondsPlayed);
@@ -70,16 +58,16 @@ export default function CurrentVotes() {
               <th css={styles.textHeader}>Game second</th>
               <th css={styles.textHeader}>Time left to vote</th>
               <th>
-                <HeaderButton>↑</HeaderButton>
+                <SmallControl>↑</SmallControl>
               </th>
               <th>
-                <HeaderButton>↓</HeaderButton>
+                <SmallControl>↓</SmallControl>
               </th>
               <th>
-                <HeaderButton>←</HeaderButton>
+                <SmallControl>←</SmallControl>
               </th>
               <th>
-                <HeaderButton>→</HeaderButton>
+                <SmallControl>→</SmallControl>
               </th>
             </tr>
             <tr>
@@ -96,19 +84,19 @@ export default function CurrentVotes() {
           <tbody>
             <tr>
               <th>
-                <HeaderButton>A</HeaderButton>
+                <SmallControl>A</SmallControl>
               </th>
               <th>
-                <HeaderButton>B</HeaderButton>
+                <SmallControl>B</SmallControl>
               </th>
               <th>
-                <HeaderButton>START</HeaderButton>
+                <SmallControl>START</SmallControl>
               </th>
               <th>
-                <HeaderButton>SELECT</HeaderButton>
+                <SmallControl>SELECT</SmallControl>
               </th>
               <th>
-                <HeaderButton>DO NOTHING</HeaderButton>
+                <SmallControl>DO NOTHING</SmallControl>
               </th>
             </tr>
             <tr>

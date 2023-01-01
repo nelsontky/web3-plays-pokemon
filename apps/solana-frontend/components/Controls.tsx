@@ -6,10 +6,15 @@ import { useMutableProgram } from "../hooks/useProgram";
 import * as anchor from "@project-serum/anchor";
 import { GAME_DATA_ACCOUNT_PUBLIC_KEY } from "../constants";
 import useTxSnackbar from "../hooks/useTxSnackbar";
+import ControlsBackdrop from "./ControlsBackdrop";
 
 const styles = {
   root: tw`
-    mt-8
+    relative
+    mt-6
+    p-2
+    pr-4
+    pb-4
   `,
   mainButtons: tw`
     flex
@@ -135,6 +140,7 @@ export default function Controls() {
 
   return (
     <div css={styles.root}>
+      <ControlsBackdrop />
       <div css={styles.mainButtons}>
         <div css={styles.directionalPadContainer}>
           <div css={styles.padUpContainer}>
