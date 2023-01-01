@@ -1,131 +1,31 @@
 import { FPS, GAMEBOY_CAMERA_HEIGHT, GAMEBOY_CAMERA_WIDTH } from "common";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import tw from "twin.macro";
-import { GAME_DATA_ACCOUNT_PUBLIC_KEY } from "../constants";
-import { useReadonlyProgram } from "../hooks/useProgram";
 import renderFrame, { CELL_SIZE } from "../utils/renderFrame";
-import * as anchor from "@project-serum/anchor";
 import axios from "axios";
 import pako from "pako";
-import { EventEmitter } from "@solana/wallet-adapter-base";
+import { useAppSelector } from "../hooks/redux";
 
 export default function GameCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>();
-  const program = useReadonlyProgram();
-  const [framesImageDataCid, setFramesImageDataCid] = useState<string>();
-
-  useEffect(
-    function setupGameDataListener() {
-      if (program) {
-        let hasMounted = false;
-        const emitter = program.account.gameData.subscribe(
-          GAME_DATA_ACCOUNT_PUBLIC_KEY
-        );
-        emitter.addListener("change", (event) => {
-          console.log("gameData updated:", event);
-        });
-
-        return () => {
-          emitter.removeAllListeners();
-        };
-      }
-    },
-    [program]
-  );
-
-  useEffect(
-    function setupListeners() {
-      if (program) {
-        let hasUnmounted = false;
-        let emitter: EventEmitter<string | symbol, any>;
-        (async () => {
-          const gameDataAccount = await program.account.gameData.fetch(
-            GAME_DATA_ACCOUNT_PUBLIC_KEY
-          );
-          const secondsPlayed = gameDataAccount.secondsPlayed;
-
-          const [currentGameStatePda] =
-            anchor.web3.PublicKey.findProgramAddressSync(
-              [
-                GAME_DATA_ACCOUNT_PUBLIC_KEY.toBuffer(),
-                Buffer.from("game_state"),
-                Buffer.from("" + secondsPlayed),
-              ],
-              program.programId
-            );
-          const [prevGameStatePda] =
-            anchor.web3.PublicKey.findProgramAddressSync(
-              [
-                GAME_DATA_ACCOUNT_PUBLIC_KEY.toBuffer(),
-                Buffer.from("game_state"),
-                Buffer.from("" + (secondsPlayed - 1)),
-              ],
-              program.programId
-            );
-
-          if (hasUnmounted) {
-            return;
-          }
-
-          emitter = program.account.gameState.subscribe(
-            currentGameStatePda,
-            "processed"
-          );
-          const onChange = async (account: any) => {
-            console.log("account updated:", account);
-            if (account.framesImageCid.length > 0) {
-              emitter.removeAllListeners();
-              setFramesImageDataCid(account.framesImageCid);
-
-              const gameDataAccount = await program.account.gameData.fetch(
-                GAME_DATA_ACCOUNT_PUBLIC_KEY
-              );
-              const secondsPlayed = gameDataAccount.secondsPlayed;
-              const [currentGameStatePda] =
-                anchor.web3.PublicKey.findProgramAddressSync(
-                  [
-                    GAME_DATA_ACCOUNT_PUBLIC_KEY.toBuffer(),
-                    Buffer.from("game_state"),
-                    Buffer.from("" + secondsPlayed),
-                  ],
-                  program.programId
-                );
-
-              emitter = program.account.gameState.subscribe(
-                currentGameStatePda,
-                "processed"
-              );
-
-              emitter.addListener("change", onChange);
-            }
-          };
-          emitter.addListener("change", onChange);
-
-          const framesImageDataCid = (
-            await program.account.gameState.fetch(prevGameStatePda)
-          ).framesImageCid;
-          setFramesImageDataCid(framesImageDataCid);
-        })();
-
-        return () => {
-          hasUnmounted = true;
-          if (emitter) {
-            emitter.removeAllListeners();
-          }
-        };
-      }
-    },
-    [program]
+  const secondsPlayed = useAppSelector((state) => state.gameData.secondsPlayed);
+  const gameStatesStatus = useAppSelector((state) => state.gameStates.status);
+  const framesImageToRenderCid = useAppSelector(
+    (state) => state.gameStates.framesImageCidToRender
   );
 
   useEffect(
     function renderFrames() {
-      if (framesImageDataCid) {
+      if (
+        gameStatesStatus === "succeeded" &&
+        framesImageToRenderCid !== undefined &&
+        framesImageToRenderCid.length > 0
+      ) {
         let hasUnmounted = false;
 
         (async () => {
           const response = await axios.get(
-            `https://${framesImageDataCid}.ipfs.cf-ipfs.com`,
+            `https://${framesImageToRenderCid}.ipfs.cf-ipfs.com`,
             {
               responseType: "arraybuffer",
             }
@@ -161,7 +61,7 @@ export default function GameCanvas() {
         };
       }
     },
-    [framesImageDataCid]
+    [framesImageToRenderCid, gameStatesStatus]
   );
 
   return (

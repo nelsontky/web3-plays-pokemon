@@ -34,12 +34,15 @@ interface GameState {
 
 const gameStatesAdapter = createEntityAdapter<GameState>({
   selectId: (gameState) => gameState.second,
+  sortComparer: (a, b) => b.second - a.second,
 });
 
 const initialState = gameStatesAdapter.getInitialState<{
   status: "idle" | "loading" | "failed" | "succeeded";
+  framesImageCidToRender: string;
 }>({
   status: "idle",
+  framesImageCidToRender: "",
 });
 
 export const fetchInitialGameStates = createAsyncThunk(
@@ -88,6 +91,9 @@ const gameStatesSlice = createSlice({
   initialState,
   reducers: {
     upsertGameState: (state, action: PayloadAction<GameState>) => {
+      if (action.payload.framesImageCid.length > 0) {
+        state.framesImageCidToRender = action.payload.framesImageCid;
+      }
       gameStatesAdapter.upsertOne(state, action.payload);
     },
   },
@@ -97,7 +103,12 @@ const gameStatesSlice = createSlice({
         state.status = "loading";
       })
       .addCase(fetchInitialGameStates.fulfilled, (state, action) => {
+        const latestFramesImageCId =
+          action.payload.find((state) => state.framesImageCid.length > 0)
+            ?.framesImageCid ?? "";
+
         state.status = "succeeded";
+        state.framesImageCidToRender = latestFramesImageCId;
         gameStatesAdapter.upsertMany(state, action.payload);
       })
       .addCase(fetchInitialGameStates.rejected, (state) => {

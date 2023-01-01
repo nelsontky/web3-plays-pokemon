@@ -11,6 +11,7 @@ import {
   SolletWalletAdapter,
   TorusWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
+import { clusterApiUrl } from "@solana/web3.js";
 import React, { ReactNode, useMemo } from "react";
 
 require("@solana/wallet-adapter-react-ui/styles.css");

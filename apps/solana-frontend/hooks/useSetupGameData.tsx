@@ -12,25 +12,25 @@ export default function useSetupGameData() {
 
   useEffect(
     function fetchGameDataAndSetupListeners() {
-      if (status === "idle") {
-        const eventEmitter = program.account.gameData.subscribe(
-          GAME_DATA_ACCOUNT_PUBLIC_KEY
+      const eventEmitter = program.account.gameData.subscribe(
+        GAME_DATA_ACCOUNT_PUBLIC_KEY
+      );
+      eventEmitter.addListener("change", (account) => {
+        dispatch(
+          setGameData({
+            secondsPlayed: account.secondsPlayed,
+            isExecuting: account.isExecuting,
+          })
         );
-        eventEmitter.addListener("change", (account) => {
-          dispatch(
-            setGameData({
-              secondsPlayed: account.secondsPlayed,
-              isExecuting: account.isExecuting,
-            })
-          );
-        });
+      });
 
+      if (status === "idle") {
         dispatch(fetchGameData(program));
-
-        return () => {
-          eventEmitter.removeAllListeners();
-        };
       }
+
+      return () => {
+        eventEmitter.removeAllListeners();
+      };
     },
     [dispatch, program, status]
   );

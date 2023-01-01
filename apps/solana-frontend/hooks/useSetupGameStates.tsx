@@ -15,8 +15,6 @@ export default function useSetupGameStates() {
   useEffect(
     function fetchGameStates() {
       if (gameStatesStatus === "idle" && gameDataStatus === "succeeded") {
-        console.log("here2");
-
         dispatch(fetchInitialGameStates({ program, secondsPlayed }));
       }
     },
