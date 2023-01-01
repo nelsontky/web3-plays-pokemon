@@ -2,10 +2,12 @@ import {
   createAsyncThunk,
   createEntityAdapter,
   createSlice,
+  PayloadAction,
 } from "@reduxjs/toolkit";
 import * as anchor from "@project-serum/anchor";
 import { SolanaPlaysPokemonProgram } from "solana-plays-pokemon-program";
 import { GAME_DATA_ACCOUNT_PUBLIC_KEY, PROGRAM_PUBLIC_KEY } from "../constants";
+import { RootState } from "../store";
 
 const NUMBER_OF_STATES_TO_LOAD = 20;
 
@@ -82,9 +84,13 @@ export const fetchInitialGameStates = createAsyncThunk(
 );
 
 const gameStatesSlice = createSlice({
-  name: "gameData",
+  name: "gameStates",
   initialState,
-  reducers: {},
+  reducers: {
+    upsertGameState: (state, action: PayloadAction<GameState>) => {
+      gameStatesAdapter.upsertOne(state, action.payload);
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchInitialGameStates.pending, (state) => {
@@ -99,5 +105,13 @@ const gameStatesSlice = createSlice({
       });
   },
 });
+
+export const { upsertGameState } = gameStatesSlice.actions;
+
+export const {
+  selectAll: selectAllGameStates,
+  selectById: selectGameStateById,
+  selectIds: selectGameStateIds,
+} = gameStatesAdapter.getSelectors<RootState>((state) => state.gameStates);
 
 export default gameStatesSlice.reducer;
