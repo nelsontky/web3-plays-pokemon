@@ -6,7 +6,7 @@ import { GAME_DATA_ACCOUNT_PUBLIC_KEY } from "../constants";
 interface GameDataState {
   secondsPlayed: number;
   isExecuting: boolean;
-  status: "idle" | "loading" | "failed" | "success";
+  status: "idle" | "loading" | "failed" | "succeeded";
 }
 
 const initialState: GameDataState = {
@@ -47,7 +47,7 @@ const gameDataSlice = createSlice({
         state.status = "loading";
       })
       .addCase(fetchGameData.fulfilled, (state, action) => {
-        state.status = "success";
+        state.status = "succeeded";
         state.secondsPlayed = action.payload.secondsPlayed;
         state.isExecuting = action.payload.isExecuting;
       })
