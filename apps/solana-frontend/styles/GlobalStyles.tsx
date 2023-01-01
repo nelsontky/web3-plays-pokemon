@@ -10,6 +10,20 @@ const customStyles = css({
   body: {
     ...pokemonPixelFont.style,
   },
+  ".custom-snackbar-root": {
+    "&& > .SnackbarContent-root": {
+      background: "#ffffff",
+      color: "#000000",
+      boxShadow: "none",
+      border: "2px solid #000000",
+      fontSize: "1.25rem",
+      ...pokemonPixelFont.style,
+    },
+    "&& .SnackbarItem-message": {
+      display: "flex",
+      gap: 12
+    }
+  },
 });
 
 const GlobalStyles = () => (
