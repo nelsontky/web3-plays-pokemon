@@ -1,14 +1,12 @@
 import React from "react";
 import { GlobalStyles as BaseStyles } from "twin.macro";
 import { Global } from "@emotion/react";
-import localFont from "@next/font/local";
 import { css } from "@emotion/react";
-
-const pokemonPixelFont = localFont({ src: "../fonts/pokemon_pixel_font.woff" });
+import { POKEMON_PIXEL_FONT } from "../constants";
 
 const customStyles = css({
   body: {
-    ...pokemonPixelFont.style,
+    ...POKEMON_PIXEL_FONT.style,
   },
   ".custom-snackbar-root": {
     "&& > .SnackbarContent-root": {
@@ -17,7 +15,7 @@ const customStyles = css({
       boxShadow: "none",
       border: "2px solid #000000",
       fontSize: "1rem",
-      ...pokemonPixelFont.style,
+      ...POKEMON_PIXEL_FONT.style,
     },
     "&& .SnackbarItem-message": {
       display: "flex",

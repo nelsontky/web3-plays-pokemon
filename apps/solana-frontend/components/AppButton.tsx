@@ -28,12 +28,14 @@ const styles = {
 export interface AppButtonProps {
   children: React.ReactNode;
   onClick?: () => void;
+  disabled?: boolean;
   css?: any;
 }
 
 export default function AppButton({
   children,
   onClick,
+  disabled,
   css,
   ...rest
 }: AppButtonProps) {
@@ -43,11 +45,13 @@ export default function AppButton({
     <div css={styles.container}>
       <div css={styles.background} />
       <button
-        css={[styles.button, css]}
+        css={[styles.button, css, disabled && tw`cursor-default`]}
         style={{
-          ...(isMouseDown ? { transform: "translate(4px, 4px)" } : {}),
+          ...(isMouseDown && !disabled
+            ? { transform: "translate(4px, 4px)" }
+            : {}),
         }}
-        onClick={onClick}
+        onClick={disabled ? undefined : onClick}
         onMouseDown={() => {
           setIsMouseDown(true);
         }}

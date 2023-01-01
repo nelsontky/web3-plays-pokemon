@@ -66,7 +66,7 @@ export default function GameCanvas() {
 
   return (
     <canvas
-      css={tw`mx-auto`}
+      css={tw`mx-auto max-w-full`}
       ref={(node) => {
         if (node && !canvasRef.current) {
           node.height = CELL_SIZE * GAMEBOY_CAMERA_HEIGHT;

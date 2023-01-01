@@ -1,11 +1,6 @@
-import { css } from "@emotion/react";
 import { SnackbarProvider } from "notistack";
 import CircularProgress from "@mui/material/CircularProgress";
 import tw from "twin.macro";
-
-const styles = css({
-  background: "#ffffff",
-});
 
 export default function AppSnackBarProvider({
   children,
