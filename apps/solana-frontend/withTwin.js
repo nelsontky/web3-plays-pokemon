@@ -6,6 +6,7 @@ const includedDirs = [
   path.resolve(__dirname, "pages"),
   path.resolve(__dirname, "styles"),
   path.resolve(__dirname, "contexts"),
+  path.resolve(__dirname, "hooks"),
 ];
 
 module.exports = function withTwin(nextConfig) {

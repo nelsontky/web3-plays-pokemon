@@ -1,13 +1,11 @@
 import { css } from "@emotion/react";
-import axios from "axios";
-import { FPS, GAME_DATA_ACCOUNT_ID, JoypadButton } from "common";
+import { JoypadButton } from "common";
 import tw from "twin.macro";
-import renderFrame from "../utils/renderFrame";
 import ControlButton from "./ControlButton";
-import { inflate } from "pako";
 import { useMutableProgram } from "../hooks/useProgram";
 import * as anchor from "@project-serum/anchor";
 import { GAME_DATA_ACCOUNT_PUBLIC_KEY } from "../constants";
+import useTxSnackbar from "../hooks/useTxSnackbar";
 
 const styles = {
   root: tw`
@@ -52,34 +50,7 @@ const styles = {
 
 export default function Controls() {
   const program = useMutableProgram();
-  // const executeGame = (joypadButton: JoypadButton) => {
-  //   axios
-  //     .patch(
-  //       "http://localhost:5000",
-  //       { joypadButton },
-  //       { responseType: "arraybuffer" }
-  //     )
-  //     .then((res) => {
-  //       const imageDataArrays: number[][] = JSON.parse(
-  //         inflate(res.data, { to: "string" })
-  //       );
-
-  //       const renderLoop = () => {
-  //         const imageDataArray = imageDataArrays.shift();
-  //         const ctx = canvasRef.getContext("2d");
-
-  //         if (ctx && imageDataArray) {
-  //           requestAnimationFrame(renderLoop);
-
-  //           setTimeout(() => {
-  //             renderFrame(imageDataArray, ctx);
-  //           }, 1000 / FPS);
-  //         }
-  //       };
-
-  //       renderLoop();
-  //     });
-  // };
+  const { enqueueSnackbar, closeSnackbar } = useTxSnackbar();
 
   const executeGame = async (joypadButton: JoypadButton) => {
     if (program) {
@@ -96,34 +67,69 @@ export default function Controls() {
         program.programId
       );
 
-      await program.methods
-        .vote({
-          ...(joypadButton === JoypadButton.Up
-            ? { up: {} }
-            : joypadButton === JoypadButton.Down
-            ? { down: {} }
-            : joypadButton === JoypadButton.Left
-            ? { left: {} }
-            : joypadButton === JoypadButton.Right
-            ? { right: {} }
-            : joypadButton === JoypadButton.A
-            ? { a: {} }
-            : joypadButton === JoypadButton.B
-            ? { b: {} }
-            : joypadButton === JoypadButton.Start
-            ? { start: {} }
-            : joypadButton === JoypadButton.Select
-            ? { select: {} }
-            : { nothing: {} }),
-        })
-        .accounts({
-          gameState: gameStatePda,
-          gameData: GAME_DATA_ACCOUNT_PUBLIC_KEY,
-          player: anchor.getProvider().publicKey,
-          systemProgram: anchor.web3.SystemProgram.programId,
-          clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
-        })
-        .rpc();
+      const snackbarId = enqueueSnackbar(
+        {
+          title: "Sending transaction",
+        },
+        {
+          variant: "info",
+        }
+      );
+
+      try {
+        const txId = await program.methods
+          .vote({
+            ...(joypadButton === JoypadButton.Up
+              ? { up: {} }
+              : joypadButton === JoypadButton.Down
+              ? { down: {} }
+              : joypadButton === JoypadButton.Left
+              ? { left: {} }
+              : joypadButton === JoypadButton.Right
+              ? { right: {} }
+              : joypadButton === JoypadButton.A
+              ? { a: {} }
+              : joypadButton === JoypadButton.B
+              ? { b: {} }
+              : joypadButton === JoypadButton.Start
+              ? { start: {} }
+              : joypadButton === JoypadButton.Select
+              ? { select: {} }
+              : { nothing: {} }),
+          })
+          .accounts({
+            gameState: gameStatePda,
+            gameData: GAME_DATA_ACCOUNT_PUBLIC_KEY,
+            player: anchor.getProvider().publicKey,
+            systemProgram: anchor.web3.SystemProgram.programId,
+            clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+          })
+          .rpc();
+
+        enqueueSnackbar(
+          {
+            title: "Success",
+            txId,
+          },
+          {
+            variant: "success",
+          }
+        );
+      } catch (e) {
+        if (e instanceof Error) {
+          enqueueSnackbar(
+            {
+              title: "Error",
+              errorMessage: e.message,
+            },
+            {
+              variant: "error",
+            }
+          );
+        }
+      } finally {
+        closeSnackbar(snackbarId);
+      }
     }
   };
 

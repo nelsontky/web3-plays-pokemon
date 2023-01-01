@@ -17,6 +17,7 @@ export default function AppSnackBarProvider({
       classes={{
         root: "custom-snackbar-root",
       }}
+      maxSnack={2}
       iconVariant={{
         info: (
           <CircularProgress

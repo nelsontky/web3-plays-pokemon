@@ -16,13 +16,16 @@ const customStyles = css({
       color: "#000000",
       boxShadow: "none",
       border: "2px solid #000000",
-      fontSize: "1.25rem",
+      fontSize: "1rem",
       ...pokemonPixelFont.style,
     },
     "&& .SnackbarItem-message": {
       display: "flex",
-      gap: 12
-    }
+      gap: 12,
+    },
+    "& .MuiSvgIcon-root": {
+      marginInlineEnd: "0px !important",
+    },
   },
 });
 
