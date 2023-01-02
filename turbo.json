@@ -1,5 +1,5 @@
 {
-  "globalDependencies": ["$NEXT_PUBLIC_RPC_URL", "$NEXT_PUBLIC_RPC_CONFIG"],
+  "globalEnv": ["NEXT_PUBLIC_RPC_URL", "NEXT_PUBLIC_RPC_CONFIG"],
   "$schema": "https://turbo.build/schema.json",
   "pipeline": {
     "build": {
