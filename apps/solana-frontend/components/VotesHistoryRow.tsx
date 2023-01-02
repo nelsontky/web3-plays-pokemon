@@ -12,6 +12,10 @@ const styles = {
     flex
     justify-center
   `,
+  veryWideCount: tw`
+    w-[90px]
+    text-center
+  `,
   wideCount: tw`
     w-[78px]
     text-center
@@ -73,6 +77,15 @@ export default function VotesHistoryRow({
       <div css={styles.textButtonCount}>{gameState.startCount}</div>
       <div css={styles.textButtonCount}>{gameState.selectCount}</div>
       <div css={styles.textButtonCount}>{gameState.nothingCount}</div>
+      <div css={styles.veryWideCount}>
+        <SmallControl
+          containerStyles={{
+            transform: "scale(0.6) translateY(-0.7rem)",
+          }}
+        >
+          {gameState.executedButton}
+        </SmallControl>
+      </div>
     </div>
   );
 }
@@ -89,5 +102,6 @@ const TableHeader = (props: { style: CSSProperties }) => (
     <SmallControl>START</SmallControl>
     <SmallControl>SELECT</SmallControl>
     <SmallControl>DO NOTHING</SmallControl>
+    <p css={styles.textHeader}>Executed button</p>
   </div>
 );

@@ -5,6 +5,7 @@ import { useReadonlyProgram } from "./useProgram";
 import * as anchor from "@project-serum/anchor";
 import { GAME_DATA_ACCOUNT_PUBLIC_KEY, PROGRAM_PUBLIC_KEY } from "../constants";
 import usePrevious from "./usePrevious";
+import { anchorEnumToJsEnum } from "common";
 
 export default function useGameStateListener() {
   const dispatch = useAppDispatch();
@@ -45,6 +46,7 @@ export default function useGameStateListener() {
                 ...account,
                 accountPublicKey: gameStatePda.toBase58(),
                 createdAt: account.createdAt.toNumber(),
+                executedButton: anchorEnumToJsEnum(account.executedButton),
               })
             );
 

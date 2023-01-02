@@ -31,6 +31,8 @@ pub mod solana_plays_pokemon_program {
 
         game_state.created_at = ctx.accounts.clock.unix_timestamp;
 
+        game_state.executed_button = JoypadButton::Nothing;
+
         game_state.frames_image_cid = frames_image_cid;
         game_state.save_state_cid = save_state_cid;
         msg!("First game state account initialized");
@@ -50,6 +52,7 @@ pub mod solana_plays_pokemon_program {
         if game_state.second == 0 {
             game_state.second = game_data.seconds_played;
             game_state.created_at = ctx.accounts.clock.unix_timestamp;
+            game_state.executed_button = JoypadButton::Nothing;
         }
 
         match joypad_button {

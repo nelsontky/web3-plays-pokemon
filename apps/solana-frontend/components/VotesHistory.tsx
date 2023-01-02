@@ -20,7 +20,7 @@ const styles = {
   `,
 };
 
-const ROW_HEIGHT = 30;
+const ROW_HEIGHT = 32;
 
 export default function VotesHistory() {
   const gameStateIds = useAppSelector(selectGameStateIds);
@@ -33,7 +33,7 @@ export default function VotesHistory() {
           {({ width }) => (
             <FixedSizeList
               width={width}
-              height={ROW_HEIGHT * gameStateIds.length}
+              height={ROW_HEIGHT * (gameStateIds.length + 1)}
               itemSize={ROW_HEIGHT}
               itemCount={gameStateIds.length}
             >

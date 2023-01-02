@@ -5,4 +5,4 @@ export const FPS = 30;
 
 export const PROGRAM_ID = "pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg";
 export const GAME_DATA_ACCOUNT_ID =
-  "redSK8VeL39y1CYcmYxBhkLe3nZ7CFQpCYZWjYMgP8F";
+  "redHPYj5C9X7TyEqQPHMTsfevKZ9eHCTQ8BJVee9JWC";

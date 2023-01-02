@@ -8,6 +8,7 @@ import * as anchor from "@project-serum/anchor";
 import { SolanaPlaysPokemonProgram } from "solana-plays-pokemon-program";
 import { GAME_DATA_ACCOUNT_PUBLIC_KEY, PROGRAM_PUBLIC_KEY } from "../constants";
 import { RootState } from "../store";
+import { anchorEnumToJsEnum, JoypadButton } from "common";
 
 const NUMBER_OF_STATES_TO_LOAD = 20;
 
@@ -27,6 +28,8 @@ interface GameState {
   nothingCount: number;
 
   createdAt: number;
+
+  executedButton: JoypadButton;
 
   framesImageCid: string;
   saveStateCid: string;
@@ -80,6 +83,7 @@ export const fetchInitialGameStates = createAsyncThunk(
       ...state,
       accountPublicKey: gameStatesPdas[i].toBase58(),
       createdAt: state.createdAt.toNumber(),
+      executedButton: anchorEnumToJsEnum(state.executedButton),
     }));
 
     return reduxGameStates;

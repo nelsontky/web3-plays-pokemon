@@ -78,3 +78,28 @@ export const jsEnumToAnchorEnum = (joypadButton: JoypadButton) => {
       return { nothing: {} };
   }
 };
+
+export const anchorEnumToJsEnum = (anchorEnum: { [button: string]: {} }) => {
+  const button = Object.keys(anchorEnum)[0];
+
+  switch (button) {
+    case "up":
+      return JoypadButton.Up;
+    case "down":
+      return JoypadButton.Down;
+    case "left":
+      return JoypadButton.Left;
+    case "right":
+      return JoypadButton.Right;
+    case "a":
+      return JoypadButton.A;
+    case "b":
+      return JoypadButton.B;
+    case "start":
+      return JoypadButton.Start;
+    case "select":
+      return JoypadButton.Select;
+    default:
+      return JoypadButton.Nothing;
+  }
+};
