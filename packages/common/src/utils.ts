@@ -55,3 +55,26 @@ export function computeButtonVotes(currentGameState: any) {
 
   return joypadButton;
 }
+
+export const jsEnumToAnchorEnum = (joypadButton: JoypadButton) => {
+  switch (joypadButton) {
+    case JoypadButton.Up:
+      return { up: {} };
+    case JoypadButton.Down:
+      return { down: {} };
+    case JoypadButton.Left:
+      return { left: {} };
+    case JoypadButton.Right:
+      return { right: {} };
+    case JoypadButton.A:
+      return { a: {} };
+    case JoypadButton.B:
+      return { b: {} };
+    case JoypadButton.Start:
+      return { start: {} };
+    case JoypadButton.Select:
+      return { select: {} };
+    default:
+      return { nothing: {} };
+  }
+};

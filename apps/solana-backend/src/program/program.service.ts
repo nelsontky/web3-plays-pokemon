@@ -6,7 +6,12 @@ import {
   OnModuleDestroy,
 } from "@nestjs/common";
 import * as anchor from "@project-serum/anchor";
-import { GAME_DATA_ACCOUNT_ID, computeButtonVotes, PROGRAM_ID } from "common";
+import {
+  GAME_DATA_ACCOUNT_ID,
+  computeButtonVotes,
+  PROGRAM_ID,
+  jsEnumToAnchorEnum,
+} from "common";
 import { SolanaPlaysPokemonProgram } from "solana-plays-pokemon-program";
 import { WasmboyService } from "src/wasmboy/wasmboy.service";
 
@@ -146,7 +151,12 @@ export class ProgramService implements OnModuleDestroy {
     );
 
     const instruction = await this.program.methods
-      .updateGameState(secondsPlayed, framesImageDataCid, saveStateCid)
+      .updateGameState(
+        secondsPlayed,
+        jsEnumToAnchorEnum(joypadButton),
+        framesImageDataCid,
+        saveStateCid,
+      )
       .accounts({
         authority: this.wallet.publicKey,
         gameData: gameDataId,

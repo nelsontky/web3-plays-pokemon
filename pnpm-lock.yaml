@@ -116,6 +116,8 @@ importers:
       '@types/pako': ^2.0.0
       '@types/react': ^18.0.22
       '@types/react-dom': ^18.0.7
+      '@types/react-virtualized-auto-sizer': ^1.0.1
+      '@types/react-window': ^1.8.5
       axios: ^1.2.1
       babel-loader: ^9.1.0
       babel-plugin-macros: ^3.1.0
@@ -129,6 +131,7 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0
       react-redux: ^8.0.0-rc.0
+      react-virtualized-auto-sizer: ^1.0.7
       react-window: ^1.8.8
       redux: ^4.1.2
       solana-plays-pokemon-program: workspace:*
@@ -159,6 +162,7 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-redux: 8.0.5_6fpxtwwxc52cyvwzdgczt4jvpq
+      react-virtualized-auto-sizer: 1.0.7_biqbaboplfbrettd7655fr4n2y
       react-window: 1.8.8_biqbaboplfbrettd7655fr4n2y
       redux: 4.2.0
       solana-plays-pokemon-program: link:../../packages/solana-plays-pokemon-program
@@ -173,6 +177,8 @@ importers:
       '@types/pako': 2.0.0
       '@types/react': 18.0.26
       '@types/react-dom': 18.0.9
+      '@types/react-virtualized-auto-sizer': 1.0.1
+      '@types/react-window': 1.8.5
       babel-loader: 9.1.0_@babel+core@7.20.5
       babel-plugin-macros: 3.1.0
       eslint: 7.32.0
@@ -3571,6 +3577,18 @@ packages:
     dependencies:
       '@types/react': 18.0.26
     dev: false
+
+  /@types/react-virtualized-auto-sizer/1.0.1:
+    resolution: {integrity: sha512-GH8sAnBEM5GV9LTeiz56r4ZhMOUSrP43tAQNSRVxNexDjcNKLCEtnxusAItg1owFUFE6k0NslV26gqVClVvong==}
+    dependencies:
+      '@types/react': 18.0.26
+    dev: true
+
+  /@types/react-window/1.8.5:
+    resolution: {integrity: sha512-V9q3CvhC9Jk9bWBOysPGaWy/Z0lxYcTXLtLipkt2cnRj1JOSFNF7wqGpkScSXMgBwC+fnVRg/7shwgddBG5ICw==}
+    dependencies:
+      '@types/react': 18.0.26
+    dev: true
 
   /@types/react/18.0.26:
     resolution: {integrity: sha512-hCR3PJQsAIXyxhTNSiDFY//LhnMZWpNNr5etoCqx/iUfGc5gXWtQR2Phl908jVR6uPXacojQWTg4qRpkxTuGug==}
@@ -9649,6 +9667,17 @@ packages:
       dom-helpers: 5.2.1
       loose-envify: 1.4.0
       prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    dev: false
+
+  /react-virtualized-auto-sizer/1.0.7_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-Mxi6lwOmjwIjC1X4gABXMJcKHsOo0xWl3E3ugOgufB8GJU+MqrtY35aBuvCYv/razQ1Vbp7h1gWJjGjoNN5pmA==}
+    engines: {node: '>8.0.0'}
+    peerDependencies:
+      react: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0-rc
+      react-dom: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0-rc
+    dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     dev: false

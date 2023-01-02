@@ -186,7 +186,7 @@ describe("solana-plays-pokemon-program", () => {
     assert.strictEqual(currentGameState.bCount, 1);
   });
 
-  it("Can allow game data authority to update executed game state", async () => {
+  it("Does not allow update of executed game state when not executing", async () => {
     const NEW_FRAMES_IMAGES_CID =
       "bafkreidqdfmwj6dm4sd6ezb7cb2q3l3rng6anbqxww3oflwrvkmvm67h24";
     const NEW_SAVE_STATE_CID =
@@ -195,6 +195,9 @@ describe("solana-plays-pokemon-program", () => {
     const gameDataAccount = await program.account.gameData.fetch(
       gameData.publicKey
     );
+    const isExecuting = gameDataAccount.isExecuting;
+    assert.isFalse(isExecuting);
+
     const secondsPlayed = gameDataAccount.secondsPlayed;
 
     const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
@@ -206,25 +209,30 @@ describe("solana-plays-pokemon-program", () => {
       program.programId
     );
 
-    await program.methods
-      .updateGameState(secondsPlayed, NEW_FRAMES_IMAGES_CID, NEW_SAVE_STATE_CID)
-      .accounts({
-        authority: anchor.getProvider().publicKey,
-        gameData: gameData.publicKey,
-        gameState: gameStatePda,
-        systemProgram: anchor.web3.SystemProgram.programId,
-      })
-      .rpc();
+    try {
+      await program.methods
+        .updateGameState(
+          secondsPlayed,
+          { a: {} },
+          NEW_FRAMES_IMAGES_CID,
+          NEW_SAVE_STATE_CID
+        )
+        .accounts({
+          authority: anchor.getProvider().publicKey,
+          gameData: gameData.publicKey,
+          gameState: gameStatePda,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .rpc();
+    } catch (e) {
+      if (e instanceof AnchorError) {
+        // NoUpdatesIfNotExecuting error
+        assert.strictEqual(e.error.errorCode.number, 6001);
+        return;
+      }
+    }
 
-    const newGameDataAccount = await program.account.gameData.fetch(
-      gameData.publicKey
-    );
-    assert.strictEqual(newGameDataAccount.secondsPlayed, secondsPlayed + 1);
-    assert.isFalse(newGameDataAccount.isExecuting);
-
-    const gameState = await program.account.gameState.fetch(gameStatePda);
-    assert.strictEqual(gameState.framesImageCid, NEW_FRAMES_IMAGES_CID);
-    assert.strictEqual(gameState.saveStateCid, NEW_SAVE_STATE_CID);
+    assert.fail();
   });
 
   it("Does not allow wrong authority to update executed game state", async () => {
@@ -245,7 +253,7 @@ describe("solana-plays-pokemon-program", () => {
 
     try {
       await program.methods
-        .updateGameState(secondsPlayed - 1, "foo", "bar")
+        .updateGameState(secondsPlayed - 1, { a: {} }, "foo", "bar")
         .accounts({
           authority: invalidAuthority.publicKey,
           gameData: gameData.publicKey,

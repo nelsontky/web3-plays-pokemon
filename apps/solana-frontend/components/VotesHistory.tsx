@@ -1,5 +1,10 @@
 import tw from "twin.macro";
 import SmallControl from "./SmallControl";
+import { FixedSizeList } from "react-window";
+import { useAppSelector } from "../hooks/redux";
+import { selectGameStateIds } from "../slices/gameStatesSlice";
+import AutoSizer from "react-virtualized-auto-sizer";
+import VotesHistoryRow from "./VotesHistoryRow";
 
 const styles = {
   root: tw`
@@ -8,45 +13,34 @@ const styles = {
   header: tw`
     text-4xl
     text-center
+    mb-4
   `,
   table: tw`
     overflow-x-auto
   `,
-  tableHeader: tw`
-    mt-4
-    flex
-    items-center
-  `,
-  textHeader: tw`
-    px-1
-    whitespace-nowrap
-  `,
 };
 
+const ROW_HEIGHT = 30;
+
 export default function VotesHistory() {
+  const gameStateIds = useAppSelector(selectGameStateIds);
+
   return (
     <div css={styles.root}>
-      <h1 css={styles.header}>Votes history</h1>
+      {gameStateIds.length > 0 && <h1 css={styles.header}>Votes history</h1>}
       <div css={styles.table}>
-        <div css={styles.tableHeader}>
-          <p css={[styles.textHeader, tw`ml-auto`]}>Game second</p>
-          <p css={styles.textHeader}>Time left to vote</p>
-          <SmallControl>↑</SmallControl>
-          <SmallControl>↓</SmallControl>
-          <SmallControl>←</SmallControl>
-          <SmallControl>→</SmallControl>
-          <SmallControl>A</SmallControl>
-          <SmallControl>B</SmallControl>
-          <SmallControl>START</SmallControl>
-          <SmallControl>SELECT</SmallControl>
-          <SmallControl
-            containerStyles={{
-              marginRight: "auto",
-            }}
-          >
-            DO NOTHING
-          </SmallControl>
-        </div>
+        <AutoSizer disableHeight>
+          {({ width }) => (
+            <FixedSizeList
+              width={width}
+              height={ROW_HEIGHT * gameStateIds.length}
+              itemSize={ROW_HEIGHT}
+              itemCount={gameStateIds.length}
+            >
+              {VotesHistoryRow}
+            </FixedSizeList>
+          )}
+        </AutoSizer>
       </div>
     </div>
   );

@@ -93,6 +93,7 @@ pub mod solana_plays_pokemon_program {
     pub fn update_game_state(
         ctx: Context<UpdateGameState>,
         _second: u32,
+        executed_button: JoypadButton,
         frames_image_cid: String,
         save_state_cid: String,
     ) -> Result<()> {
@@ -105,6 +106,7 @@ pub mod solana_plays_pokemon_program {
         game_data.seconds_played = game_data.seconds_played.checked_add(1).unwrap();
 
         let game_state = &mut ctx.accounts.game_state;
+        game_state.executed_button = executed_button;
         game_state.frames_image_cid = frames_image_cid;
         game_state.save_state_cid = save_state_cid;
 
@@ -154,7 +156,12 @@ pub struct Vote<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(second: u32, frames_image_cid: String, save_state_cid: String)]
+#[instruction(
+    second: u32,
+    executed_button: JoypadButton,
+    frames_image_cid: String,
+    save_state_cid: String,
+)]
 pub struct UpdateGameState<'info> {
     #[account(
         mut,
@@ -203,15 +210,17 @@ pub struct GameState {
 
     pub created_at: i64,
 
+    pub executed_button: JoypadButton, // 1 + 1
+
     pub frames_image_cid: String,
     pub save_state_cid: String,
 }
 
 impl GameState {
-    pub const LEN: usize = 4 + (9 * 4) + 8;
+    pub const LEN: usize = 4 + (9 * 4) + 8 + (1 + 1);
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone)]
 pub enum JoypadButton {
     Up,
     Down,
