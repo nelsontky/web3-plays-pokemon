@@ -17,8 +17,7 @@ import React, { ReactNode, useMemo } from "react";
 require("@solana/wallet-adapter-react-ui/styles.css");
 
 const SolanaContext = ({ children }: { children: ReactNode }) => {
-  // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'.
-  const network = WalletAdapterNetwork.Devnet;
+  const network = WalletAdapterNetwork.Mainnet;
 
   const endpoint = process.env.NEXT_PUBLIC_RPC_URL ?? clusterApiUrl(network);
 
@@ -35,7 +34,14 @@ const SolanaContext = ({ children }: { children: ReactNode }) => {
   );
 
   return (
-    <ConnectionProvider endpoint={endpoint}>
+    <ConnectionProvider
+      endpoint={endpoint}
+      config={
+        process.env.NEXT_PUBLIC_RPC_CONFIG
+          ? JSON.parse(process.env.NEXT_PUBLIC_RPC_CONFIG)
+          : undefined
+      }
+    >
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>{children}</WalletModalProvider>
       </WalletProvider>

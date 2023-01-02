@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK");
+declare_id!("pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg");
 
 #[program]
 pub mod solana_plays_pokemon_program {
