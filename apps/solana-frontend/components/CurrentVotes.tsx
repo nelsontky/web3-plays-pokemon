@@ -4,6 +4,8 @@ import { useAppSelector } from "../hooks/redux";
 import { selectGameStateById } from "../slices/gameStatesSlice";
 import SmallControl from "./SmallControl";
 
+const VOTE_SECONDS = 10;
+
 const styles = {
   root: tw`
     mt-6
@@ -35,8 +37,9 @@ export default function CurrentVotes() {
   useEffect(() => {
     const calcSecondsLeft = () => {
       const secondsLeft = currentState
-        ? currentState.createdAt - Math.floor(Date.now() / 1000)
-        : 10;
+        ? VOTE_SECONDS -
+          (Math.floor(Date.now() / 1000) - currentState.createdAt)
+        : VOTE_SECONDS;
       setSecondsLeft(secondsLeft > 0 ? secondsLeft : 0);
     };
 
