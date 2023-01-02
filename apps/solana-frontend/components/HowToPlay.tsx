@@ -21,9 +21,8 @@ export default function HowToPlay() {
       <h1 css={styles.header}>How to play</h1>
       <p css={styles.text}>
         Button presses for the game are voted on and decided by all the players!
-        To get started, just connect any supported wallet and click on any of
-        the above buttons to send in a vote to the blockchain for the next
-        button to press!
+        To get started, just connect any supported wallet. Afterwards, click on
+        any of the above buttons to send in a vote to the blockchain!
       </p>
       <p css={styles.text}>
         Votes are tallied every <span css={tw`font-bold`}>10 seconds</span>, and
@@ -34,8 +33,8 @@ export default function HowToPlay() {
       </p>
       <p css={styles.text}>
         After game execution (execution should not take more than a couple of
-        seconds), the next round of voting for the next game second will open up
-        again.
+        seconds), the next round of voting for the next game second will then
+        open up.
       </p>
     </div>
   );

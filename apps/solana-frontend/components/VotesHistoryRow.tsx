@@ -1,3 +1,4 @@
+import { css } from "@emotion/react";
 import { CSSProperties } from "react";
 import tw from "twin.macro";
 import { useAppSelector } from "../hooks/redux";
@@ -10,7 +11,6 @@ import SmallControl from "./SmallControl";
 const styles = {
   root: tw`
     flex
-    justify-center
   `,
   veryWideCount: tw`
     w-[90px]
@@ -35,7 +35,6 @@ const styles = {
   tableHeader: tw`
     flex
     items-center
-    justify-center
   `,
   textHeader: tw`
     px-1
@@ -50,7 +49,7 @@ interface VotesHistoryRowProps {
 
 export default function VotesHistoryRow({
   index,
-  ...rest
+  style,
 }: VotesHistoryRowProps) {
   const gameStateIds = useAppSelector(selectGameStateIds);
   const gameState = useAppSelector((state) =>
@@ -58,7 +57,7 @@ export default function VotesHistoryRow({
   );
 
   if (index === 0) {
-    return <TableHeader {...rest} />;
+    return <TableHeader style={style} />;
   }
 
   if (index - 1 === 0 || !gameState) {
@@ -66,7 +65,15 @@ export default function VotesHistoryRow({
   }
 
   return (
-    <div {...rest} css={styles.root}>
+    <div
+      style={style}
+      css={[
+        styles.root,
+        css({
+          width: "auto !important",
+        }),
+      ]}
+    >
       <div css={styles.wideCount}>{gameState.second}</div>
       <div css={styles.narrowCount}>{gameState.upCount}</div>
       <div css={styles.narrowCount}>{gameState.downCount}</div>
