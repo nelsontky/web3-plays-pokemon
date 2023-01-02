@@ -1,4 +1,5 @@
 {
+  "globalDependencies": ["$NEXT_PUBLIC_RPC_URL"],
   "$schema": "https://turbo.build/schema.json",
   "pipeline": {
     "build": {

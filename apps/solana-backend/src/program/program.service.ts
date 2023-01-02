@@ -23,8 +23,8 @@ export class ProgramService implements OnModuleDestroy {
 
   constructor(private readonly wasmboyService: WasmboyService) {
     this.connection = new anchor.web3.Connection(
-      "https://silent-side-firefly.solana-devnet.discover.quiknode.pro/71ad7ea43222277835b53cd7a66efe522cb201f3/",
-      { commitment: "processed" },
+      process.env.RPC_URL,
+      process.env.RPC_CONFIG ? JSON.parse(process.env.RPC_CONFIG) : undefined,
     );
 
     const keypair = anchor.web3.Keypair.fromSecretKey(
