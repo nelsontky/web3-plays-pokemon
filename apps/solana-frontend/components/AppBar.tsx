@@ -12,13 +12,14 @@ const styles = {
     container
     flex
     items-center
-    justify-between
+    justify-end
+    sm:justify-between
     grow
   `,
   header: tw`
-    invisible
+    hidden
     text-4xl
-    sm:visible
+    sm:block
   `,
 };
 
@@ -27,7 +28,17 @@ export default function AppBar() {
     <div css={styles.root}>
       <div css={styles.inner}>
         <h1 css={styles.header}>Solana Plays Pokemon</h1>
-        <AppWalletMultiButton />
+        <div css={tw`flex gap-4 items-center`}>
+          <button
+            css={tw`underline text-xl cursor-pointer`}
+            onClick={() => {
+              document.getElementById("how-to-play")?.scrollIntoView();
+            }}
+          >
+            How to play
+          </button>
+          <AppWalletMultiButton />
+        </div>
       </div>
     </div>
   );
