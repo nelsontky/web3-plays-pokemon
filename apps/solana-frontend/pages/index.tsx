@@ -2,7 +2,8 @@ import tw from "twin.macro";
 import Controls from "../components/Controls";
 import CurrentVotes from "../components/CurrentVotes";
 import GameCanvas from "../components/GameCanvas";
-import HowToPlay from "../components/How ToPlaySection";
+import HowToPlay from "../components/HowToPlay";
+import VotesHistory from "../components/VotesHistory";
 
 export default function Web() {
   return (
@@ -11,6 +12,7 @@ export default function Web() {
       <Controls />
       <CurrentVotes />
       <HowToPlay />
+      <VotesHistory />
     </div>
   );
 }

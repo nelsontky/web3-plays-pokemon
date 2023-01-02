@@ -9,7 +9,7 @@ const styles = {
     mt-6
   `,
   header: tw`
-    text-xl
+    text-4xl
     text-center
   `,
   tableContainer: tw`
@@ -50,7 +50,7 @@ export default function CurrentVotes() {
 
   return (
     <div css={styles.root}>
-      <h2 css={styles.header}>Current votes:</h2>
+      <h2 css={styles.header}>Current votes</h2>
       <div css={styles.tableContainer}>
         <table>
           <tbody>

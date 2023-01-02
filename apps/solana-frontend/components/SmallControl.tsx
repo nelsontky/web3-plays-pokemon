@@ -1,13 +1,21 @@
 import tw from "twin.macro";
-import AppButton from "./AppButton";
+import AppButton, { AppButtonProps } from "./AppButton";
 
-const SmallControl = ({ children }: { children: React.ReactNode }) => (
+interface SmallControlProps extends AppButtonProps {}
+
+const SmallControl = ({
+  children,
+  containerStyles,
+  ...rest
+}: SmallControlProps) => (
   <AppButton
     containerStyles={{
       transform: "scale(0.6)",
+      ...containerStyles,
     }}
     css={tw`px-3`}
     disabled
+    {...rest}
   >
     {children}
   </AppButton>

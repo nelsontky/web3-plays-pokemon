@@ -1,83 +1,53 @@
-import { useEffect, useMemo, useState } from "react";
-import * as anchor from "@project-serum/anchor";
-import { useReadonlyProgram } from "../hooks/useProgram";
-import { GAME_DATA_ACCOUNT_PUBLIC_KEY } from "../constants";
+import tw from "twin.macro";
+import SmallControl from "./SmallControl";
+
+const styles = {
+  root: tw`
+    mt-6
+  `,
+  header: tw`
+    text-4xl
+    text-center
+  `,
+  table: tw`
+    overflow-x-auto
+  `,
+  tableHeader: tw`
+    mt-4
+    flex
+    items-center
+  `,
+  textHeader: tw`
+    px-1
+    whitespace-nowrap
+  `,
+};
 
 export default function VotesHistory() {
-  const program = useReadonlyProgram();
-  const [secondsPlayed, setSecondsPlayed] = useState<number>();
-
-  const allGameStatesPdas = useMemo(
-    () =>
-      secondsPlayed !== undefined
-        ? Array.from({ length: secondsPlayed }, (_, i) => {
-            const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
-              [
-                GAME_DATA_ACCOUNT_PUBLIC_KEY.toBuffer(),
-                Buffer.from("game_state"),
-                Buffer.from("" + i),
-              ],
-              program.programId
-            );
-            return gameStatePda;
-          })
-        : undefined,
-    [secondsPlayed, program]
+  return (
+    <div css={styles.root}>
+      <h1 css={styles.header}>Votes history</h1>
+      <div css={styles.table}>
+        <div css={styles.tableHeader}>
+          <p css={[styles.textHeader, tw`ml-auto`]}>Game second</p>
+          <p css={styles.textHeader}>Time left to vote</p>
+          <SmallControl>↑</SmallControl>
+          <SmallControl>↓</SmallControl>
+          <SmallControl>←</SmallControl>
+          <SmallControl>→</SmallControl>
+          <SmallControl>A</SmallControl>
+          <SmallControl>B</SmallControl>
+          <SmallControl>START</SmallControl>
+          <SmallControl>SELECT</SmallControl>
+          <SmallControl
+            containerStyles={{
+              marginRight: "auto",
+            }}
+          >
+            DO NOTHING
+          </SmallControl>
+        </div>
+      </div>
+    </div>
   );
-
-  useEffect(
-    function getSecondsPlayed() {
-      (async () => {
-        const gameDataAccount = await program.account.gameData.fetch(
-          GAME_DATA_ACCOUNT_PUBLIC_KEY
-        );
-        const secondsPlayed = gameDataAccount.secondsPlayed;
-        console.log("secondsPlayed:", secondsPlayed);
-        setSecondsPlayed(secondsPlayed);
-      })();
-    },
-    [program.account.gameData]
-  );
-
-  useEffect(
-    function addCurrentGameStateListener() {
-      const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
-        [
-          GAME_DATA_ACCOUNT_PUBLIC_KEY.toBuffer(),
-          Buffer.from("game_state"),
-          Buffer.from("" + secondsPlayed),
-        ],
-        program.programId
-      );
-
-      const emitter = program.account.gameState.subscribe(
-        gameStatePda,
-        "processed"
-      );
-      emitter.addListener("change", (account) => {
-        console.log(account);
-      });
-
-      return () => {
-        emitter.removeAllListeners();
-      };
-    },
-    [program, secondsPlayed]
-  );
-
-  useEffect(
-    function fetchAllGameStates() {
-      if (allGameStatesPdas) {
-        (async () => {
-          const result = await program.account.gameState.fetchMultiple(
-            allGameStatesPdas
-          );
-          console.log(result);
-        })();
-      }
-    },
-    [allGameStatesPdas, program.account.gameState]
-  );
-
-  return null;
 }
