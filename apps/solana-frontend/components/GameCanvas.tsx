@@ -7,8 +7,7 @@ import pako from "pako";
 import { useAppSelector } from "../hooks/redux";
 
 export default function GameCanvas() {
-  const canvasRef = useRef<HTMLCanvasElement>();
-  const secondsPlayed = useAppSelector((state) => state.gameData.secondsPlayed);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameStatesStatus = useAppSelector((state) => state.gameStates.status);
   const framesImageToRenderCid = useAppSelector(
     (state) => state.gameStates.framesImageCidToRender
@@ -67,13 +66,9 @@ export default function GameCanvas() {
   return (
     <canvas
       css={tw`mx-auto max-w-full`}
-      ref={(node) => {
-        if (node && !canvasRef.current) {
-          node.height = CELL_SIZE * GAMEBOY_CAMERA_HEIGHT;
-          node.width = CELL_SIZE * GAMEBOY_CAMERA_WIDTH;
-          canvasRef.current = node;
-        }
-      }}
+      ref={canvasRef}
+      width={CELL_SIZE * GAMEBOY_CAMERA_WIDTH}
+      height={CELL_SIZE * GAMEBOY_CAMERA_HEIGHT}
     />
   );
 }
