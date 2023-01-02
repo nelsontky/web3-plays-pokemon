@@ -4,6 +4,7 @@ import Controls from "../components/Controls";
 import CurrentVotes from "../components/CurrentVotes";
 import GameCanvas from "../components/GameCanvas";
 import HowToPlay from "../components/HowToPlay";
+import SocialLinks from "../components/SocialLinks";
 import VotesHistory from "../components/VotesHistory";
 
 const DESCRIPTION = "Play Pokemon collaboratively on the Solana blockchain!";
@@ -34,6 +35,7 @@ export default function Web() {
           href="/favicon-16x16.png"
         />
       </Head>
+      <SocialLinks />
       <GameCanvas />
       <Controls />
       <CurrentVotes />
