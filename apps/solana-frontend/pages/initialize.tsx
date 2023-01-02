@@ -7,16 +7,19 @@ const FRAMES_IMAGES_CID =
 const SAVE_STATE_CID =
   "bafkreigta3nr75v35u3vpod5pbye5yslgkafxxamhiaiffd6elfbkdw4by";
 
-const gameData = anchor.web3.Keypair.fromSecretKey(
-  new Uint8Array(/* game data key */)
-);
+let gameData: anchor.web3.Keypair | null = null;
+try {
+  gameData = anchor.web3.Keypair.fromSecretKey(
+    new Uint8Array(/* game data key */)
+  );
+} catch {}
 
 export default function Initialize() {
   const program = useMutableProgram();
   return (
     <AppButton
       onClick={async () => {
-        if (program) {
+        if (program && gameData) {
           const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
             [
               gameData.publicKey.toBuffer(),
