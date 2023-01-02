@@ -7,6 +7,7 @@ import { POKEMON_PIXEL_FONT } from "../constants";
 const customStyles = css({
   body: {
     ...POKEMON_PIXEL_FONT.style,
+    background: "#ffffff",
   },
   ".custom-snackbar-root": {
     "&& > .SnackbarContent-root": {
