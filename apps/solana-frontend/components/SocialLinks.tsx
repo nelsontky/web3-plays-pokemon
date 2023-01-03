@@ -26,6 +26,14 @@ export default function SocialLinks() {
       </a>
       <a
         css={styles.text}
+        href="https://twitter.com/sol_idity"
+        target="_blank"
+        rel="noreferrer"
+      >
+        Twitter
+      </a>
+      <a
+        css={styles.text}
         href="https://github.com/nelsontky/web3-plays-pokemon"
         target="_blank"
         rel="noreferrer"
