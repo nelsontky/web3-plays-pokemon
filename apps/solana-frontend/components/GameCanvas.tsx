@@ -1,5 +1,5 @@
 import { FPS, GAMEBOY_CAMERA_HEIGHT, GAMEBOY_CAMERA_WIDTH } from "common";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import tw from "twin.macro";
 import renderFrame, { CELL_SIZE } from "../utils/renderFrame";
 import axios from "axios";
@@ -12,6 +12,7 @@ export default function GameCanvas() {
   const framesImageToRenderCid = useAppSelector(
     (state) => state.gameStates.framesImageCidToRender
   );
+  const [framesImageData, setFrameImagesData] = useState<number[][]>();
 
   useEffect(
     function renderFrames() {
@@ -36,23 +37,7 @@ export default function GameCanvas() {
 
           const inflated = pako.inflate(response.data, { to: "string" });
           const framesImageData: number[][] = JSON.parse(inflated);
-
-          const renderLoop = () => {
-            if (canvasRef.current) {
-              const frameDataArray = framesImageData.shift();
-              const ctx = canvasRef.current.getContext("2d");
-
-              if (ctx && frameDataArray) {
-                requestAnimationFrame(renderLoop);
-
-                setTimeout(() => {
-                  renderFrame(frameDataArray, ctx);
-                }, 1000 / FPS);
-              }
-            }
-          };
-
-          renderLoop();
+          setFrameImagesData(framesImageData);
         })();
 
         return () => {
@@ -61,6 +46,38 @@ export default function GameCanvas() {
       }
     },
     [framesImageToRenderCid, gameStatesStatus]
+  );
+
+  useEffect(
+    function drawToCanvas() {
+      if (framesImageData) {
+        let now;
+        let then = Date.now();
+        let interval = 1000 / FPS;
+        let delta;
+
+        const renderLoop = () => {
+          requestAnimationFrame(renderLoop);
+
+          now = Date.now();
+          delta = now - then;
+
+          if (canvasRef.current && delta > interval) {
+            then = now - (delta % interval);
+
+            const frameDataArray = framesImageData.shift();
+            const ctx = canvasRef.current.getContext("2d");
+
+            if (ctx && frameDataArray) {
+              renderFrame(frameDataArray, ctx);
+            }
+          }
+        };
+
+        renderLoop();
+      }
+    },
+    [framesImageData]
   );
 
   return (
