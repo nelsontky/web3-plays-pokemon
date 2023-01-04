@@ -14,6 +14,7 @@ import {
 } from "common";
 import { SolanaPlaysPokemonProgram } from "solana-plays-pokemon-program";
 import { WasmboyService } from "src/wasmboy/wasmboy.service";
+import { Cron } from "@nestjs/schedule";
 
 // nestjs doesn't want to play nice with json imports from workspace package
 import * as idl from "../../../../packages/solana-plays-pokemon-program/target/idl/solana_plays_pokemon_program.json";
@@ -119,6 +120,26 @@ export class ProgramService implements OnModuleDestroy {
     }
 
     await this.executeGameState(gameData.secondsPlayed);
+  }
+
+  @Cron("*/20 * * * * *")
+  async cronExecute() {
+    const gameDataId = new anchor.web3.PublicKey(GAME_DATA_ACCOUNT_ID);
+    const gameData = await this.program.account.gameData.fetch(gameDataId);
+
+    if (!gameData.isExecuting) {
+      return;
+    }
+
+    this.logger.log(
+      `Cron job executing for game second "${gameData.secondsPlayed}"`,
+    );
+    try {
+      await this.executeGameState(gameData.secondsPlayed);
+    } catch (e) {
+      this.logger.warn(`Cron job failed: ${e}`);
+    }
+    this.logger.log("Cron job executed successfully!");
   }
 
   private async executeGameState(secondsPlayed: number) {
