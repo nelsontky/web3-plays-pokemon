@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@chatui/core": "^2.4.2",
     "@emotion/css": "^11.10.5",
     "@emotion/react": "^11.10.5",
     "@emotion/server": "^11.10.0",
@@ -25,6 +26,8 @@
     "@solana/web3.js": "^1.58.0",
     "axios": "^1.2.1",
     "common": "workspace:*",
+    "firebase": "^9.15.0",
+    "firebase-admin": "^11.4.1",
     "next": "13.1.1",
     "notistack": "^2.0.8",
     "pako": "^2.1.0",
@@ -33,6 +36,7 @@
     "react-redux": "^8.0.0-rc.0",
     "redux": "^4.1.2",
     "solana-plays-pokemon-program": "workspace:*",
+    "tweetnacl": "^1.0.3",
     "ui": "workspace:*"
   },
   "devDependencies": {

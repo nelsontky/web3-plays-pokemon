@@ -1,3 +1,4 @@
+import dynamic from "next/dynamic";
 import Head from "next/head";
 import tw from "twin.macro";
 import Controls from "../components/Controls";
@@ -6,6 +7,13 @@ import GameCanvas from "../components/GameCanvas";
 import HowToPlay from "../components/HowToPlay";
 import SocialLinks from "../components/SocialLinks";
 import VotesHistory from "../components/VotesHistory";
+
+const ChatWidgetDynamic = dynamic(
+  async () => await import("../components/ChatWidget"),
+  {
+    ssr: false,
+  }
+);
 
 const DESCRIPTION = "Play Pokemon collaboratively on the Solana blockchain!";
 
@@ -36,6 +44,7 @@ export default function Web() {
         />
       </Head>
       <SocialLinks />
+      <ChatWidgetDynamic />
       <GameCanvas />
       <Controls />
       <CurrentVotes />
