@@ -70,14 +70,14 @@ export class ProgramService implements OnModuleDestroy {
   }
 
   listen() {
-    const RETRIES = 10;
+    const ATTEMPTS = 2;
     this.listener = this.program.addEventListener(
       "ExecuteGameState",
       async (event) => {
         this.logger.log(
           "Executing game state with event: " + JSON.stringify(event),
         );
-        for (let i = 0; i < RETRIES; i++) {
+        for (let i = 0; i < ATTEMPTS; i++) {
           try {
             const gameDataId: anchor.web3.PublicKey = event.gameDataId;
             if (gameDataId.toBase58() !== GAME_DATA_ACCOUNT_ID) {
@@ -98,7 +98,7 @@ export class ProgramService implements OnModuleDestroy {
             await new Promise((resolve) => {
               setTimeout(resolve, 1000);
             });
-            this.logger.error(`(${i + 1} / ${RETRIES}) Retrying...`);
+            this.logger.error(`(${i + 1} / ${ATTEMPTS}) Retrying...`);
           }
         }
       },
