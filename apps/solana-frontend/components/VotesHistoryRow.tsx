@@ -1,114 +1,50 @@
-import { css } from "@emotion/react";
-import { CSSProperties } from "react";
+import { EntityId } from "@reduxjs/toolkit";
 import tw from "twin.macro";
 import { useAppSelector } from "../hooks/redux";
-import {
-  selectGameStateById,
-  selectGameStateIds,
-} from "../slices/gameStatesSlice";
+import { selectGameStateById } from "../slices/gameStatesSlice";
 import SmallControl from "./SmallControl";
 
 const styles = {
-  root: tw`
-    flex
-  `,
-  veryWideCount: tw`
-    w-[90px]
+  tableData: tw`
     text-center
-  `,
-  wideCount: tw`
-    w-[78px]
-    text-center
-  `,
-  textButtonCount: tw`
-    w-[68px]
-    text-center
-  `,
-  mediumCount: tw`
-    w-[42px]
-    text-center  
-  `,
-  narrowCount: tw`
-    w-[29px]
-    text-center
-  `,
-  tableHeader: tw`
-    flex
-    items-center
-  `,
-  textHeader: tw`
-    px-1
-    whitespace-nowrap
+    align-top
   `,
 };
 
 interface VotesHistoryRowProps {
-  index: number;
-  style: CSSProperties;
+  gameStateId: EntityId;
 }
 
-export default function VotesHistoryRow({
-  index,
-  style,
-}: VotesHistoryRowProps) {
-  const gameStateIds = useAppSelector(selectGameStateIds);
+export default function VotesHistoryRow({ gameStateId }: VotesHistoryRowProps) {
   const gameState = useAppSelector((state) =>
-    selectGameStateById(state, gameStateIds[index - 1])
+    selectGameStateById(state, gameStateId)
   );
 
-  if (index === 0) {
-    return <TableHeader style={style} />;
-  }
-
-  if (index - 1 === 0 || !gameState) {
+  if (!gameState) {
     return null;
   }
 
   return (
-    <div
-      style={style}
-      css={[
-        styles.root,
-        css({
-          width: "auto !important",
-        }),
-      ]}
-    >
-      <div css={styles.wideCount}>{gameState.second}</div>
-      <div css={styles.narrowCount}>{gameState.upCount}</div>
-      <div css={styles.narrowCount}>{gameState.downCount}</div>
-      <div css={styles.mediumCount}>{gameState.leftCount}</div>
-      <div css={styles.mediumCount}>{gameState.rightCount}</div>
-      <div css={styles.narrowCount}>{gameState.aCount}</div>
-      <div css={styles.narrowCount}>{gameState.bCount}</div>
-      <div css={styles.textButtonCount}>{gameState.startCount}</div>
-      <div css={styles.textButtonCount}>{gameState.selectCount}</div>
-      <div css={styles.textButtonCount}>{gameState.nothingCount}</div>
-      <div css={styles.veryWideCount}>
+    <tr>
+      <td css={styles.tableData}>{gameState.second}</td>
+      <td css={styles.tableData}>{gameState.upCount}</td>
+      <td css={styles.tableData}>{gameState.downCount}</td>
+      <td css={styles.tableData}>{gameState.leftCount}</td>
+      <td css={styles.tableData}>{gameState.rightCount}</td>
+      <td css={styles.tableData}>{gameState.aCount}</td>
+      <td css={styles.tableData}>{gameState.bCount}</td>
+      <td css={styles.tableData}>{gameState.startCount}</td>
+      <td css={styles.tableData}>{gameState.selectCount}</td>
+      <td css={styles.tableData}>{gameState.nothingCount}</td>
+      <td css={styles.tableData}>
         <SmallControl
           containerStyles={{
-            transform: "scale(0.6) translateY(-0.7rem)",
+            transform: "scale(0.6) translateY(-1rem)",
           }}
         >
           {gameState.executedButton}
         </SmallControl>
-      </div>
-    </div>
+      </td>
+    </tr>
   );
 }
-
-const TableHeader = (props: { style: CSSProperties }) => (
-  <div css={styles.tableHeader} {...props}>
-    <p css={styles.textHeader}>Game second</p>
-    <SmallControl>↑</SmallControl>
-    <SmallControl>↓</SmallControl>
-    <SmallControl>←</SmallControl>
-    <SmallControl>→</SmallControl>
-    <SmallControl>A</SmallControl>
-    <SmallControl>B</SmallControl>
-    <SmallControl>START</SmallControl>
-    <SmallControl>SELECT</SmallControl>
-    <SmallControl>DO NOTHING</SmallControl>
-    <p css={styles.textHeader}>Executed button</p>
-  </div>
-);
