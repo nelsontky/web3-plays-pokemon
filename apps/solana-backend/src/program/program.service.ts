@@ -136,10 +136,10 @@ export class ProgramService implements OnModuleDestroy {
     );
     try {
       await this.executeGameState(gameData.secondsPlayed);
+      this.logger.log("Cron job executed successfully!");
     } catch (e) {
       this.logger.warn(`Cron job failed: ${e}`);
     }
-    this.logger.log("Cron job executed successfully!");
   }
 
   private async executeGameState(secondsPlayed: number) {
