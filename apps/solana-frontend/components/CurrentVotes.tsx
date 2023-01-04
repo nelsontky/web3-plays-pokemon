@@ -19,7 +19,6 @@ const styles = {
     flex-wrap
     justify-center
     items-start
-    h-[72px]
   `,
   tableData: tw`
     text-center
