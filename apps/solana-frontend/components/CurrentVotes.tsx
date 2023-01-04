@@ -18,9 +18,12 @@ const styles = {
     flex
     flex-wrap
     justify-center
+    items-start
+    h-[72px]
   `,
   tableData: tw`
     text-center
+    align-top
   `,
   textHeader: tw`
     px-1
@@ -33,14 +36,18 @@ export default function CurrentVotes() {
     selectGameStateById(state, secondsPlayed)
   );
 
-  const [secondsLeft, setSecondsLeft] = useState(0);
+  const [secondsLeft, setSecondsLeft] = useState<string>("0");
   useEffect(() => {
     const calcSecondsLeft = () => {
       const secondsLeft = currentState
         ? VOTE_SECONDS -
           (Math.floor(Date.now() / 1000) - currentState.createdAt)
         : VOTE_SECONDS;
-      setSecondsLeft(secondsLeft > 0 ? secondsLeft : 0);
+      setSecondsLeft(
+        secondsLeft > 0
+          ? secondsLeft + "s"
+          : "Next button will be the last vote"
+      );
     };
 
     const timer = setInterval(calcSecondsLeft, 500);
@@ -75,7 +82,9 @@ export default function CurrentVotes() {
             </tr>
             <tr>
               <td css={styles.tableData}>{secondsPlayed}</td>
-              <td css={styles.tableData}>{secondsLeft}s</td>
+              <td css={[styles.tableData, tw`max-w-[1rem] leading-none`]}>
+                {secondsLeft}
+              </td>
               <td css={styles.tableData}>{currentState?.upCount ?? 0}</td>
               <td css={styles.tableData}>{currentState?.downCount ?? 0}</td>
               <td css={styles.tableData}>{currentState?.leftCount ?? 0}</td>

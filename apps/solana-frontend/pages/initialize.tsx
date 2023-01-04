@@ -28,14 +28,24 @@ export default function Initialize() {
             ],
             program.programId
           );
+          const [nextGameStatePda] =
+            anchor.web3.PublicKey.findProgramAddressSync(
+              [
+                gameData.publicKey.toBuffer(),
+                Buffer.from("game_state"),
+                Buffer.from("1"),
+              ],
+              program.programId
+            );
           console.log("sending");
           await program.methods
             .initialize(FRAMES_IMAGES_CID, SAVE_STATE_CID)
             .accounts({
-              authority: anchor.getProvider().publicKey,
               gameData: gameData.publicKey,
               gameState: gameStatePda,
+              nextGameState: nextGameStatePda,
               systemProgram: anchor.web3.SystemProgram.programId,
+              clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
             })
             .signers([gameData])
             .rpc();

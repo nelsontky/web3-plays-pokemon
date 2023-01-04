@@ -25,12 +25,13 @@ export default function useGameStateListener() {
     return pda;
   }, [secondsPlayed]);
 
-  const previousGameStatePda = usePrevious(gameStatePda);
+  const gameStatePdaPrev = usePrevious(gameStatePda);
+  const didGameStatePdaChange =
+    gameStatePdaPrev?.toBase58() !== gameStatePda.toBase58();
   const isInitialSetup = useRef(true);
+
   useEffect(
     function setupListener() {
-      const didGameStatePdaChange =
-        previousGameStatePda?.toBase58() !== gameStatePda.toBase58();
       if (
         gameStatesStatus === "succeeded" &&
         (didGameStatePdaChange || isInitialSetup.current)
@@ -63,7 +64,48 @@ export default function useGameStateListener() {
       gameStatesStatus,
       gameStatePda,
       program.account.gameState,
-      previousGameStatePda,
+      gameStatePdaPrev,
+      didGameStatePdaChange,
+    ]
+  );
+
+  useEffect(
+    function fetchNewState() {
+      if (gameStatesStatus === "succeeded" && didGameStatePdaChange) {
+        let hasUnmounted = false;
+
+        (async () => {
+          try {
+            const gameState = await program.account.gameState.fetch(
+              gameStatePda
+            );
+            if (!hasUnmounted) {
+              dispatch(
+                upsertGameState({
+                  ...gameState,
+                  accountPublicKey: gameStatePda.toBase58(),
+                  createdAt: gameState.createdAt.toNumber(),
+                  executedButton: anchorEnumToJsEnum(gameState.executedButton),
+                })
+              );
+            }
+          } catch {
+            // ignore any errors of account not existing
+          }
+        })();
+
+        return () => {
+          hasUnmounted = true;
+        };
+      }
+    },
+    [
+      dispatch,
+      gameStatesStatus,
+      gameStatePda,
+      program.account.gameState,
+      gameStatePdaPrev,
+      didGameStatePdaChange,
     ]
   );
 }

@@ -14,7 +14,7 @@ solana_plays_pokemon_program = "pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg"
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Localnet"
+cluster = "Devnet"
 wallet = "/Users/nelson/.config/solana/id.json"
 
 [scripts]
