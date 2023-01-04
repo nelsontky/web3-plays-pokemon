@@ -54,7 +54,6 @@ export class ProgramService implements OnModuleDestroy {
 
     const provider = new anchor.AnchorProvider(this.connection, this.wallet, {
       commitment: "processed",
-      skipPreflight: true,
     });
     this.program = new anchor.Program(
       idl as anchor.Idl,
