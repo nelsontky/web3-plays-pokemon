@@ -68,7 +68,8 @@ export default function VotesHistory() {
               </th>
               <th css={styles.textHeader}>Executed button</th>
             </tr>
-            {gameStateIds.map((id) => (
+            {/* skip first game state */}
+            {gameStateIds.slice(1).map((id) => (
               <VotesHistoryRow key={id} gameStateId={id} />
             ))}
           </tbody>
