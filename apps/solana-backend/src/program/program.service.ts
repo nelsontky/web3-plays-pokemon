@@ -123,14 +123,6 @@ export class ProgramService implements OnModuleDestroy {
 
   private async executeGameState(secondsPlayed: number) {
     const gameDataId = new anchor.web3.PublicKey(GAME_DATA_ACCOUNT_ID);
-    const [currentGameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
-      [
-        gameDataId.toBuffer(),
-        Buffer.from("game_state"),
-        Buffer.from("" + secondsPlayed),
-      ],
-      this.program.programId,
-    );
     const [prevGameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
       [
         gameDataId.toBuffer(),
@@ -139,6 +131,23 @@ export class ProgramService implements OnModuleDestroy {
       ],
       this.program.programId,
     );
+    const [currentGameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        gameDataId.toBuffer(),
+        Buffer.from("game_state"),
+        Buffer.from("" + secondsPlayed),
+      ],
+      this.program.programId,
+    );
+    const [nextGameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        gameDataId.toBuffer(),
+        Buffer.from("game_state"),
+        Buffer.from("" + (secondsPlayed + 1)),
+      ],
+      this.program.programId,
+    );
+
     const [prevGameState, currentGameState] = await Promise.all([
       this.program.account.gameState.fetch(prevGameStatePda),
       this.program.account.gameState.fetch(currentGameStatePda),
@@ -152,7 +161,6 @@ export class ProgramService implements OnModuleDestroy {
 
     const instruction = await this.program.methods
       .updateGameState(
-        secondsPlayed,
         jsEnumToAnchorEnum(joypadButton),
         framesImageDataCid,
         saveStateCid,
@@ -161,7 +169,9 @@ export class ProgramService implements OnModuleDestroy {
         authority: this.wallet.publicKey,
         gameData: gameDataId,
         gameState: currentGameStatePda,
+        nextGameState: nextGameStatePda,
         systemProgram: anchor.web3.SystemProgram.programId,
+        clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
       })
       .signers([this.wallet.payer])
       .instruction();
