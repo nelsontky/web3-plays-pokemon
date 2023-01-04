@@ -37,6 +37,13 @@ pub mod solana_plays_pokemon_program {
         game_state.save_state_cid = save_state_cid;
         msg!("First game state account initialized");
 
+        // init next game state
+        let next_game_state = &mut ctx.accounts.next_game_state;
+        next_game_state.second = game_data.seconds_played;
+        next_game_state.created_at = ctx.accounts.clock.unix_timestamp;
+        next_game_state.executed_button = JoypadButton::Nothing;
+        msg!("Second game state account initialized");
+
         Ok(())
     }
 
@@ -47,13 +54,6 @@ pub mod solana_plays_pokemon_program {
         }
 
         let game_state = &mut ctx.accounts.game_state;
-
-        // initialize state if it wasn't initialized before
-        if game_state.second == 0 {
-            game_state.second = game_data.seconds_played;
-            game_state.created_at = ctx.accounts.clock.unix_timestamp;
-            game_state.executed_button = JoypadButton::Nothing;
-        }
 
         match joypad_button {
             JoypadButton::Up => game_state.up_count = game_state.up_count.checked_add(1).unwrap(),
@@ -95,7 +95,6 @@ pub mod solana_plays_pokemon_program {
 
     pub fn update_game_state(
         ctx: Context<UpdateGameState>,
-        _second: u32,
         executed_button: JoypadButton,
         frames_image_cid: String,
         save_state_cid: String,
@@ -112,6 +111,12 @@ pub mod solana_plays_pokemon_program {
         game_state.executed_button = executed_button;
         game_state.frames_image_cid = frames_image_cid;
         game_state.save_state_cid = save_state_cid;
+
+        // init next game state
+        let next_game_state = &mut ctx.accounts.next_game_state;
+        next_game_state.second = game_data.seconds_played;
+        next_game_state.created_at = ctx.accounts.clock.unix_timestamp;
+        next_game_state.executed_button = JoypadButton::Nothing;
 
         Ok(())
     }
@@ -130,6 +135,14 @@ pub struct Initialize<'info> {
         bump
     )]
     pub game_state: Account<'info, GameState>,
+    #[account(
+        init,
+        payer = authority,
+        space = 8 + GameState::LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
+        seeds = [game_data.key().as_ref(), b"game_state", b"1"], // seeds comprise of game_data key, a static text, and the second when the state begins
+        bump
+    )]
+    pub next_game_state: Account<'info, GameState>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
@@ -139,9 +152,7 @@ pub struct Initialize<'info> {
 #[derive(Accounts)]
 pub struct Vote<'info> {
     #[account(
-        init_if_needed,
-        payer = player,
-        space = 8 + GameState::LEN + 4 + 59 + 4 + 59, // nft.storage cids are 59 characters long by default
+        mut,
         seeds = [
                 game_data.key().as_ref(),
                 b"game_state", 
@@ -160,7 +171,6 @@ pub struct Vote<'info> {
 
 #[derive(Accounts)]
 #[instruction(
-    second: u32,
     executed_button: JoypadButton,
     frames_image_cid: String,
     save_state_cid: String,
@@ -171,7 +181,7 @@ pub struct UpdateGameState<'info> {
         seeds = [
             game_data.key().as_ref(),
             b"game_state",
-            (second).to_string().as_ref()
+            (game_data.seconds_played).to_string().as_ref()
         ],
         bump,
         realloc = 8 + GameState::LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
@@ -179,11 +189,24 @@ pub struct UpdateGameState<'info> {
         realloc::zero = true,
     )]
     pub game_state: Account<'info, GameState>,
+    #[account(
+        init,
+        payer = authority,
+        space = 8 + GameState::LEN + 4 + 59 + 4 + 59, // nft.storage cids are 59 characters long by default
+        seeds = [
+                game_data.key().as_ref(),
+                b"game_state", 
+                (game_data.seconds_played.checked_add(1).unwrap()).to_string().as_ref()
+            ],
+        bump
+    )]
+    pub next_game_state: Account<'info, GameState>,
     #[account(mut, has_one = authority)]
     pub game_data: Account<'info, GameData>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
+    pub clock: Sysvar<'info, Clock>,
 }
 
 #[account]

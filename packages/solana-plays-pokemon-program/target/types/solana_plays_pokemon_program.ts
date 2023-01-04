@@ -16,6 +16,11 @@ export type SolanaPlaysPokemonProgram = {
           "isSigner": false
         },
         {
+          "name": "nextGameState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "authority",
           "isMut": true,
           "isSigner": true
@@ -89,6 +94,11 @@ export type SolanaPlaysPokemonProgram = {
           "isSigner": false
         },
         {
+          "name": "nextGameState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "gameData",
           "isMut": true,
           "isSigner": false
@@ -102,13 +112,14 @@ export type SolanaPlaysPokemonProgram = {
           "name": "systemProgram",
           "isMut": false,
           "isSigner": false
+        },
+        {
+          "name": "clock",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": [
-        {
-          "name": "second",
-          "type": "u32"
-        },
         {
           "name": "executedButton",
           "type": {
@@ -300,6 +311,11 @@ export const IDL: SolanaPlaysPokemonProgram = {
           "isSigner": false
         },
         {
+          "name": "nextGameState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "authority",
           "isMut": true,
           "isSigner": true
@@ -373,6 +389,11 @@ export const IDL: SolanaPlaysPokemonProgram = {
           "isSigner": false
         },
         {
+          "name": "nextGameState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "gameData",
           "isMut": true,
           "isSigner": false
@@ -386,13 +407,14 @@ export const IDL: SolanaPlaysPokemonProgram = {
           "name": "systemProgram",
           "isMut": false,
           "isSigner": false
+        },
+        {
+          "name": "clock",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": [
-        {
-          "name": "second",
-          "type": "u32"
-        },
         {
           "name": "executedButton",
           "type": {

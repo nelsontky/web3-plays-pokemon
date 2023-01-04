@@ -26,6 +26,14 @@ describe("solana-plays-pokemon-program", () => {
       ],
       program.programId
     );
+    const [nextGameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        gameData.publicKey.toBuffer(),
+        Buffer.from("game_state"),
+        Buffer.from("1"),
+      ],
+      program.programId
+    );
 
     await program.methods
       .initialize(FRAMES_IMAGES_CID, SAVE_STATE_CID)
@@ -33,6 +41,7 @@ describe("solana-plays-pokemon-program", () => {
         authority: anchor.getProvider().publicKey,
         gameData: gameData.publicKey,
         gameState: gameStatePda,
+        nextGameState: nextGameStatePda,
         systemProgram: anchor.web3.SystemProgram.programId,
       })
       .signers([gameData])
@@ -65,30 +74,70 @@ describe("solana-plays-pokemon-program", () => {
 
     assert.isAbove(gameStateAccount.createdAt.toNumber(), 0);
 
+    assert.hasAllKeys(gameStateAccount.executedButton, ["nothing"]);
+
     assert.strictEqual(gameStateAccount.framesImageCid, FRAMES_IMAGES_CID);
     assert.strictEqual(gameStateAccount.saveStateCid, SAVE_STATE_CID);
+
+    const nextGameStateAccount = await program.account.gameState.fetch(
+      nextGameStatePda
+    );
+    assert.strictEqual(nextGameStateAccount.second, 1);
+    assert.strictEqual(nextGameStateAccount.upCount, 0);
+    assert.strictEqual(nextGameStateAccount.downCount, 0);
+    assert.strictEqual(nextGameStateAccount.leftCount, 0);
+    assert.strictEqual(nextGameStateAccount.rightCount, 0);
+    assert.strictEqual(nextGameStateAccount.aCount, 0);
+    assert.strictEqual(nextGameStateAccount.bCount, 0);
+    assert.strictEqual(nextGameStateAccount.startCount, 0);
+    assert.strictEqual(nextGameStateAccount.selectCount, 0);
+    assert.strictEqual(nextGameStateAccount.nothingCount, 0);
+
+    assert.isAbove(nextGameStateAccount.createdAt.toNumber(), 0);
+
+    assert.hasAllKeys(nextGameStateAccount.executedButton, ["nothing"]);
+
+    assert.strictEqual(nextGameStateAccount.framesImageCid, "");
+    assert.strictEqual(nextGameStateAccount.saveStateCid, "");
   });
 
   it("Cannot vote to game state account with invalid game data account for current game state", async () => {
-    const gameDataAccount = await program.account.gameData.fetch(
-      gameData.publicKey
-    );
     const invalidGameData = anchor.web3.Keypair.generate();
-    const secondsPlayed = gameDataAccount.secondsPlayed;
     const [invalidGameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
       [
         invalidGameData.publicKey.toBuffer(),
         Buffer.from("game_state"),
-        Buffer.from("" + secondsPlayed),
+        Buffer.from("0"),
       ],
       program.programId
     );
+    const [invalidNextGameStatePda] =
+      anchor.web3.PublicKey.findProgramAddressSync(
+        [
+          invalidGameData.publicKey.toBuffer(),
+          Buffer.from("game_state"),
+          Buffer.from("1"),
+        ],
+        program.programId
+      );
+    // init invalid pdas
+    await program.methods
+      .initialize("foo", "bar")
+      .accounts({
+        authority: anchor.getProvider().publicKey,
+        gameData: invalidGameData.publicKey,
+        gameState: invalidGameStatePda,
+        nextGameState: invalidNextGameStatePda,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      })
+      .signers([invalidGameData])
+      .rpc();
 
     try {
       await program.methods
         .vote({ a: {} })
         .accounts({
-          gameState: invalidGameStatePda,
+          gameState: invalidNextGameStatePda,
           gameData: gameData.publicKey,
           player: anchor.getProvider().publicKey,
           systemProgram: anchor.web3.SystemProgram.programId,
@@ -208,19 +257,23 @@ describe("solana-plays-pokemon-program", () => {
       ],
       program.programId
     );
+    const [nextGameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        gameData.publicKey.toBuffer(),
+        Buffer.from("game_state"),
+        Buffer.from("" + (secondsPlayed + 1)),
+      ],
+      program.programId
+    );
 
     try {
       await program.methods
-        .updateGameState(
-          secondsPlayed,
-          { a: {} },
-          NEW_FRAMES_IMAGES_CID,
-          NEW_SAVE_STATE_CID
-        )
+        .updateGameState({ a: {} }, NEW_FRAMES_IMAGES_CID, NEW_SAVE_STATE_CID)
         .accounts({
           authority: anchor.getProvider().publicKey,
           gameData: gameData.publicKey,
           gameState: gameStatePda,
+          nextGameState: nextGameStatePda,
           systemProgram: anchor.web3.SystemProgram.programId,
         })
         .rpc();
@@ -246,18 +299,37 @@ describe("solana-plays-pokemon-program", () => {
       [
         gameData.publicKey.toBuffer(),
         Buffer.from("game_state"),
-        Buffer.from("" + (secondsPlayed - 1)),
+        Buffer.from("" + secondsPlayed),
+      ],
+      program.programId
+    );
+    const [nextGameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        gameData.publicKey.toBuffer(),
+        Buffer.from("game_state"),
+        Buffer.from("" + (secondsPlayed + 1)),
       ],
       program.programId
     );
 
+    // fund invalid authority
+    const sendLamportsIx = anchor.web3.SystemProgram.transfer({
+      fromPubkey: anchor.getProvider().publicKey,
+      toPubkey: invalidAuthority.publicKey,
+      lamports: anchor.web3.LAMPORTS_PER_SOL,
+    });
+    await anchor
+      .getProvider()
+      .sendAndConfirm(new anchor.web3.Transaction().add(sendLamportsIx));
+
     try {
       await program.methods
-        .updateGameState(secondsPlayed - 1, { a: {} }, "foo", "bar")
+        .updateGameState({ a: {} }, "foo", "bar")
         .accounts({
           authority: invalidAuthority.publicKey,
           gameData: gameData.publicKey,
           gameState: gameStatePda,
+          nextGameState: nextGameStatePda,
           systemProgram: anchor.web3.SystemProgram.programId,
         })
         .signers([invalidAuthority])

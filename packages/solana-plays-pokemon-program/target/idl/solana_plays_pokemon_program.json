@@ -16,6 +16,11 @@
           "isSigner": false
         },
         {
+          "name": "nextGameState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "authority",
           "isMut": true,
           "isSigner": true
@@ -89,6 +94,11 @@
           "isSigner": false
         },
         {
+          "name": "nextGameState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "gameData",
           "isMut": true,
           "isSigner": false
@@ -102,13 +112,14 @@
           "name": "systemProgram",
           "isMut": false,
           "isSigner": false
+        },
+        {
+          "name": "clock",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": [
-        {
-          "name": "second",
-          "type": "u32"
-        },
         {
           "name": "executedButton",
           "type": {
@@ -281,6 +292,6 @@
     }
   ],
   "metadata": {
-    "address": "pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg"
+    "address": "pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK"
   }
 }
