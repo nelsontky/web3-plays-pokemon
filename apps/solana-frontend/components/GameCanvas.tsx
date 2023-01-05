@@ -1,4 +1,9 @@
-import { FPS, GAMEBOY_CAMERA_HEIGHT, GAMEBOY_CAMERA_WIDTH } from "common";
+import {
+  FPS,
+  GAMEBOY_CAMERA_HEIGHT,
+  GAMEBOY_CAMERA_WIDTH,
+  NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS,
+} from "common";
 import { useEffect, useRef, useState } from "react";
 import tw from "twin.macro";
 import renderFrame, { CELL_SIZE } from "../utils/renderFrame";
@@ -53,7 +58,8 @@ export default function GameCanvas() {
       if (framesImageData) {
         let now;
         let then = Date.now();
-        let interval = 1000 / FPS;
+        const fps = FPS / NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS;
+        let interval = 1000 / fps;
         let delta;
 
         const renderLoop = () => {

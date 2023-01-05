@@ -20,12 +20,13 @@ const styles = {
     justify-center
     items-start
   `,
-  table: tw`
+  tableWrapper: tw`
     min-h-[72px]
   `,
   tableData: tw`
     text-center
     align-top
+    leading-none
   `,
   textHeader: tw`
     px-1
@@ -66,64 +67,70 @@ export default function CurrentVotes() {
     <div css={styles.root}>
       <h2 css={styles.header}>Current votes</h2>
       <div css={styles.tableContainer}>
-        <table css={styles.table}>
-          <tbody>
-            <tr>
-              <th css={styles.textHeader}>Round</th>
-              <th css={styles.textHeader}>Time left to vote</th>
-              <th>
-                <SmallControl>↑</SmallControl>
-              </th>
-              <th>
-                <SmallControl>↓</SmallControl>
-              </th>
-              <th>
-                <SmallControl>←</SmallControl>
-              </th>
-              <th>
-                <SmallControl>→</SmallControl>
-              </th>
-            </tr>
-            <tr>
-              <td css={styles.tableData}>{executedStatesCount}</td>
-              <td css={[styles.tableData, tw`max-w-[1rem] leading-none`]}>
-                {secondsLeft}
-              </td>
-              <td css={styles.tableData}>{currentState?.upCount ?? 0}</td>
-              <td css={styles.tableData}>{currentState?.downCount ?? 0}</td>
-              <td css={styles.tableData}>{currentState?.leftCount ?? 0}</td>
-              <td css={styles.tableData}>{currentState?.rightCount ?? 0}</td>
-            </tr>
-          </tbody>
-        </table>
-        <table>
-          <tbody>
-            <tr>
-              <th>
-                <SmallControl>A</SmallControl>
-              </th>
-              <th>
-                <SmallControl>B</SmallControl>
-              </th>
-              <th>
-                <SmallControl>START</SmallControl>
-              </th>
-              <th>
-                <SmallControl>SELECT</SmallControl>
-              </th>
-              <th>
-                <SmallControl>DO NOTHING</SmallControl>
-              </th>
-            </tr>
-            <tr>
-              <td css={styles.tableData}>{currentState?.aCount ?? 0}</td>
-              <td css={styles.tableData}>{currentState?.bCount ?? 0}</td>
-              <td css={styles.tableData}>{currentState?.startCount ?? 0}</td>
-              <td css={styles.tableData}>{currentState?.selectCount ?? 0}</td>
-              <td css={styles.tableData}>{currentState?.nothingCount ?? 0}</td>
-            </tr>
-          </tbody>
-        </table>
+        <div css={styles.tableWrapper}>
+          <table>
+            <tbody>
+              <tr>
+                <th css={styles.textHeader}>Round</th>
+                <th css={styles.textHeader}>Time left to vote</th>
+                <th>
+                  <SmallControl>↑</SmallControl>
+                </th>
+                <th>
+                  <SmallControl>↓</SmallControl>
+                </th>
+                <th>
+                  <SmallControl>←</SmallControl>
+                </th>
+                <th>
+                  <SmallControl>→</SmallControl>
+                </th>
+              </tr>
+              <tr>
+                <td css={styles.tableData}>{executedStatesCount}</td>
+                <td css={[styles.tableData, tw`max-w-[1rem]`]}>
+                  {secondsLeft}
+                </td>
+                <td css={styles.tableData}>{currentState?.upCount ?? 0}</td>
+                <td css={styles.tableData}>{currentState?.downCount ?? 0}</td>
+                <td css={styles.tableData}>{currentState?.leftCount ?? 0}</td>
+                <td css={styles.tableData}>{currentState?.rightCount ?? 0}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div css={styles.tableWrapper}>
+          <table>
+            <tbody>
+              <tr>
+                <th>
+                  <SmallControl>A</SmallControl>
+                </th>
+                <th>
+                  <SmallControl>B</SmallControl>
+                </th>
+                <th>
+                  <SmallControl>START</SmallControl>
+                </th>
+                <th>
+                  <SmallControl>SELECT</SmallControl>
+                </th>
+                <th>
+                  <SmallControl>DO NOTHING</SmallControl>
+                </th>
+              </tr>
+              <tr>
+                <td css={styles.tableData}>{currentState?.aCount ?? 0}</td>
+                <td css={styles.tableData}>{currentState?.bCount ?? 0}</td>
+                <td css={styles.tableData}>{currentState?.startCount ?? 0}</td>
+                <td css={styles.tableData}>{currentState?.selectCount ?? 0}</td>
+                <td css={styles.tableData}>
+                  {currentState?.nothingCount ?? 0}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
