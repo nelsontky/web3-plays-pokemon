@@ -144,7 +144,7 @@ export type SolanaPlaysPokemonProgram = {
         "kind": "struct",
         "fields": [
           {
-            "name": "secondsPlayed",
+            "name": "executedStatesCount",
             "type": "u32"
           },
           {
@@ -164,7 +164,7 @@ export type SolanaPlaysPokemonProgram = {
         "kind": "struct",
         "fields": [
           {
-            "name": "second",
+            "name": "index",
             "type": "u32"
           },
           {
@@ -439,7 +439,7 @@ export const IDL: SolanaPlaysPokemonProgram = {
         "kind": "struct",
         "fields": [
           {
-            "name": "secondsPlayed",
+            "name": "executedStatesCount",
             "type": "u32"
           },
           {
@@ -459,7 +459,7 @@ export const IDL: SolanaPlaysPokemonProgram = {
         "kind": "struct",
         "fields": [
           {
-            "name": "second",
+            "name": "index",
             "type": "u32"
           },
           {

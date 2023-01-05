@@ -118,7 +118,7 @@ export class ProgramService implements OnModuleDestroy {
       );
     }
 
-    await this.executeGameState(gameData.secondsPlayed);
+    await this.executeGameState(gameData.executedStatesCount);
   }
 
   @Cron("*/20 * * * * *")
@@ -131,10 +131,10 @@ export class ProgramService implements OnModuleDestroy {
     }
 
     this.logger.log(
-      `Cron job executing for game second "${gameData.secondsPlayed}"`,
+      `Cron job executing for index "${gameData.executedStatesCount}"`,
     );
     try {
-      await this.executeGameState(gameData.secondsPlayed);
+      await this.executeGameState(gameData.executedStatesCount);
       this.logger.log("Cron job executed successfully!");
     } catch (e) {
       this.logger.warn(`Cron job failed: ${e}`);

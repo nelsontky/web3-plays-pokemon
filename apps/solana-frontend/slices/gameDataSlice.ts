@@ -4,13 +4,13 @@ import { SolanaPlaysPokemonProgram } from "solana-plays-pokemon-program";
 import { GAME_DATA_ACCOUNT_PUBLIC_KEY } from "../constants";
 
 interface GameDataState {
-  secondsPlayed: number;
+  executedStatesCount: number;
   isExecuting: boolean;
   status: "idle" | "loading" | "failed" | "succeeded";
 }
 
 const initialState: GameDataState = {
-  secondsPlayed: 0,
+  executedStatesCount: 0,
   isExecuting: false,
   status: "idle",
 };
@@ -23,7 +23,7 @@ export const fetchGameData = createAsyncThunk(
     );
 
     return {
-      secondsPlayed: gameData.secondsPlayed,
+      executedStatesCount: gameData.executedStatesCount,
       isExecuting: gameData.isExecuting,
     };
   }
@@ -35,9 +35,9 @@ const gameDataSlice = createSlice({
   reducers: {
     setGameData: (
       state,
-      action: PayloadAction<{ secondsPlayed: number; isExecuting: boolean }>
+      action: PayloadAction<{ executedStatesCount: number; isExecuting: boolean }>
     ) => {
-      state.secondsPlayed = action.payload.secondsPlayed;
+      state.executedStatesCount = action.payload.executedStatesCount;
       state.isExecuting = action.payload.isExecuting;
     },
   },
@@ -48,7 +48,7 @@ const gameDataSlice = createSlice({
       })
       .addCase(fetchGameData.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.secondsPlayed = action.payload.secondsPlayed;
+        state.executedStatesCount = action.payload.executedStatesCount;
         state.isExecuting = action.payload.isExecuting;
       })
       .addCase(fetchGameData.rejected, (state) => {

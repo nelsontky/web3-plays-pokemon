@@ -26,7 +26,7 @@ export default function VotesHistoryRow({ gameStateId }: VotesHistoryRowProps) {
 
   return (
     <tr>
-      <td css={styles.tableData}>{gameState.second}</td>
+      <td css={styles.tableData}>{gameState.index}</td>
       <td css={styles.tableData}>{gameState.upCount}</td>
       <td css={styles.tableData}>{gameState.downCount}</td>
       <td css={styles.tableData}>{gameState.leftCount}</td>

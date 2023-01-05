@@ -1,6 +1,10 @@
 use anchor_lang::prelude::*;
 
-declare_id!("pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg");
+// Mainnet
+// declare_id!("pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg");
+
+// Devnet
+declare_id!("pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK");
 
 #[program]
 pub mod solana_plays_pokemon_program {
@@ -12,12 +16,12 @@ pub mod solana_plays_pokemon_program {
         save_state_cid: String,
     ) -> Result<()> {
         let game_data = &mut ctx.accounts.game_data;
-        game_data.seconds_played = 1;
+        game_data.executed_states_count = 1;
         game_data.authority = *ctx.accounts.authority.key;
         msg!("Game data account initialized");
 
         let game_state = &mut ctx.accounts.game_state;
-        game_state.second = 0;
+        game_state.index = 0;
 
         game_state.up_count = 0;
         game_state.down_count = 0;
@@ -39,7 +43,7 @@ pub mod solana_plays_pokemon_program {
 
         // init next game state
         let next_game_state = &mut ctx.accounts.next_game_state;
-        next_game_state.second = game_data.seconds_played;
+        next_game_state.index = game_data.executed_states_count;
         next_game_state.created_at = ctx.accounts.clock.unix_timestamp;
         next_game_state.executed_button = JoypadButton::Nothing;
         msg!("Second game state account initialized");
@@ -85,7 +89,7 @@ pub mod solana_plays_pokemon_program {
             game_data.is_executing = true;
 
             emit!(ExecuteGameState {
-                second: game_data.seconds_played,
+                second: game_data.executed_states_count,
                 game_data_id: ctx.accounts.game_data.key()
             });
         }
@@ -105,7 +109,7 @@ pub mod solana_plays_pokemon_program {
         }
 
         game_data.is_executing = false;
-        game_data.seconds_played = game_data.seconds_played.checked_add(1).unwrap();
+        game_data.executed_states_count = game_data.executed_states_count.checked_add(1).unwrap();
 
         let game_state = &mut ctx.accounts.game_state;
         game_state.executed_button = executed_button;
@@ -114,7 +118,7 @@ pub mod solana_plays_pokemon_program {
 
         // init next game state
         let next_game_state = &mut ctx.accounts.next_game_state;
-        next_game_state.second = game_data.seconds_played;
+        next_game_state.index = game_data.executed_states_count;
         next_game_state.created_at = ctx.accounts.clock.unix_timestamp;
         next_game_state.executed_button = JoypadButton::Nothing;
 
@@ -156,7 +160,7 @@ pub struct Vote<'info> {
         seeds = [
                 game_data.key().as_ref(),
                 b"game_state", 
-                game_data.seconds_played.to_string().as_ref()
+                game_data.executed_states_count.to_string().as_ref()
             ],
         bump
     )]
@@ -181,7 +185,7 @@ pub struct UpdateGameState<'info> {
         seeds = [
             game_data.key().as_ref(),
             b"game_state",
-            (game_data.seconds_played).to_string().as_ref()
+            (game_data.executed_states_count).to_string().as_ref()
         ],
         bump,
         realloc = 8 + GameState::LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
@@ -196,7 +200,7 @@ pub struct UpdateGameState<'info> {
         seeds = [
                 game_data.key().as_ref(),
                 b"game_state", 
-                (game_data.seconds_played.checked_add(1).unwrap()).to_string().as_ref()
+                (game_data.executed_states_count.checked_add(1).unwrap()).to_string().as_ref()
             ],
         bump
     )]
@@ -211,7 +215,7 @@ pub struct UpdateGameState<'info> {
 
 #[account]
 pub struct GameData {
-    pub seconds_played: u32,
+    pub executed_states_count: u32,
     pub is_executing: bool,
     pub authority: Pubkey,
 }
@@ -222,7 +226,7 @@ impl GameData {
 
 #[account]
 pub struct GameState {
-    pub second: u32,
+    pub index: u32,
 
     pub up_count: u32,
     pub down_count: u32,

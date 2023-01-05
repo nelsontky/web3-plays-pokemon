@@ -62,12 +62,12 @@ export default function Controls() {
       const gameDataAccount = await program.account.gameData.fetch(
         GAME_DATA_ACCOUNT_PUBLIC_KEY
       );
-      const secondsPlayed = gameDataAccount.secondsPlayed;
+      const executedStatesCount = gameDataAccount.executedStatesCount;
       const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
         [
           GAME_DATA_ACCOUNT_PUBLIC_KEY.toBuffer(),
           Buffer.from("game_state"),
-          Buffer.from("" + secondsPlayed),
+          Buffer.from("" + executedStatesCount),
         ],
         program.programId
       );

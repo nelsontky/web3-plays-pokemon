@@ -50,7 +50,7 @@ describe("solana-plays-pokemon-program", () => {
     const gameDataAccount = await program.account.gameData.fetch(
       gameData.publicKey
     );
-    assert.strictEqual(gameDataAccount.secondsPlayed, 1);
+    assert.strictEqual(gameDataAccount.executedStatesCount, 1);
     assert.strictEqual(
       gameDataAccount.authority.toBase58(),
       anchor.getProvider().publicKey.toBase58()
@@ -60,7 +60,7 @@ describe("solana-plays-pokemon-program", () => {
     const gameStateAccount = await program.account.gameState.fetch(
       gameStatePda
     );
-    assert.strictEqual(gameStateAccount.second, 0);
+    assert.strictEqual(gameStateAccount.index, 0);
 
     assert.strictEqual(gameStateAccount.upCount, 0);
     assert.strictEqual(gameStateAccount.downCount, 0);
@@ -82,7 +82,7 @@ describe("solana-plays-pokemon-program", () => {
     const nextGameStateAccount = await program.account.gameState.fetch(
       nextGameStatePda
     );
-    assert.strictEqual(nextGameStateAccount.second, 1);
+    assert.strictEqual(nextGameStateAccount.index, 1);
     assert.strictEqual(nextGameStateAccount.upCount, 0);
     assert.strictEqual(nextGameStateAccount.downCount, 0);
     assert.strictEqual(nextGameStateAccount.leftCount, 0);
@@ -159,7 +159,7 @@ describe("solana-plays-pokemon-program", () => {
     const gameDataAccount = await program.account.gameData.fetch(
       gameData.publicKey
     );
-    const secondsPlayed = gameDataAccount.secondsPlayed;
+    const secondsPlayed = gameDataAccount.executedStatesCount;
     const [invalidGameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
       [
         gameData.publicKey.toBuffer(),
@@ -195,7 +195,7 @@ describe("solana-plays-pokemon-program", () => {
     const gameDataAccount = await program.account.gameData.fetch(
       gameData.publicKey
     );
-    const secondsPlayed = gameDataAccount.secondsPlayed;
+    const secondsPlayed = gameDataAccount.executedStatesCount;
     const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
       [
         gameData.publicKey.toBuffer(),
@@ -247,7 +247,7 @@ describe("solana-plays-pokemon-program", () => {
     const isExecuting = gameDataAccount.isExecuting;
     assert.isFalse(isExecuting);
 
-    const secondsPlayed = gameDataAccount.secondsPlayed;
+    const secondsPlayed = gameDataAccount.executedStatesCount;
 
     const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
       [
@@ -293,7 +293,7 @@ describe("solana-plays-pokemon-program", () => {
     const gameDataAccount = await program.account.gameData.fetch(
       gameData.publicKey
     );
-    const secondsPlayed = gameDataAccount.secondsPlayed;
+    const secondsPlayed = gameDataAccount.executedStatesCount;
 
     const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
       [
