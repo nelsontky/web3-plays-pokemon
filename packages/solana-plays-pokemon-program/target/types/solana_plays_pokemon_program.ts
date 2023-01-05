@@ -267,7 +267,7 @@ export type SolanaPlaysPokemonProgram = {
       "name": "ExecuteGameState",
       "fields": [
         {
-          "name": "second",
+          "name": "index",
           "type": "u32",
           "index": false
         },
@@ -562,7 +562,7 @@ export const IDL: SolanaPlaysPokemonProgram = {
       "name": "ExecuteGameState",
       "fields": [
         {
-          "name": "second",
+          "name": "index",
           "type": "u32",
           "index": false
         },

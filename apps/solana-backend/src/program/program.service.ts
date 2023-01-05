@@ -87,8 +87,8 @@ export class ProgramService implements OnModuleDestroy {
               return;
             }
 
-            const secondsPlayed: number = event.second;
-            await this.executeGameState(secondsPlayed);
+            const gameStateIndex: number = event.index;
+            await this.executeGameState(gameStateIndex);
 
             this.logger.log("Execution success");
             return;
@@ -141,13 +141,13 @@ export class ProgramService implements OnModuleDestroy {
     }
   }
 
-  private async executeGameState(secondsPlayed: number) {
+  private async executeGameState(gameStateIndex: number) {
     const gameDataId = new anchor.web3.PublicKey(GAME_DATA_ACCOUNT_ID);
     const [prevGameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
       [
         gameDataId.toBuffer(),
         Buffer.from("game_state"),
-        Buffer.from("" + (secondsPlayed - 1)),
+        Buffer.from("" + (gameStateIndex - 1)),
       ],
       this.program.programId,
     );
@@ -155,7 +155,7 @@ export class ProgramService implements OnModuleDestroy {
       [
         gameDataId.toBuffer(),
         Buffer.from("game_state"),
-        Buffer.from("" + secondsPlayed),
+        Buffer.from("" + gameStateIndex),
       ],
       this.program.programId,
     );
@@ -163,7 +163,7 @@ export class ProgramService implements OnModuleDestroy {
       [
         gameDataId.toBuffer(),
         Buffer.from("game_state"),
-        Buffer.from("" + (secondsPlayed + 1)),
+        Buffer.from("" + (gameStateIndex + 1)),
       ],
       this.program.programId,
     );
