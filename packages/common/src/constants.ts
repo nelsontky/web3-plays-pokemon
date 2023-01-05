@@ -2,6 +2,7 @@ export const GAMEBOY_CAMERA_WIDTH = 160;
 export const GAMEBOY_CAMERA_HEIGHT = 144;
 export const GAMEBOY_FPS = 60;
 export const FPS = 30;
+export const NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS = 2;
 
 // Mainnet
 export const PROGRAM_ID = "pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg";

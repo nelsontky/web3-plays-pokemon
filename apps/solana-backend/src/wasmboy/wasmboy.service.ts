@@ -5,6 +5,7 @@ import {
   GAMEBOY_CAMERA_WIDTH,
   GAMEBOY_FPS,
   JoypadButton,
+  NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS,
 } from "common";
 import * as fs from "fs/promises";
 import * as path from "path";
@@ -36,7 +37,7 @@ export class WasmboyService {
     const framesImageData = this.executeFrames(
       wasmBoy,
       wasmByteMemory,
-      GAMEBOY_FPS,
+      GAMEBOY_FPS * NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS,
       joypadButton,
     );
     const saveState = await this.saveState(wasmBoy, wasmByteMemory);
