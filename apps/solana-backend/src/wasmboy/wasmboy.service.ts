@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import {
-  FPS,
+  FRAMES_TO_DRAW_PER_EXECUTION,
   GAMEBOY_CAMERA_HEIGHT,
   GAMEBOY_CAMERA_WIDTH,
   GAMEBOY_FPS,
@@ -74,7 +74,7 @@ export class WasmboyService {
   ) {
     this.setJoypadState(wasmBoy, joypadButton);
 
-    const framesToExecutePerStep = frames / FPS;
+    const framesToExecutePerStep = frames / FRAMES_TO_DRAW_PER_EXECUTION;
     const framesImageData: number[][] = [];
     for (let i = 0; i < frames / framesToExecutePerStep; i++) {
       wasmBoy.executeMultipleFrames(framesToExecutePerStep);
