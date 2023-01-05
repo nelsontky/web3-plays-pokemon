@@ -6,10 +6,4 @@ const withTwin = require("./withTwin.js");
 module.exports = withTwin({
   reactStrictMode: true,
   transpilePackages: ["ui"],
-  typescript: {
-    // !! WARN !!
-    // Vercel doesn't play nice with anchor generated types
-    // !! WARN !!
-    ignoreBuildErrors: true,
-  },
 });
