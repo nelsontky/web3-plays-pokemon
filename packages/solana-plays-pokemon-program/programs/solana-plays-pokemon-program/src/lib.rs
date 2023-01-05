@@ -89,7 +89,7 @@ pub mod solana_plays_pokemon_program {
             game_data.is_executing = true;
 
             emit!(ExecuteGameState {
-                second: game_data.executed_states_count,
+                index: game_data.executed_states_count,
                 game_data_id: ctx.accounts.game_data.key()
             });
         }
@@ -135,7 +135,7 @@ pub struct Initialize<'info> {
         init,
         payer = authority,
         space = 8 + GameState::LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
-        seeds = [game_data.key().as_ref(), b"game_state", b"0"], // seeds comprise of game_data key, a static text, and the second when the state begins
+        seeds = [game_data.key().as_ref(), b"game_state", b"0"], // seeds comprise of game_data key, a static text, and the index
         bump
     )]
     pub game_state: Account<'info, GameState>,
@@ -143,7 +143,7 @@ pub struct Initialize<'info> {
         init,
         payer = authority,
         space = 8 + GameState::LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
-        seeds = [game_data.key().as_ref(), b"game_state", b"1"], // seeds comprise of game_data key, a static text, and the second when the state begins
+        seeds = [game_data.key().as_ref(), b"game_state", b"1"], // seeds comprise of game_data key, a static text, and the index
         bump
     )]
     pub next_game_state: Account<'info, GameState>,
@@ -265,7 +265,7 @@ pub enum JoypadButton {
 
 #[event]
 pub struct ExecuteGameState {
-    pub second: u32,
+    pub index: u32,
     pub game_data_id: Pubkey,
 }
 

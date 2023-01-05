@@ -267,7 +267,7 @@
       "name": "ExecuteGameState",
       "fields": [
         {
-          "name": "second",
+          "name": "index",
           "type": "u32",
           "index": false
         },
