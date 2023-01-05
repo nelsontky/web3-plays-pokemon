@@ -20,6 +20,9 @@ const styles = {
     justify-center
     items-start
   `,
+  table: tw`
+    min-h-[72px]
+  `,
   tableData: tw`
     text-center
     align-top
@@ -63,7 +66,7 @@ export default function CurrentVotes() {
     <div css={styles.root}>
       <h2 css={styles.header}>Current votes</h2>
       <div css={styles.tableContainer}>
-        <table>
+        <table css={styles.table}>
           <tbody>
             <tr>
               <th css={styles.textHeader}>Round</th>
