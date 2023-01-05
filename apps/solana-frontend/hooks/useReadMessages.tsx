@@ -7,15 +7,17 @@ import {
   getFirestore,
   orderBy,
   limit,
+  where,
+  getDocs,
 } from "firebase/firestore";
 import Message from "../types/message";
 import { useMessages } from "@chatui/core";
 import { useWallet } from "@solana/wallet-adapter-react";
 
-const INITIAL_COUNT = 3;
+const LOAD_COUNT = 20;
 
 export default function useReadMessages() {
-  const { messages, appendMsg, resetList } = useMessages([]);
+  const { messages, appendMsg, resetList, prependMsgs } = useMessages([]);
   const { publicKey } = useWallet();
 
   useEffect(
@@ -26,7 +28,7 @@ export default function useReadMessages() {
       const recentMessagesQuery = query(
         collection(db, "solana"),
         orderBy("timestamp", "desc"),
-        limit(INITIAL_COUNT)
+        limit(LOAD_COUNT)
       );
 
       const unsubscribe = onSnapshot(recentMessagesQuery, (snapshot) => {
@@ -34,11 +36,13 @@ export default function useReadMessages() {
           .docChanges()
           .reverse()
           .forEach((change) => {
+            const id = change.doc.id;
             const { walletAddress, text, timestamp } =
               change.doc.data() as Message;
 
             if (change.type === "added") {
               appendMsg({
+                _id: id,
                 type: "text",
                 content: { walletAddress, text, timestamp },
                 position:
@@ -56,5 +60,43 @@ export default function useReadMessages() {
     [appendMsg, publicKey, resetList]
   );
 
-  return messages;
+  const loadMore = async () => {
+    const app = createFirebaseApp();
+    const db = app ? getFirestore(app) : getFirestore();
+
+    if (messages[0]) {
+      const moreMessagesQuery = query(
+        collection(db, "solana"),
+        where("timestamp", "<", messages[0].content.timestamp),
+        orderBy("timestamp", "desc"),
+        limit(LOAD_COUNT)
+      );
+      const querySnapshot = await getDocs(moreMessagesQuery);
+      prependMsgs(
+        querySnapshot.docs.reverse().map((doc) => {
+          const id = doc.id;
+          const { walletAddress, text, timestamp } = doc.data() as Message;
+          return {
+            _id: id,
+            type: "text",
+            content: { walletAddress, text, timestamp },
+            position:
+              publicKey?.toBase58() === walletAddress ? "right" : "left",
+          };
+        })
+      );
+    }
+    // prependMsgs(
+    //   querySnapshot.docs.map((document) => {
+    //     const { walletAddress, text, timestamp } = document.data.;
+    //     return {
+    //       type: "text",
+    //       content: { walletAddress, text, timestamp },
+    //       position: publicKey?.toBase58() === walletAddress ? "right" : "left",
+    //     };
+    //   })
+    // );
+  };
+
+  return { messages, loadMore };
 }
