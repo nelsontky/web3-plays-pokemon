@@ -44,12 +44,12 @@ export default function Web() {
         />
       </Head>
       <SocialLinks />
-      <ChatWidgetDynamic />
       <GameCanvas />
       <Controls />
       <CurrentVotes />
       <HowToPlay />
       <VotesHistory />
+      <ChatWidgetDynamic />
     </div>
   );
 }

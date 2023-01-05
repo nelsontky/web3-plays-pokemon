@@ -1,5 +1,5 @@
 export default interface Message {
-  truncatedAddress: string;
+  walletAddress: string;
   text: string;
   timestamp: number;
 }

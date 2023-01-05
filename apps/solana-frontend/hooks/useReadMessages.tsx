@@ -17,9 +17,6 @@ const INITIAL_COUNT = 3;
 export default function useReadMessages() {
   const { messages, appendMsg, resetList } = useMessages([]);
   const { publicKey } = useWallet();
-  const slicedPublicKey =
-    publicKey &&
-    publicKey.toBase58().slice(0, 4) + ".." + publicKey.toBase58().slice(-4);
 
   useEffect(
     function listen() {
@@ -37,15 +34,15 @@ export default function useReadMessages() {
           .docChanges()
           .reverse()
           .forEach((change) => {
-            const { truncatedAddress, text, timestamp } =
+            const { walletAddress, text, timestamp } =
               change.doc.data() as Message;
 
             if (change.type === "added") {
               appendMsg({
                 type: "text",
-                content: { truncatedAddress, text, timestamp },
+                content: { walletAddress, text, timestamp },
                 position:
-                  slicedPublicKey === truncatedAddress ? "right" : "left",
+                  publicKey?.toBase58() === walletAddress ? "right" : "left",
               });
             }
           });
@@ -56,7 +53,7 @@ export default function useReadMessages() {
         resetList();
       };
     },
-    [appendMsg, resetList, slicedPublicKey]
+    [appendMsg, publicKey, resetList]
   );
 
   return messages;
