@@ -52,7 +52,7 @@ export default function ControlsBackdrop() {
         <div css={tw`text-center`}>
           <CircularProgress css={tw`text-black`} />
           <div css={tw`text-lg`}>
-            Voting has ended. Executing
+            Voting for this round has ended. Executing
             <MoveButton currentGameState={currentGameState} /> ...
           </div>
         </div>
