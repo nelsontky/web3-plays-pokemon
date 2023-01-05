@@ -18,7 +18,7 @@ export default function useSetupGameData() {
       eventEmitter.addListener("change", (account) => {
         dispatch(
           setGameData({
-            secondsPlayed: account.secondsPlayed,
+            executedStatesCount: account.executedStatesCount,
             isExecuting: account.isExecuting,
           })
         );

@@ -12,18 +12,20 @@ export default function useGameStateListener() {
   const program = useReadonlyProgram();
 
   const gameStatesStatus = useAppSelector((state) => state.gameStates.status);
-  const secondsPlayed = useAppSelector((state) => state.gameData.secondsPlayed);
+  const executedStatesCount = useAppSelector(
+    (state) => state.gameData.executedStatesCount
+  );
   const gameStatePda = useMemo(() => {
     const [pda] = anchor.web3.PublicKey.findProgramAddressSync(
       [
         GAME_DATA_ACCOUNT_PUBLIC_KEY.toBuffer(),
         Buffer.from("game_state"),
-        Buffer.from("" + secondsPlayed),
+        Buffer.from("" + executedStatesCount),
       ],
       PROGRAM_PUBLIC_KEY
     );
     return pda;
-  }, [secondsPlayed]);
+  }, [executedStatesCount]);
 
   const gameStatePdaPrev = usePrevious(gameStatePda);
   const didGameStatePdaChange =

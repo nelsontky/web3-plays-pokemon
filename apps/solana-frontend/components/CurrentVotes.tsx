@@ -30,9 +30,11 @@ const styles = {
 };
 
 export default function CurrentVotes() {
-  const secondsPlayed = useAppSelector((state) => state.gameData.secondsPlayed);
+  const executedStatesCount = useAppSelector(
+    (state) => state.gameData.executedStatesCount
+  );
   const currentState = useAppSelector((state) =>
-    selectGameStateById(state, secondsPlayed)
+    selectGameStateById(state, executedStatesCount)
   );
 
   const [secondsLeft, setSecondsLeft] = useState<string>("0");
@@ -64,7 +66,7 @@ export default function CurrentVotes() {
         <table>
           <tbody>
             <tr>
-              <th css={styles.textHeader}>Game second</th>
+              <th css={styles.textHeader}>Vote number</th>
               <th css={styles.textHeader}>Time left to vote</th>
               <th>
                 <SmallControl>↑</SmallControl>
@@ -80,7 +82,7 @@ export default function CurrentVotes() {
               </th>
             </tr>
             <tr>
-              <td css={styles.tableData}>{secondsPlayed}</td>
+              <td css={styles.tableData}>{executedStatesCount}</td>
               <td css={[styles.tableData, tw`max-w-[1rem] leading-none`]}>
                 {secondsLeft}
               </td>

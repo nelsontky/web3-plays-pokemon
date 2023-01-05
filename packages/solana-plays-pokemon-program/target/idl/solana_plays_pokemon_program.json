@@ -144,7 +144,7 @@
         "kind": "struct",
         "fields": [
           {
-            "name": "secondsPlayed",
+            "name": "executedStatesCount",
             "type": "u32"
           },
           {
@@ -164,7 +164,7 @@
         "kind": "struct",
         "fields": [
           {
-            "name": "second",
+            "name": "index",
             "type": "u32"
           },
           {
@@ -292,6 +292,6 @@
     }
   ],
   "metadata": {
-    "address": "pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg"
+    "address": "pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK"
   }
 }

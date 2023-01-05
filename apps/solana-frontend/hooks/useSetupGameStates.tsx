@@ -10,7 +10,7 @@ export default function useSetupGameStates() {
   const gameStatesStatus = useAppSelector((state) => state.gameStates.status);
 
   const gameDataStatus = useAppSelector((state) => state.gameData.status);
-  const secondsPlayed = useAppSelector((state) => state.gameData.secondsPlayed);
+  const secondsPlayed = useAppSelector((state) => state.gameData.executedStatesCount);
 
   useEffect(
     function fetchGameStates() {

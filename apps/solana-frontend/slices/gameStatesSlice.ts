@@ -15,7 +15,7 @@ const NUMBER_OF_STATES_TO_LOAD = 20;
 interface GameState {
   accountPublicKey: string;
 
-  second: number;
+  index: number;
 
   upCount: number;
   downCount: number;
@@ -36,8 +36,8 @@ interface GameState {
 }
 
 const gameStatesAdapter = createEntityAdapter<GameState>({
-  selectId: (gameState) => gameState.second,
-  sortComparer: (a, b) => b.second - a.second,
+  selectId: (gameState) => gameState.index,
+  sortComparer: (a, b) => b.index - a.index,
 });
 
 const initialState = gameStatesAdapter.getInitialState<{
