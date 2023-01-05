@@ -37,7 +37,7 @@ export default async function handler(
   await create({
     text: trimmedText,
     timestamp: Date.now(),
-    truncatedAddress: publicKey.slice(0, 4) + ".." + publicKey.slice(-4),
+    walletAddress: publicKey,
   });
 
   return res.status(200).end();

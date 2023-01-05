@@ -1,59 +1,78 @@
-import Chat, { Bubble, MessageProps } from "@chatui/core";
-import "@chatui/core/dist/index.css";
-import { useWallet } from "@solana/wallet-adapter-react";
-import { useState } from "react";
-import { SIGNATURE_MESSAGE } from "../constants";
-import useReadMessages from "../hooks/useReadMessages";
-import Message from "../types/message";
-import axios from "axios";
+import { Popover, Fab, useTheme } from "@mui/material";
+import ChatIcon from "@mui/icons-material/Chat";
+import { useEffect, useRef, useState } from "react";
+import tw from "twin.macro";
+import ChatContent from "./ChatContent";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
-const ChatWidget = () => {
-  const messages = useReadMessages();
-  const [walletSignature, setWalletSignature] = useState<string>();
-  const wallet = useWallet();
+const styles = {
+  root: tw`
+    fixed
+    bottom-6
+    right-6
+  `,
+};
 
-  const renderMessageContent = (message: MessageProps) => {
-    const content: Message = message.content;
-    return <Bubble content={content.text} />;
-  };
+const MOBILE_BREAKPOINT = 420;
+const HIDE_BY_DEFAULT_BREAKPOINT = 800;
 
-  const handleSend = async (_type: string, content: string) => {
-    if (wallet.signMessage && wallet.publicKey) {
-      let signatureToUse = walletSignature;
-      if (!signatureToUse) {
-        const signature = await wallet.signMessage(
-          new TextEncoder().encode(SIGNATURE_MESSAGE)
-        );
-        signatureToUse = Buffer.from(signature).toString("base64");
-        setWalletSignature(signatureToUse);
-      }
+export default function ChatWidget() {
+  const fabRef = useRef<HTMLElement>();
 
-      await axios.post(
-        "/api/messages",
-        {
-          publicKey: wallet.publicKey.toBase58(),
-          text: content,
-        },
-        {
-          headers: {
-            authorization: signatureToUse,
-          },
-        }
-      );
-    }
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down(MOBILE_BREAKPOINT));
+  const isOpenByDefault = useMediaQuery(
+    theme.breakpoints.up(HIDE_BY_DEFAULT_BREAKPOINT)
+  );
+
+  const [open, setOpen] = useState(false);
+
+  useEffect(
+    function openByDefault() {
+      setOpen(isOpenByDefault);
+    },
+    [isOpenByDefault]
+  );
+
+  const handleClick = () => {
+    setOpen((wasOpen) => !wasOpen);
   };
 
   return (
-    <Chat
-      navbar={{ title: "Test chat" }}
-      messages={messages}
-      renderMessageContent={renderMessageContent}
-      onSend={handleSend}
-      placeholder="Message..."
-      locale="en-US"
-      loadMoreText="Load more"
-    />
+    <div css={styles.root}>
+      <Fab
+        css={tw`bg-black hover:bg-black z-20`}
+        color="primary"
+        onClick={handleClick}
+        ref={(instance) => {
+          if (instance) {
+            fabRef.current = instance;
+          }
+        }}
+      >
+        <ChatIcon />
+      </Fab>
+      <Popover
+        disableScrollLock={!isMobile}
+        anchorEl={fabRef.current}
+        open={open}
+        PaperProps={{
+          sx: {
+            width: 400,
+            height: "min(800px, 80vh)",
+            "@media (max-width: 420px)": {
+              height: "100%",
+              width: "100%",
+              maxWidth: "none",
+              maxHeight: "none",
+              top: "0 !important",
+              left: "0 !important",
+            },
+          },
+        }}
+      >
+        <ChatContent />
+      </Popover>
+    </div>
   );
-};
-
-export default ChatWidget;
+}
