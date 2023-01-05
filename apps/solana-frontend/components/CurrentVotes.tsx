@@ -66,7 +66,7 @@ export default function CurrentVotes() {
         <table>
           <tbody>
             <tr>
-              <th css={styles.textHeader}>Vote number</th>
+              <th css={styles.textHeader}>Round</th>
               <th css={styles.textHeader}>Time left to vote</th>
               <th>
                 <SmallControl>↑</SmallControl>

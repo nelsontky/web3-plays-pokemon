@@ -38,7 +38,7 @@ export default function VotesHistory() {
         <table css={styles.table}>
           <tbody>
             <tr>
-              <th css={styles.textHeader}>Vote number</th>
+              <th css={styles.textHeader}>Round</th>
               <th>
                 <SmallControl>↑</SmallControl>
               </th>
