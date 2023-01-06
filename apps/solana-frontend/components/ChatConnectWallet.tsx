@@ -25,12 +25,13 @@ export default function ChatConnectWallet({
   setOpen: Dispatch<SetStateAction<boolean>>;
 }) {
   return (
-    <div css={styles.root}>
-      <AppWalletMultiButton
-        onClick={() => {
-          setOpen(false);
-        }}
-      />
+    <div
+      css={styles.root}
+      onClick={() => {
+        setOpen(false);
+      }}
+    >
+      <AppWalletMultiButton />
       <p css={styles.text}>Connect your Solana wallet to send messages</p>
       <p css={tw`leading-none`}>
         WARNING: Watch out for scams and beware of any links sent in the chat.

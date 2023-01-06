@@ -10,14 +10,11 @@ const WalletMultiButtonDynamic = dynamic(
 
 export default function AppWalletMultiButton({
   style,
-  onClick,
 }: {
   style?: CSSProperties;
-  onClick?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }) {
   return (
     <WalletMultiButtonDynamic
-      onClick={onClick}
       style={{
         border: "2px solid #000000",
         color: "#000000",
