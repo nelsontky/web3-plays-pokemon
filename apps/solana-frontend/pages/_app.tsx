@@ -3,6 +3,7 @@ import { CacheProvider } from "@emotion/react";
 import type { AppProps } from "next/app";
 import { Provider } from "react-redux";
 import AnchorSetup from "../components/AnchorSetup";
+import AnnouncementBar from "../components/AnnouncementBar";
 import AppBar from "../components/AppBar";
 import ProgramListenersSetup from "../components/ProgramListenersSetup";
 import AppSnackBarProvider from "../contexts/AppSnackBarProvider";
@@ -18,6 +19,7 @@ const App = ({ Component, pageProps }: AppProps) => (
       <Provider store={store}>
         <AppSnackBarProvider>
           <ProgramListenersSetup />
+          <AnnouncementBar />
           <AppBar />
           <Component {...pageProps} />
         </AppSnackBarProvider>
