@@ -16,14 +16,12 @@ const styles = {
   `,
 };
 
-const MOBILE_BREAKPOINT = 420;
 const HIDE_BY_DEFAULT_BREAKPOINT = 1200;
 
 export default function ChatWidget() {
   const fabRef = useRef<HTMLElement>();
 
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down(MOBILE_BREAKPOINT));
   const isOpenByDefault = useMediaQuery(
     theme.breakpoints.up(HIDE_BY_DEFAULT_BREAKPOINT)
   );
@@ -74,30 +72,29 @@ export default function ChatWidget() {
       <Popover
         hideBackdrop
         keepMounted
-        disableScrollLock={!isMobile}
+        disableScrollLock
         anchorEl={fabRef.current}
         open={open}
-        sx={{
+        sx={(theme) => ({
           width: 400,
           height: "min(800px, 80vh)",
-          "@media (max-width: 420px)": {
+          [theme.breakpoints.down("sm")]: {
             width: "100%",
             height: "calc(100% - 70px)",
           },
-        }}
+        })}
         PaperProps={{
-          sx: {
+          sx: (theme) => ({
             height: "100%",
             boxShadow: "none",
             border: "6px solid #000000",
             borderRadius: 4,
             position: "relative",
-            "@media (max-width: 420px)": {
+            [theme.breakpoints.down("sm")]: {
               maxWidth: "100%",
               top: "0 !important",
               left: "0 !important",
             },
-
             "& .ChatApp": {
               ...POKEMON_PIXEL_FONT.style,
             },
@@ -130,7 +127,7 @@ export default function ChatWidget() {
                 fontSize: "1.125rem",
               },
             },
-          },
+          }),
         }}
       >
         <ChatContent setOpen={setOpen} />
