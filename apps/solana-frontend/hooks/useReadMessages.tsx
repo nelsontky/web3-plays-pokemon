@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { createFirebaseApp } from "../firebase/clientApp";
 import {
   collection,
@@ -45,6 +45,8 @@ export default function useReadMessages() {
                 _id: id,
                 type: "text",
                 content: { walletAddress, text, timestamp },
+                createdAt: timestamp,
+                hasTime: true,
                 position:
                   publicKey?.toBase58() === walletAddress ? "right" : "left",
               });
@@ -80,22 +82,14 @@ export default function useReadMessages() {
             _id: id,
             type: "text",
             content: { walletAddress, text, timestamp },
+            createdAt: timestamp,
+            hasTime: true,
             position:
               publicKey?.toBase58() === walletAddress ? "right" : "left",
           };
         })
       );
     }
-    // prependMsgs(
-    //   querySnapshot.docs.map((document) => {
-    //     const { walletAddress, text, timestamp } = document.data.;
-    //     return {
-    //       type: "text",
-    //       content: { walletAddress, text, timestamp },
-    //       position: publicKey?.toBase58() === walletAddress ? "right" : "left",
-    //     };
-    //   })
-    // );
   };
 
   return { messages, loadMore };

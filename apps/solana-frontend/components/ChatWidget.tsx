@@ -1,5 +1,6 @@
 import { Popover, Fab, useTheme, Badge } from "@mui/material";
 import ChatIcon from "@mui/icons-material/Chat";
+import CloseIcon from "@mui/icons-material/Close";
 import { useEffect, useRef, useState } from "react";
 import tw from "twin.macro";
 import ChatContent from "./ChatContent";
@@ -16,7 +17,7 @@ const styles = {
 };
 
 const MOBILE_BREAKPOINT = 420;
-const HIDE_BY_DEFAULT_BREAKPOINT = 800;
+const HIDE_BY_DEFAULT_BREAKPOINT = 1200;
 
 export default function ChatWidget() {
   const fabRef = useRef<HTMLElement>();
@@ -63,7 +64,7 @@ export default function ChatWidget() {
             }
           }}
         >
-          <ChatIcon />
+          {open ? <CloseIcon /> : <ChatIcon />}
         </Fab>
       </Badge>
       <Popover
