@@ -5,8 +5,7 @@ import { useState } from "react";
 
 const styles = {
   root: tw`
-    py-1
-    px-2
+    p-1
     text-center
     leading-none
     bg-black
