@@ -31,7 +31,7 @@ export default function ChatWidget() {
   const [open, setOpen] = useState(false);
 
   useEffect(
-    function openByDefault() {
+    function openByDefaultDuringMount() {
       setOpen(isOpenByDefault);
     },
     [isOpenByDefault]
@@ -46,6 +46,10 @@ export default function ChatWidget() {
       <Badge
         badgeContent="New!"
         color="error"
+        anchorOrigin={{
+          horizontal: "left",
+          vertical: "top",
+        }}
         sx={{
           "& .MuiBadge-badge": {
             zIndex: 1051,
@@ -77,20 +81,26 @@ export default function ChatWidget() {
           width: 400,
           height: "min(800px, 80vh)",
           "@media (max-width: 420px)": {
-            height: "100%",
             width: "100%",
+            height: "calc(100% - 70px)",
           },
         }}
         PaperProps={{
           sx: {
-            "& .ChatApp": {
-              ...POKEMON_PIXEL_FONT.style,
-            },
             height: "100%",
             boxShadow: "none",
             border: "6px solid #000000",
             borderRadius: 4,
             position: "relative",
+            "@media (max-width: 420px)": {
+              maxWidth: "100%",
+              top: "0 !important",
+              left: "0 !important",
+            },
+
+            "& .ChatApp": {
+              ...POKEMON_PIXEL_FONT.style,
+            },
             "& svg *": {
               color: "#000000",
               fill: "#000000",
@@ -119,14 +129,6 @@ export default function ChatWidget() {
               "&::placeholder": {
                 fontSize: "1.125rem",
               },
-            },
-            "@media (max-width: 420px)": {
-              height: "100%",
-              width: "100%",
-              maxWidth: "100%",
-              maxHeight: "88vh",
-              top: "0 !important",
-              left: "0 !important",
             },
           },
         }}
