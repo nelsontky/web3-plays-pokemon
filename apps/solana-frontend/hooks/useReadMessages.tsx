@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { createFirebaseApp } from "../firebase/clientApp";
 import {
   collection,
@@ -19,6 +19,7 @@ const LOAD_COUNT = 20;
 export default function useReadMessages() {
   const { messages, appendMsg, resetList, prependMsgs } = useMessages([]);
   const { publicKey } = useWallet();
+  const newestTimeStampRef = useRef<number>(0);
 
   useEffect(
     function listen() {
@@ -41,12 +42,18 @@ export default function useReadMessages() {
               change.doc.data() as Message;
 
             if (change.type === "added") {
+              const hasTime =
+                timestamp > newestTimeStampRef.current + 60 * 1000;
+              if (hasTime) {
+                newestTimeStampRef.current = timestamp;
+              }
+
               appendMsg({
                 _id: id,
                 type: "text",
                 content: { walletAddress, text, timestamp },
                 createdAt: timestamp,
-                hasTime: true,
+                hasTime,
                 position:
                   publicKey?.toBase58() === walletAddress ? "right" : "left",
               });
@@ -55,6 +62,7 @@ export default function useReadMessages() {
       });
 
       return () => {
+        newestTimeStampRef.current = 0;
         unsubscribe();
         resetList();
       };
@@ -74,16 +82,23 @@ export default function useReadMessages() {
         limit(LOAD_COUNT)
       );
       const querySnapshot = await getDocs(moreMessagesQuery);
+      let newestTimeStamp = 0;
       prependMsgs(
         querySnapshot.docs.reverse().map((doc) => {
           const id = doc.id;
           const { walletAddress, text, timestamp } = doc.data() as Message;
+
+          const hasTime = timestamp > newestTimeStamp + 60 * 1000;
+          if (hasTime) {
+            newestTimeStamp = timestamp;
+          }
+
           return {
             _id: id,
             type: "text",
             content: { walletAddress, text, timestamp },
             createdAt: timestamp,
-            hasTime: true,
+            hasTime,
             position:
               publicKey?.toBase58() === walletAddress ? "right" : "left",
           };
