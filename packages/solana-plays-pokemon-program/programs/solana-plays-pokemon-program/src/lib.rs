@@ -83,8 +83,8 @@ pub mod solana_plays_pokemon_program {
             }
         }
 
-        // execute if game state is at least 10 seconds old
-        let should_execute = ctx.accounts.clock.unix_timestamp - game_state.created_at >= 10;
+        // execute if game state is at least 5 seconds old
+        let should_execute = ctx.accounts.clock.unix_timestamp - game_state.created_at >= 5;
         if should_execute {
             game_data.is_executing = true;
 

@@ -1,10 +1,9 @@
+import { VOTE_SECONDS } from "common";
 import { useEffect, useState } from "react";
 import tw from "twin.macro";
 import { useAppSelector } from "../hooks/redux";
 import { selectGameStateById } from "../slices/gameStatesSlice";
 import SmallControl from "./SmallControl";
-
-const VOTE_SECONDS = 10;
 
 const styles = {
   root: tw`
