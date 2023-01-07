@@ -13,7 +13,7 @@ import {
   orderByChild,
 } from "firebase/database";
 import Message from "../types/message";
-import { useMessages } from "@chatui/core";
+import { useMessages, MessageProps } from "@chatui/core";
 import { useWallet } from "@solana/wallet-adapter-react";
 
 const LOAD_COUNT = 5;
@@ -60,15 +60,22 @@ export default function useReadMessages() {
     [appendMsg, publicKey, resetList]
   );
 
+  const messagesRef = useRef<MessageProps[]>([]);
+  useEffect(
+    function updateMessagesRef() {
+      messagesRef.current = messages;
+    },
+    [messages]
+  );
   const loadMore = async () => {
     const app = createFirebaseApp();
     const db = getDatabase(app);
 
-    if (messages[0]) {
+    if (messagesRef.current[0]) {
       const moreMessagesQuery = query(
         ref(db, "solana"),
         orderByChild("timestamp"),
-        endBefore(messages[0].content.timestamp),
+        endBefore(messagesRef.current[0].content.timestamp),
         limitToLast(LOAD_COUNT)
       );
 
