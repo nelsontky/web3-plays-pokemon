@@ -127,6 +127,9 @@ export default function ChatWidget() {
                 fontSize: "1.125rem",
               },
             },
+            "& .MessageList": {
+              marginTop: "0 !important",
+            },
           }),
         }}
       >
