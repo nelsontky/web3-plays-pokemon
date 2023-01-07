@@ -19,7 +19,6 @@ import { Cron } from "@nestjs/schedule";
 
 // nestjs doesn't want to play nice with json imports from workspace package
 import * as idl from "../../../../packages/solana-plays-pokemon-program/target/idl/solana_plays_pokemon_program.json";
-import { IpfsService } from "src/ipfs/ipfs.service";
 
 @Injectable()
 export class ProgramService implements OnModuleDestroy {
@@ -29,10 +28,7 @@ export class ProgramService implements OnModuleDestroy {
   private wallet: anchor.Wallet;
   private listener: number;
 
-  constructor(
-    private readonly wasmboyService: WasmboyService,
-    private readonly ipfsService: IpfsService,
-  ) {
+  constructor(private readonly wasmboyService: WasmboyService) {
     this.connection = new anchor.web3.Connection(
       process.env.RPC_URL,
       process.env.RPC_CONFIG ? JSON.parse(process.env.RPC_CONFIG) : undefined,
@@ -75,38 +71,30 @@ export class ProgramService implements OnModuleDestroy {
   }
 
   listen() {
-    // const ATTEMPTS = 2;
-    // this.listener = this.program.addEventListener(
-    //   "ExecuteGameState",
-    //   async (event) => {
-    //     this.logger.log(
-    //       "Executing game state with event: " + JSON.stringify(event),
-    //     );
-    //     for (let i = 0; i < ATTEMPTS; i++) {
-    //       try {
-    //         const gameDataId: anchor.web3.PublicKey = event.gameDataId;
-    //         if (gameDataId.toBase58() !== GAME_DATA_ACCOUNT_ID) {
-    //           this.logger.warn(
-    //             "Invalid game_data_id passed to ExecuteGameState. Event will be ignored",
-    //           );
-    //           return;
-    //         }
-    //         const gameStateIndex: number = event.index;
-    //         await this.executeGameState(gameStateIndex);
-    //         this.logger.log("Execution success");
-    //         return;
-    //       } catch (e) {
-    //         // retry upon error
-    //         this.logger.error("Error occurred:", e);
-    //         await new Promise((resolve) => {
-    //           setTimeout(resolve, 1000);
-    //         });
-    //         this.logger.error(`(${i + 1} / ${ATTEMPTS}) Retrying...`);
-    //       }
-    //     }
-    //   },
-    // );
-    // this.logger.log("Listener added");
+    this.listener = this.program.addEventListener(
+      "ExecuteGameState",
+      async (event) => {
+        this.logger.log(
+          "Executing game state with event: " + JSON.stringify(event),
+        );
+        try {
+          const gameDataId: anchor.web3.PublicKey = event.gameDataId;
+          if (gameDataId.toBase58() !== GAME_DATA_ACCOUNT_ID) {
+            this.logger.warn(
+              "Invalid game_data_id passed to ExecuteGameState. Event will be ignored",
+            );
+            return;
+          }
+          const gameStateIndex: number = event.index;
+          await this.executeGameState(gameStateIndex);
+          this.logger.log("Execution success");
+          return;
+        } catch (e) {
+          this.logger.error("Listen execution error occurred:", e);
+        }
+      },
+    );
+    this.logger.log("Listener added");
   }
 
   async executeManually() {
@@ -124,7 +112,7 @@ export class ProgramService implements OnModuleDestroy {
     await this.executeGameState(gameData.executedStatesCount);
   }
 
-  // @Cron(`*/${VOTE_SECONDS * 2} * * * * *`)
+  @Cron(`*/${VOTE_SECONDS * 2} * * * * *`)
   async cronExecute() {
     const gameDataId = new anchor.web3.PublicKey(GAME_DATA_ACCOUNT_ID);
     const gameData = await this.program.account.gameData.fetch(gameDataId);
