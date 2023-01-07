@@ -14,7 +14,7 @@ import Message from "../types/message";
 import { useMessages } from "@chatui/core";
 import { useWallet } from "@solana/wallet-adapter-react";
 
-const LOAD_COUNT = 20;
+const LOAD_COUNT = 5;
 
 export default function useReadMessages() {
   const { messages, appendMsg, resetList, prependMsgs } = useMessages([]);
