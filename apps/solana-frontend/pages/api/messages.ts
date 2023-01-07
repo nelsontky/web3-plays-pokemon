@@ -48,7 +48,15 @@ export default async function handler(
 }
 
 async function create(message: Message) {
-  const db = admin.firestore();
-  const solanaMessagesCollection = db.collection("solana");
-  return solanaMessagesCollection.add(message);
+  const db = admin.database();
+  const solanaMessagesCollection = db.ref("solana");
+  return new Promise((resolve, reject) => {
+    solanaMessagesCollection.push(message, (error) => {
+      if (error !== null) {
+        reject(error);
+      } else {
+        resolve(true);
+      }
+    });
+  });
 }

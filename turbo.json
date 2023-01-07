@@ -10,7 +10,8 @@
     "NEXT_PUBLIC_FIREBASE_APP_ID",
     "NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID",
     "FIREBASE_CLIENT_EMAIL",
-    "FIREBASE_PRIVATE_KEY"
+    "FIREBASE_PRIVATE_KEY",
+    "NEXT_PUBLIC_FIREBASE_DATABASE_URL"
   ],
   "$schema": "https://turbo.build/schema.json",
   "pipeline": {
