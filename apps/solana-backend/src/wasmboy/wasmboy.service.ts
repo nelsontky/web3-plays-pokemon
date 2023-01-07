@@ -11,8 +11,7 @@ import * as fs from "fs/promises";
 import * as path from "path";
 import wasmImportObject from "./import-object.util";
 import * as pako from "pako";
-import { NFTStorage, Blob } from "nft.storage";
-import axios from "axios";
+import { IpfsService } from "src/ipfs/ipfs.service";
 
 const FRAMES_TO_HOLD_BUTTON = 15;
 
@@ -28,6 +27,8 @@ export class WasmboyService {
   private audioAccumulateSamples = false;
   private tileRendering = false;
   private tileCaching = false;
+
+  constructor(private readonly ipfsService: IpfsService) {}
 
   async run(joypadButton: JoypadButton, prevSaveStateCid: string) {
     const [wasmBoy, wasmByteMemory] = await this.getWasmBoyCore();
@@ -47,10 +48,9 @@ export class WasmboyService {
     );
     const compressedSaveState = pako.deflate(JSON.stringify(saveState));
 
-    const client = new NFTStorage({ token: process.env.NFT_STORAGE_TOKEN });
     const [framesImageDataCid, saveStateCid] = await Promise.all([
-      client.storeBlob(new Blob([compressedFramesImageData])),
-      client.storeBlob(new Blob([compressedSaveState])),
+      this.ipfsService.upload(compressedFramesImageData),
+      this.ipfsService.upload(compressedSaveState),
     ]);
 
     if (framesImageDataCid.toString().length <= 0) {
@@ -159,13 +159,8 @@ export class WasmboyService {
     wasmByteMemory: Uint8Array,
     prevSaveStateCid: string,
   ) {
-    const response = await axios.get(
-      `https://${prevSaveStateCid}.ipfs.cf-ipfs.com`,
-      {
-        responseType: "arraybuffer",
-      },
-    );
-    const inflated = pako.inflate(response.data, { to: "string" });
+    const data = await this.ipfsService.download(prevSaveStateCid);
+    const inflated = pako.inflate(data, { to: "string" });
     const saveState = JSON.parse(inflated);
 
     wasmByteMemory.set(

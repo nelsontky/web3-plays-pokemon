@@ -14,9 +14,9 @@ describe("solana-plays-pokemon-program", () => {
 
   it("Is initialized!", async () => {
     const FRAMES_IMAGES_CID =
-      "bafkreihkf2i57avdqabigv4a2haz7u7burj573rk4mpfzlfb2cnbg7fgue";
-    const SAVE_STATE_CID =
       "bafkreiajqssnp7kgdly427gkmdkl42zjpjlcbhat33ob2dlu4ngeabkriq";
+    const SAVE_STATE_CID =
+      "bafkreigta3nr75v35u3vpod5pbye5yslgkafxxamhiaiffd6elfbkdw4by";
 
     const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
       [
