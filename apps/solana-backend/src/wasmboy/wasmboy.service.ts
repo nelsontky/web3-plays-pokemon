@@ -14,7 +14,7 @@ import * as pako from "pako";
 import { NFTStorage, Blob } from "nft.storage";
 import axios from "axios";
 
-const FRAMES_TO_HOLD_BUTTON = 5;
+const FRAMES_TO_HOLD_BUTTON = 15;
 
 @Injectable()
 export class WasmboyService {
@@ -76,14 +76,14 @@ export class WasmboyService {
 
     const framesToExecutePerStep = frames / FRAMES_TO_DRAW_PER_EXECUTION;
     const framesImageData: number[][] = [];
-    for (let i = 0; i < frames / framesToExecutePerStep; i++) {
+    for (let i = 0; i < FRAMES_TO_DRAW_PER_EXECUTION; i++) {
       wasmBoy.executeMultipleFrames(framesToExecutePerStep);
       framesImageData.push(
         this.getImageDataFromGraphicsFrameBuffer(wasmBoy, wasmByteMemory),
       );
 
       const shouldReleaseJoyPad =
-        i * framesToExecutePerStep >= FRAMES_TO_HOLD_BUTTON;
+        (i + 1) * framesToExecutePerStep >= FRAMES_TO_HOLD_BUTTON;
       if (shouldReleaseJoyPad) {
         this.setJoypadState(wasmBoy, null);
       }
