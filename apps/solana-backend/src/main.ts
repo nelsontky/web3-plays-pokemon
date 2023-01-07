@@ -1,4 +1,3 @@
-import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { ProgramService } from "./program/program.service";
@@ -9,7 +8,6 @@ async function bootstrap() {
   // Starts listening for shutdown hooks
   app.enableShutdownHooks();
 
-  app.useGlobalPipes(new ValidationPipe());
   app.enableCors();
   await app.listen(5000);
 
