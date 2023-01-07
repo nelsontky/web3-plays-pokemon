@@ -28,7 +28,11 @@ export default function useReadMessages() {
       const app = createFirebaseApp();
       const db = getDatabase(app);
 
-      const newestMessageRef = query(ref(db, "solana"), limitToLast(1));
+      const newestMessageRef = query(
+        ref(db, "solana"),
+        orderByChild("timestamp"),
+        limitToLast(1)
+      );
       const unsubscribe = onChildAdded(newestMessageRef, (snapshot) => {
         const _id = snapshot.key;
         const { text, timestamp, walletAddress } = snapshot.val() as Message;
@@ -83,25 +87,27 @@ export default function useReadMessages() {
 
       if (!!snapshot.val()) {
         let newestTimeStamp = 0;
-        const results = Object.entries(snapshot.val()).map(([id, message]) => {
-          const { walletAddress, text, timestamp } = message as Message;
-          const hasTime = timestamp > newestTimeStamp + 60 * 1000;
-          if (hasTime) {
-            newestTimeStamp = timestamp;
-          }
+        const results = Object.entries(snapshot.val())
+          .sort((a: any, b: any) => a[1].timestamp - b[1].timestamp)
+          .map(([id, message]) => {
+            const { walletAddress, text, timestamp } = message as Message;
+            const hasTime = timestamp > newestTimeStamp + 60 * 1000;
+            if (hasTime) {
+              newestTimeStamp = timestamp;
+            }
 
-          return {
-            _id: id,
-            type: "text",
-            content: { walletAddress, text, timestamp },
-            createdAt: timestamp,
-            hasTime,
-            position:
-              publicKey?.toBase58() === walletAddress
-                ? "right"
-                : ("left" as any),
-          };
-        });
+            return {
+              _id: id,
+              type: "text",
+              content: { walletAddress, text, timestamp },
+              createdAt: timestamp,
+              hasTime,
+              position:
+                publicKey?.toBase58() === walletAddress
+                  ? "right"
+                  : ("left" as any),
+            };
+          });
         prependMsgs(results);
       }
     }
