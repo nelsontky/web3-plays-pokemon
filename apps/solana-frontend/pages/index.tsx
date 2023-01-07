@@ -1,4 +1,4 @@
-// import dynamic from "next/dynamic";
+import dynamic from "next/dynamic";
 import Head from "next/head";
 import tw from "twin.macro";
 import Controls from "../components/Controls";
@@ -8,12 +8,12 @@ import HowToPlay from "../components/HowToPlay";
 import SocialLinks from "../components/SocialLinks";
 import VotesHistory from "../components/VotesHistory";
 
-// const ChatWidgetDynamic = dynamic(
-//   async () => await import("../components/ChatWidget"),
-//   {
-//     ssr: false,
-//   }
-// );
+const ChatWidgetDynamic = dynamic(
+  async () => await import("../components/ChatWidget"),
+  {
+    ssr: false,
+  }
+);
 
 const DESCRIPTION = "Play Pokemon collaboratively on the Solana blockchain!";
 
@@ -49,7 +49,7 @@ export default function Web() {
       <CurrentVotes />
       <HowToPlay />
       <VotesHistory />
-      {/* <ChatWidgetDynamic /> */}
+      <ChatWidgetDynamic />
     </div>
   );
 }
