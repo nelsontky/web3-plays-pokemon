@@ -11,6 +11,7 @@ import {
   computeButtonVotes,
   PROGRAM_ID,
   jsEnumToAnchorEnum,
+  VOTE_SECONDS,
 } from "common";
 import { SolanaPlaysPokemonProgram } from "solana-plays-pokemon-program";
 import { WasmboyService } from "src/wasmboy/wasmboy.service";
@@ -121,7 +122,7 @@ export class ProgramService implements OnModuleDestroy {
     await this.executeGameState(gameData.executedStatesCount);
   }
 
-  @Cron("*/20 * * * * *")
+  @Cron(`*/${VOTE_SECONDS * 2} * * * * *`)
   async cronExecute() {
     const gameDataId = new anchor.web3.PublicKey(GAME_DATA_ACCOUNT_ID);
     const gameData = await this.program.account.gameData.fetch(gameDataId);
