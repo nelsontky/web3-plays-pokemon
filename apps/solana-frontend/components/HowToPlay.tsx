@@ -1,4 +1,7 @@
-import { NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS } from "common";
+import {
+  NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS,
+  VOTE_SECONDS,
+} from "common";
 import tw from "twin.macro";
 
 const styles = {
@@ -26,9 +29,10 @@ export default function HowToPlay() {
         any of the above buttons to send in a vote to the blockchain!
       </p>
       <p css={styles.text}>
-        Votes are tallied every <span css={tw`font-bold`}>10 seconds</span>, and
-        after the votes are tallied, the most voted upon button will be pressed
-        and the game will be executed for{" "}
+        Votes are tallied every{" "}
+        <span css={tw`font-bold`}>{VOTE_SECONDS} seconds</span>, and after the
+        votes are tallied, the most voted upon button will be pressed and the
+        game will be executed for{" "}
         <span css={tw`font-bold`}>
           {NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS} seconds
         </span>{" "}
