@@ -290,8 +290,5 @@
       "name": "NoUpdatesIfNotExecuting",
       "msg": "Game state cannot be updated when the game is not executing."
     }
-  ],
-  "metadata": {
-    "address": "pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg"
-  }
+  ]
 }

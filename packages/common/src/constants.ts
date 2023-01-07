@@ -4,7 +4,7 @@ export const GAMEBOY_FPS = 60;
 export const FRAMES_TO_DRAW_PER_EXECUTION = 30;
 export const NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS = 2;
 
-export const VOTE_SECONDS = 5;
+export const VOTE_SECONDS = 10;
 
 // Mainnet
 export const PROGRAM_ID = "pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg";
