@@ -3,6 +3,7 @@ import { NFTStorage, Blob } from "nft.storage";
 import { Web3Storage } from "web3.storage";
 import axios from "axios";
 import { FsBlockStore } from "ipfs-car/blockstore/fs";
+import { Cron } from "@nestjs/schedule";
 
 @Injectable()
 export class IpfsService {
@@ -25,7 +26,6 @@ export class IpfsService {
     }
 
     try {
-      this.logger.log("Uploading via web3.storage...");
       const cid = await this.uploadToWeb3Storage(data);
       return cid;
     } catch (e) {
@@ -42,6 +42,16 @@ export class IpfsService {
     });
 
     return response.data;
+  }
+
+  @Cron("0 */10 * * * *")
+  revertToNftStorage() {
+    if (this.ipfsProvider !== "nft.storage") {
+      this.logger.log(
+        "Automatically switching ipfs service back to nft.storage",
+      );
+      this.ipfsProvider = "nft.storage";
+    }
   }
 
   private uploadToNftStorage(data: Uint8Array) {
