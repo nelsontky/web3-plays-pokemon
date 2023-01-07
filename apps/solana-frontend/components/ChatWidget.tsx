@@ -1,4 +1,4 @@
-import { Popover, Fab, useTheme, Badge } from "@mui/material";
+import { Popover, Fab, useTheme } from "@mui/material";
 import ChatIcon from "@mui/icons-material/Chat";
 import CloseIcon from "@mui/icons-material/Close";
 import { useEffect, useRef, useState } from "react";
@@ -41,34 +41,18 @@ export default function ChatWidget() {
 
   return (
     <div css={styles.root}>
-      <Badge
-        badgeContent="New!"
-        color="error"
-        anchorOrigin={{
-          horizontal: "left",
-          vertical: "top",
-        }}
-        sx={{
-          "& .MuiBadge-badge": {
-            zIndex: 1051,
-            fontSize: "1.25rem",
-            ...POKEMON_PIXEL_FONT.style,
-          },
+      <Fab
+        css={tw`bg-black hover:bg-black`}
+        color="primary"
+        onClick={handleClick}
+        ref={(instance) => {
+          if (instance) {
+            fabRef.current = instance;
+          }
         }}
       >
-        <Fab
-          css={tw`bg-black hover:bg-black`}
-          color="primary"
-          onClick={handleClick}
-          ref={(instance) => {
-            if (instance) {
-              fabRef.current = instance;
-            }
-          }}
-        >
-          {open ? <CloseIcon /> : <ChatIcon />}
-        </Fab>
-      </Badge>
+        {open ? <CloseIcon /> : <ChatIcon />}
+      </Fab>
       <Popover
         hideBackdrop
         keepMounted

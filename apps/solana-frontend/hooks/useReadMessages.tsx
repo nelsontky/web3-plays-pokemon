@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { createFirebaseApp } from "../firebase/clientApp";
 import {
   getDatabase,
@@ -6,8 +6,6 @@ import {
   query,
   ref,
   onChildAdded,
-  startAfter,
-  endAt,
   get,
   endBefore,
   orderByChild,
