@@ -29,7 +29,6 @@ importers:
       '@types/node': ^16.0.0
       '@types/pako': ^2.0.0
       '@types/supertest': ^2.0.11
-      '@types/uuid': ^9.0.0
       '@typescript-eslint/eslint-plugin': ^5.0.0
       '@typescript-eslint/parser': ^5.0.0
       axios: ^1.2.1
@@ -81,7 +80,6 @@ importers:
       '@types/node': 16.18.9
       '@types/pako': 2.0.0
       '@types/supertest': 2.0.12
-      '@types/uuid': 9.0.0
       '@typescript-eslint/eslint-plugin': 5.30.5_vdku6uuknxj7ki2rpjfb5xermq
       '@typescript-eslint/parser': 5.46.1_k4b6qcmrsydkglujhfzi6kw7lm
       eslint: 8.19.0
@@ -4334,10 +4332,6 @@ packages:
   /@types/use-sync-external-store/0.0.3:
     resolution: {integrity: sha512-EwmlvuaxPNej9+T4v5AuBPJa2x2UOJVdjCtDHgcDqitUeOtjnJKJ+apYjVcAoBEMjKW1VVFGZLUb5+qqa09XFA==}
     dev: false
-
-  /@types/uuid/9.0.0:
-    resolution: {integrity: sha512-kr90f+ERiQtKWMz5rP32ltJ/BtULDI5RVO0uavn1HQUOwjx0R1h0rnDYNL0CepF1zL5bSY6FISAfd9tOdDhU5Q==}
-    dev: true
 
   /@types/ws/7.4.7:
     resolution: {integrity: sha512-JQbbmxZTZehdc2iszGKs5oC3NFnjeay7mtAWrdt7qNtAVK0g19muApzAy4bm9byz79xa2ZnO/BOBC2R8RC5Lww==}

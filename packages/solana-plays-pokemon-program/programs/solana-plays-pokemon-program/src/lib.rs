@@ -6,6 +6,8 @@ declare_id!("pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg");
 // Devnet
 // declare_id!("pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK");
 
+const VOTE_SECONDS: i64 = 10;
+
 #[program]
 pub mod solana_plays_pokemon_program {
     use super::*;
@@ -83,8 +85,9 @@ pub mod solana_plays_pokemon_program {
             }
         }
 
-        // execute if game state is at least 5 seconds old
-        let should_execute = ctx.accounts.clock.unix_timestamp - game_state.created_at >= 5;
+        // execute if game state is at least 10 seconds old
+        let should_execute =
+            ctx.accounts.clock.unix_timestamp - game_state.created_at >= VOTE_SECONDS;
         if should_execute {
             game_data.is_executing = true;
 
