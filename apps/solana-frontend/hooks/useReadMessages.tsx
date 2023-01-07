@@ -1,15 +1,17 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { createFirebaseApp } from "../firebase/clientApp";
 import {
-  collection,
+  getDatabase,
+  limitToLast,
   query,
-  onSnapshot,
-  getFirestore,
-  orderBy,
-  limit,
-  where,
-  getDocs,
-} from "firebase/firestore";
+  ref,
+  onChildAdded,
+  startAfter,
+  endAt,
+  get,
+  endBefore,
+  orderByChild,
+} from "firebase/database";
 import Message from "../types/message";
 import { useMessages } from "@chatui/core";
 import { useWallet } from "@solana/wallet-adapter-react";
@@ -24,41 +26,29 @@ export default function useReadMessages() {
   useEffect(
     function listen() {
       const app = createFirebaseApp();
-      const db = app ? getFirestore(app) : getFirestore();
+      const db = getDatabase(app);
 
-      const recentMessagesQuery = query(
-        collection(db, "solana"),
-        orderBy("timestamp", "desc"),
-        limit(LOAD_COUNT)
-      );
+      const newestMessageRef = query(ref(db, "solana"), limitToLast(1));
+      const unsubscribe = onChildAdded(newestMessageRef, (snapshot) => {
+        const _id = snapshot.key;
+        const { text, timestamp, walletAddress } = snapshot.val() as Message;
 
-      const unsubscribe = onSnapshot(recentMessagesQuery, (snapshot) => {
-        snapshot
-          .docChanges()
-          .reverse()
-          .forEach((change) => {
-            const id = change.doc.id;
-            const { walletAddress, text, timestamp } =
-              change.doc.data() as Message;
+        const hasTime = timestamp > newestTimeStampRef.current + 60 * 1000;
+        if (hasTime) {
+          newestTimeStampRef.current = timestamp;
+        }
 
-            if (change.type === "added") {
-              const hasTime =
-                timestamp > newestTimeStampRef.current + 60 * 1000;
-              if (hasTime) {
-                newestTimeStampRef.current = timestamp;
-              }
-
-              appendMsg({
-                _id: id,
-                type: "text",
-                content: { walletAddress, text, timestamp },
-                createdAt: timestamp,
-                hasTime,
-                position:
-                  publicKey?.toBase58() === walletAddress ? "right" : "left",
-              });
-            }
+        if (_id !== null) {
+          appendMsg({
+            _id,
+            type: "text",
+            content: { walletAddress, text, timestamp },
+            createdAt: timestamp,
+            hasTime,
+            position:
+              publicKey?.toBase58() === walletAddress ? "right" : "left",
           });
+        }
       });
 
       return () => {
@@ -72,22 +62,22 @@ export default function useReadMessages() {
 
   const loadMore = async () => {
     const app = createFirebaseApp();
-    const db = app ? getFirestore(app) : getFirestore();
+    const db = getDatabase(app);
 
     if (messages[0]) {
       const moreMessagesQuery = query(
-        collection(db, "solana"),
-        where("timestamp", "<", messages[0].content.timestamp),
-        orderBy("timestamp", "desc"),
-        limit(LOAD_COUNT)
+        ref(db, "solana"),
+        orderByChild("timestamp"),
+        endBefore(messages[0].content.timestamp),
+        limitToLast(LOAD_COUNT)
       );
-      const querySnapshot = await getDocs(moreMessagesQuery);
-      let newestTimeStamp = 0;
-      prependMsgs(
-        querySnapshot.docs.reverse().map((doc) => {
-          const id = doc.id;
-          const { walletAddress, text, timestamp } = doc.data() as Message;
 
+      const snapshot = await get(moreMessagesQuery);
+
+      if (!!snapshot.val()) {
+        let newestTimeStamp = 0;
+        const results = Object.entries(snapshot.val()).map(([id, message]) => {
+          const { walletAddress, text, timestamp } = message as Message;
           const hasTime = timestamp > newestTimeStamp + 60 * 1000;
           if (hasTime) {
             newestTimeStamp = timestamp;
@@ -100,10 +90,13 @@ export default function useReadMessages() {
             createdAt: timestamp,
             hasTime,
             position:
-              publicKey?.toBase58() === walletAddress ? "right" : "left",
+              publicKey?.toBase58() === walletAddress
+                ? "right"
+                : ("left" as any),
           };
-        })
-      );
+        });
+        prependMsgs(results);
+      }
     }
   };
 
