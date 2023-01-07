@@ -122,7 +122,7 @@ export class ProgramService implements OnModuleDestroy {
     await this.executeGameState(gameData.executedStatesCount);
   }
 
-  @Cron(`*/${VOTE_SECONDS * 2} * * * * *`)
+  @Cron(`*/15 * * * * *`)
   async cronExecute() {
     const gameDataId = new anchor.web3.PublicKey(GAME_DATA_ACCOUNT_ID);
     const gameData = await this.program.account.gameData.fetch(gameDataId);
