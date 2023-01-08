@@ -16,10 +16,10 @@ use anchor_lang::prelude::*;
 // 12 = SELECT
 
 // Mainnet
-declare_id!("pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg");
+// declare_id!("pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg");
 
 // Devnet
-// declare_id!("pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK");
+declare_id!("pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK");
 
 const VOTE_SECONDS: i64 = 10;
 const NUMBER_OF_BUTTONS: usize = 13;
@@ -58,8 +58,8 @@ pub mod solana_plays_pokemon_program {
         Ok(())
     }
 
-    pub fn vote(ctx: Context<Vote>, joypad_button: usize) -> Result<()> {
-        if joypad_button >= NUMBER_OF_BUTTONS {
+    pub fn vote(ctx: Context<Vote>, joypad_button: u8) -> Result<()> {
+        if joypad_button >= u8::try_from(NUMBER_OF_BUTTONS).unwrap() {
             return err!(ErrorCode::InvalidButton);
         }
 
@@ -69,7 +69,9 @@ pub mod solana_plays_pokemon_program {
         }
 
         let game_state = &mut ctx.accounts.game_state;
-        game_state.votes[joypad_button] = game_state.votes[joypad_button].checked_add(1).unwrap();
+        game_state.votes[usize::from(joypad_button)] = game_state.votes[usize::from(joypad_button)]
+            .checked_add(1)
+            .unwrap();
 
         // execute if game state is at least 10 seconds old
         let should_execute =

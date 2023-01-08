@@ -57,45 +57,36 @@ describe("solana-plays-pokemon-program", () => {
     );
     assert.isFalse(gameDataAccount.isExecuting);
 
-    const gameStateAccount = await program.account.gameState.fetch(
+    const gameStateAccount = await program.account.gameStateV2.fetch(
       gameStatePda
     );
     assert.strictEqual(gameStateAccount.index, 0);
 
-    assert.strictEqual(gameStateAccount.upCount, 0);
-    assert.strictEqual(gameStateAccount.downCount, 0);
-    assert.strictEqual(gameStateAccount.leftCount, 0);
-    assert.strictEqual(gameStateAccount.rightCount, 0);
-    assert.strictEqual(gameStateAccount.aCount, 0);
-    assert.strictEqual(gameStateAccount.bCount, 0);
-    assert.strictEqual(gameStateAccount.startCount, 0);
-    assert.strictEqual(gameStateAccount.selectCount, 0);
-    assert.strictEqual(gameStateAccount.nothingCount, 1);
+    assert.deepEqual(
+      gameStateAccount.votes,
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    );
 
     assert.isAbove(gameStateAccount.createdAt.toNumber(), 0);
 
-    assert.hasAllKeys(gameStateAccount.executedButton, ["nothing"]);
+    assert.strictEqual(gameStateAccount.executedButton, -1);
 
     assert.strictEqual(gameStateAccount.framesImageCid, FRAMES_IMAGES_CID);
     assert.strictEqual(gameStateAccount.saveStateCid, SAVE_STATE_CID);
 
-    const nextGameStateAccount = await program.account.gameState.fetch(
+    const nextGameStateAccount = await program.account.gameStateV2.fetch(
       nextGameStatePda
     );
     assert.strictEqual(nextGameStateAccount.index, 1);
-    assert.strictEqual(nextGameStateAccount.upCount, 0);
-    assert.strictEqual(nextGameStateAccount.downCount, 0);
-    assert.strictEqual(nextGameStateAccount.leftCount, 0);
-    assert.strictEqual(nextGameStateAccount.rightCount, 0);
-    assert.strictEqual(nextGameStateAccount.aCount, 0);
-    assert.strictEqual(nextGameStateAccount.bCount, 0);
-    assert.strictEqual(nextGameStateAccount.startCount, 0);
-    assert.strictEqual(nextGameStateAccount.selectCount, 0);
-    assert.strictEqual(nextGameStateAccount.nothingCount, 0);
+
+    assert.deepEqual(
+      nextGameStateAccount.votes,
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    );
 
     assert.isAbove(nextGameStateAccount.createdAt.toNumber(), 0);
 
-    assert.hasAllKeys(nextGameStateAccount.executedButton, ["nothing"]);
+    assert.strictEqual(nextGameStateAccount.executedButton, -1);
 
     assert.strictEqual(nextGameStateAccount.framesImageCid, "");
     assert.strictEqual(nextGameStateAccount.saveStateCid, "");
@@ -135,7 +126,7 @@ describe("solana-plays-pokemon-program", () => {
 
     try {
       await program.methods
-        .vote({ a: {} })
+        .vote(9) // A
         .accounts({
           gameState: invalidNextGameStatePda,
           gameData: gameData.publicKey,
@@ -171,7 +162,7 @@ describe("solana-plays-pokemon-program", () => {
 
     try {
       await program.methods
-        .vote({ a: {} })
+        .vote(9) // A
         .accounts({
           gameState: invalidGameStatePda,
           gameData: gameData.publicKey,
@@ -184,6 +175,42 @@ describe("solana-plays-pokemon-program", () => {
       if (e instanceof AnchorError) {
         // ConstraintSeeds error
         assert.strictEqual(e.error.errorCode.number, 2006);
+        return;
+      }
+    }
+
+    assert.fail();
+  });
+
+  it("Cannot vote for invalid button", async () => {
+    const gameDataAccount = await program.account.gameData.fetch(
+      gameData.publicKey
+    );
+    const secondsPlayed = gameDataAccount.executedStatesCount;
+    const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        gameData.publicKey.toBuffer(),
+        Buffer.from("game_state"),
+        Buffer.from("" + secondsPlayed),
+      ],
+      program.programId
+    );
+
+    try {
+      await program.methods
+        .vote(13)
+        .accounts({
+          gameState: gameStatePda,
+          gameData: gameData.publicKey,
+          player: anchor.getProvider().publicKey,
+          systemProgram: anchor.web3.SystemProgram.programId,
+          clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+        })
+        .rpc();
+    } catch (e) {
+      if (e instanceof AnchorError) {
+        // InvalidButton error
+        assert.strictEqual(e.error.errorCode.number, 6002);
         return;
       }
     }
@@ -206,7 +233,7 @@ describe("solana-plays-pokemon-program", () => {
     );
 
     await program.methods
-      .vote({ a: {} })
+      .vote(9) // A
       .accounts({
         gameState: gameStatePda,
         gameData: gameData.publicKey,
@@ -217,7 +244,7 @@ describe("solana-plays-pokemon-program", () => {
       .rpc();
 
     await program.methods
-      .vote({ b: {} })
+      .vote(10) // B
       .accounts({
         gameState: gameStatePda,
         gameData: gameData.publicKey,
@@ -227,12 +254,14 @@ describe("solana-plays-pokemon-program", () => {
       })
       .rpc();
 
-    const currentGameState = await program.account.gameState.fetch(
+    const currentGameState = await program.account.gameStateV2.fetch(
       gameStatePda
     );
 
-    assert.strictEqual(currentGameState.aCount, 1);
-    assert.strictEqual(currentGameState.bCount, 1);
+    assert.deepEqual(
+      currentGameState.votes,
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0]
+    );
   });
 
   it("Does not allow update of executed game state when not executing", async () => {
@@ -268,7 +297,7 @@ describe("solana-plays-pokemon-program", () => {
 
     try {
       await program.methods
-        .updateGameState({ a: {} }, NEW_FRAMES_IMAGES_CID, NEW_SAVE_STATE_CID)
+        .updateGameState(NEW_FRAMES_IMAGES_CID, NEW_SAVE_STATE_CID)
         .accounts({
           authority: anchor.getProvider().publicKey,
           gameData: gameData.publicKey,
@@ -324,7 +353,7 @@ describe("solana-plays-pokemon-program", () => {
 
     try {
       await program.methods
-        .updateGameState({ a: {} }, "foo", "bar")
+        .updateGameState("foo", "bar")
         .accounts({
           authority: invalidAuthority.publicKey,
           gameData: gameData.publicKey,
