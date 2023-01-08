@@ -76,10 +76,11 @@ export default function Admin() {
       console.log("sending");
 
       const FRAMES_IMAGES_CID =
-        "bafkreiawv63nicfo6iksc3kjuzoxgmljebyt54qhwnugzdoasprwyjnxie";
+        "bafkreigrikmqvirqnjneccayfbzlfhndfrn7zdfmbxywdwk3gyn5u6gteu";
       const SAVE_STATE_CID =
-        "bafkreidkyxyqc6ov6dcllwwtyff4xyvgi6gdkgb5icfqeauulhhxsfp6n4";
+        "bafkreiakjwilw572br3xnbqnch43kibqacm5aczv23ezih5ryyflghmnja";
 
+      console.log(program.programId.toBase58());
       await program.methods
         .migrateGameStateToV2(FRAMES_IMAGES_CID, SAVE_STATE_CID)
         .accounts({
