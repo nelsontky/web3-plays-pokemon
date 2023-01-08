@@ -90,10 +90,10 @@ export default function CurrentVotes() {
                 <td css={[styles.tableData, tw`max-w-[1rem]`]}>
                   {secondsLeft}
                 </td>
-                <td css={styles.tableData}>{currentState?.upCount ?? 0}</td>
-                <td css={styles.tableData}>{currentState?.downCount ?? 0}</td>
-                <td css={styles.tableData}>{currentState?.leftCount ?? 0}</td>
-                <td css={styles.tableData}>{currentState?.rightCount ?? 0}</td>
+                <td css={styles.tableData}>{currentState?.votes[1] ?? 0}</td>
+                <td css={styles.tableData}>{currentState?.votes[2] ?? 0}</td>
+                <td css={styles.tableData}>{currentState?.votes[3] ?? 0}</td>
+                <td css={styles.tableData}>{currentState?.votes[4] ?? 0}</td>
               </tr>
             </tbody>
           </table>
@@ -119,13 +119,11 @@ export default function CurrentVotes() {
                 </th>
               </tr>
               <tr>
-                <td css={styles.tableData}>{currentState?.aCount ?? 0}</td>
-                <td css={styles.tableData}>{currentState?.bCount ?? 0}</td>
-                <td css={styles.tableData}>{currentState?.startCount ?? 0}</td>
-                <td css={styles.tableData}>{currentState?.selectCount ?? 0}</td>
-                <td css={styles.tableData}>
-                  {currentState?.nothingCount ?? 0}
-                </td>
+                <td css={styles.tableData}>{currentState?.votes[9] ?? 0}</td>
+                <td css={styles.tableData}>{currentState?.votes[10] ?? 0}</td>
+                <td css={styles.tableData}>{currentState?.votes[11] ?? 0}</td>
+                <td css={styles.tableData}>{currentState?.votes[12] ?? 0}</td>
+                <td css={styles.tableData}>{currentState?.votes[0] ?? 0}</td>
               </tr>
             </tbody>
           </table>
