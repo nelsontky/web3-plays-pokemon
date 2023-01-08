@@ -7,8 +7,6 @@ import * as anchor from "@project-serum/anchor";
 import { GAME_DATA_ACCOUNT_PUBLIC_KEY } from "../constants";
 import useTxSnackbar from "../hooks/useTxSnackbar";
 import ControlsBackdrop from "./ControlsBackdrop";
-import { useRouter } from "next/router";
-import { useEffect, useRef } from "react";
 
 const styles = {
   root: tw`
@@ -56,16 +54,8 @@ const styles = {
 };
 
 export default function Controls() {
-  const router = useRouter();
   const program = useMutableProgram();
   const { enqueueSnackbar, closeSnackbar } = useTxSnackbar();
-  const isMigrate = useRef(false);
-
-  useEffect(() => {
-    if (router.isReady && router.query.migrate === "true") {
-      isMigrate.current = true;
-    }
-  }, [router]);
 
   const executeGame = async (joypadButton: JoypadButton) => {
     if (program) {
