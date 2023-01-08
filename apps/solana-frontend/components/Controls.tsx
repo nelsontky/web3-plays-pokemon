@@ -11,7 +11,6 @@ import ControlsBackdrop from "./ControlsBackdrop";
 const styles = {
   root: tw`
     relative
-    mt-6
     p-2
     pr-4
     pb-4

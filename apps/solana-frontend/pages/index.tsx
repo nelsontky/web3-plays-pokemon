@@ -45,8 +45,8 @@ export default function Web() {
       </Head>
       <SocialLinks />
       <GameCanvas />
-      <Controls />
       <CurrentVotes />
+      <Controls />
       <HowToPlay />
       <VotesHistory />
       <ChatWidgetDynamic />
