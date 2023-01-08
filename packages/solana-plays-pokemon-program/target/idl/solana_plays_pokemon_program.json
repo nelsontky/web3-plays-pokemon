@@ -79,9 +79,7 @@
       "args": [
         {
           "name": "joypadButton",
-          "type": {
-            "defined": "JoypadButton"
-          }
+          "type": "u8"
         }
       ]
     },
@@ -120,12 +118,6 @@
         }
       ],
       "args": [
-        {
-          "name": "executedButton",
-          "type": {
-            "defined": "JoypadButton"
-          }
-        },
         {
           "name": "framesImageCid",
           "type": "string"
@@ -304,8 +296,8 @@
       "name": "ExecuteGameState",
       "fields": [
         {
-          "name": "index",
-          "type": "u32",
+          "name": "executedButton",
+          "type": "i8",
           "index": false
         },
         {
@@ -326,6 +318,14 @@
       "code": 6001,
       "name": "NoUpdatesIfNotExecuting",
       "msg": "Game state cannot be updated when the game is not executing."
+    },
+    {
+      "code": 6002,
+      "name": "InvalidButton",
+      "msg": "Invalid button sent."
     }
-  ]
+  ],
+  "metadata": {
+    "address": "pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK"
+  }
 }

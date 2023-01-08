@@ -79,9 +79,7 @@ export type SolanaPlaysPokemonProgram = {
       "args": [
         {
           "name": "joypadButton",
-          "type": {
-            "defined": "JoypadButton"
-          }
+          "type": "u8"
         }
       ]
     },
@@ -120,12 +118,6 @@ export type SolanaPlaysPokemonProgram = {
         }
       ],
       "args": [
-        {
-          "name": "executedButton",
-          "type": {
-            "defined": "JoypadButton"
-          }
-        },
         {
           "name": "framesImageCid",
           "type": "string"
@@ -304,8 +296,8 @@ export type SolanaPlaysPokemonProgram = {
       "name": "ExecuteGameState",
       "fields": [
         {
-          "name": "index",
-          "type": "u32",
+          "name": "executedButton",
+          "type": "i8",
           "index": false
         },
         {
@@ -326,6 +318,11 @@ export type SolanaPlaysPokemonProgram = {
       "code": 6001,
       "name": "NoUpdatesIfNotExecuting",
       "msg": "Game state cannot be updated when the game is not executing."
+    },
+    {
+      "code": 6002,
+      "name": "InvalidButton",
+      "msg": "Invalid button sent."
     }
   ]
 };
@@ -411,9 +408,7 @@ export const IDL: SolanaPlaysPokemonProgram = {
       "args": [
         {
           "name": "joypadButton",
-          "type": {
-            "defined": "JoypadButton"
-          }
+          "type": "u8"
         }
       ]
     },
@@ -452,12 +447,6 @@ export const IDL: SolanaPlaysPokemonProgram = {
         }
       ],
       "args": [
-        {
-          "name": "executedButton",
-          "type": {
-            "defined": "JoypadButton"
-          }
-        },
         {
           "name": "framesImageCid",
           "type": "string"
@@ -636,8 +625,8 @@ export const IDL: SolanaPlaysPokemonProgram = {
       "name": "ExecuteGameState",
       "fields": [
         {
-          "name": "index",
-          "type": "u32",
+          "name": "executedButton",
+          "type": "i8",
           "index": false
         },
         {
@@ -658,6 +647,11 @@ export const IDL: SolanaPlaysPokemonProgram = {
       "code": 6001,
       "name": "NoUpdatesIfNotExecuting",
       "msg": "Game state cannot be updated when the game is not executing."
+    },
+    {
+      "code": 6002,
+      "name": "InvalidButton",
+      "msg": "Invalid button sent."
     }
   ]
 };
