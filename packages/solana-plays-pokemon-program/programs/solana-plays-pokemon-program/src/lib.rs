@@ -93,6 +93,7 @@ pub mod solana_plays_pokemon_program {
 
             emit!(ExecuteGameState {
                 executed_button,
+                index: game_data.executed_states_count,
                 game_data_id: ctx.accounts.game_data.key()
             });
         }
@@ -120,9 +121,40 @@ pub mod solana_plays_pokemon_program {
         // init next game state
         let next_game_state = &mut ctx.accounts.next_game_state;
         next_game_state.index = game_data.executed_states_count;
-        game_state.votes = [0; NUMBER_OF_BUTTONS];
+        next_game_state.votes = [0; NUMBER_OF_BUTTONS];
         next_game_state.created_at = ctx.accounts.clock.unix_timestamp;
         next_game_state.executed_button = -1;
+
+        Ok(())
+    }
+
+    pub fn migrate_game_state_to_v2(
+        ctx: Context<MigrateGameStateToV2>,
+        frames_image_cid: String,
+        save_state_cid: String,
+    ) -> Result<()> {
+        let game_data = &mut ctx.accounts.game_data;
+        game_data.is_executing = false;
+        game_data.executed_states_count = game_data.executed_states_count.checked_add(2).unwrap();
+
+        let game_state = &mut ctx.accounts.game_state;
+        game_state.frames_image_cid = frames_image_cid.clone();
+        game_state.save_state_cid = save_state_cid.clone();
+        game_state.executed_button = JoypadButton::Nothing;
+
+        let next_game_state = &mut ctx.accounts.next_game_state;
+        next_game_state.index = game_data.executed_states_count.checked_sub(1).unwrap();
+        next_game_state.votes = [0; NUMBER_OF_BUTTONS];
+        next_game_state.created_at = ctx.accounts.clock.unix_timestamp;
+        next_game_state.frames_image_cid = frames_image_cid;
+        next_game_state.save_state_cid = save_state_cid;
+        next_game_state.executed_button = 0;
+
+        let next_next_game_state = &mut ctx.accounts.next_next_game_state;
+        next_next_game_state.index = game_data.executed_states_count;
+        next_next_game_state.votes = [0; NUMBER_OF_BUTTONS];
+        next_next_game_state.created_at = ctx.accounts.clock.unix_timestamp;
+        next_next_game_state.executed_button = -1;
 
         Ok(())
     }
@@ -214,6 +246,57 @@ pub struct UpdateGameState<'info> {
     pub clock: Sysvar<'info, Clock>,
 }
 
+#[derive(Accounts)]
+#[instruction(
+    frames_image_cid: String,
+    save_state_cid: String,
+)]
+pub struct MigrateGameStateToV2<'info> {
+    #[account(
+        mut,
+        seeds = [
+            game_data.key().as_ref(),
+            b"game_state",
+            (game_data.executed_states_count).to_string().as_ref()
+        ],
+        bump,
+        realloc = 8 + GameState::LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
+        realloc::payer = authority,
+        realloc::zero = true,
+    )]
+    pub game_state: Account<'info, GameState>,
+    #[account(
+        init,
+        payer = authority,
+        space = 8 + GameStateV2::BASE_LEN + 4 + 59 + 4 + 59, // nft.storage cids are 59 characters long by default
+        seeds = [
+                game_data.key().as_ref(),
+                b"game_state", 
+                (game_data.executed_states_count.checked_add(1).unwrap()).to_string().as_ref()
+            ],
+        bump
+    )]
+    pub next_game_state: Account<'info, GameStateV2>,
+    #[account(
+        init,
+        payer = authority,
+        space = 8 + GameStateV2::BASE_LEN + 4 + 59 + 4 + 59, // nft.storage cids are 59 characters long by default
+        seeds = [
+                game_data.key().as_ref(),
+                b"game_state", 
+                (game_data.executed_states_count.checked_add(2).unwrap()).to_string().as_ref()
+            ],
+        bump
+    )]
+    pub next_next_game_state: Account<'info, GameStateV2>,
+    #[account(mut, has_one = authority)]
+    pub game_data: Account<'info, GameData>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    pub system_program: Program<'info, System>,
+    pub clock: Sysvar<'info, Clock>,
+}
+
 #[account]
 pub struct GameData {
     pub executed_states_count: u32,
@@ -285,6 +368,7 @@ pub enum JoypadButton {
 #[event]
 pub struct ExecuteGameState {
     pub executed_button: i8,
+    pub index: u32,
     pub game_data_id: Pubkey,
 }
 

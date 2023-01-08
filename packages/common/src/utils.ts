@@ -103,3 +103,22 @@ export const anchorEnumToJsEnum = (anchorEnum: { [button: string]: {} }) => {
       return JoypadButton.Nothing;
   }
 };
+
+export const joypadEnumToButtonId = (joypadButton: JoypadButton) =>
+  joypadButton === JoypadButton.Up
+    ? 1
+    : joypadButton === JoypadButton.Down
+    ? 2
+    : joypadButton === JoypadButton.Left
+    ? 3
+    : joypadButton === JoypadButton.Right
+    ? 4
+    : joypadButton === JoypadButton.A
+    ? 9
+    : joypadButton === JoypadButton.B
+    ? 10
+    : joypadButton === JoypadButton.Start
+    ? 11
+    : joypadButton === JoypadButton.Select
+    ? 12
+    : 0;

@@ -10,8 +10,9 @@ import {
   GAME_DATA_ACCOUNT_ID,
   computeButtonVotes,
   PROGRAM_ID,
-  jsEnumToAnchorEnum,
   VOTE_SECONDS,
+  BUTTON_ID_TO_ENUM,
+  JoypadButton,
 } from "common";
 import { SolanaPlaysPokemonProgram } from "solana-plays-pokemon-program";
 import { WasmboyService } from "src/wasmboy/wasmboy.service";
@@ -85,8 +86,10 @@ export class ProgramService implements OnModuleDestroy {
             );
             return;
           }
+          const executedButton: number = event.executedButton;
           const gameStateIndex: number = event.index;
-          await this.executeGameState(gameStateIndex);
+
+          await this.executeGameState(gameStateIndex, executedButton);
           this.logger.log("Execution success");
           return;
         } catch (e) {
@@ -132,7 +135,10 @@ export class ProgramService implements OnModuleDestroy {
     }
   }
 
-  private async executeGameState(gameStateIndex: number) {
+  private async executeGameState(
+    gameStateIndex: number,
+    executedButtonId?: number,
+  ) {
     const gameDataId = new anchor.web3.PublicKey(GAME_DATA_ACCOUNT_ID);
     const [prevGameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
       [
@@ -159,23 +165,28 @@ export class ProgramService implements OnModuleDestroy {
       this.program.programId,
     );
 
-    const [prevGameState, currentGameState] = await Promise.all([
-      this.program.account.gameState.fetch(prevGameStatePda),
-      this.program.account.gameState.fetch(currentGameStatePda),
-    ]);
+    const prevGameState = await this.program.account.gameStateV2.fetch(
+      prevGameStatePda,
+    );
 
-    const joypadButton = computeButtonVotes(currentGameState);
+    let joypadButton: JoypadButton;
+    if (executedButtonId === undefined) {
+      const currentGameState = await this.program.account.gameStateV2.fetch(
+        currentGameStatePda,
+      );
+      joypadButton =
+        BUTTON_ID_TO_ENUM[currentGameState.executedButton as number];
+    } else {
+      joypadButton = BUTTON_ID_TO_ENUM[executedButtonId];
+    }
+
     const { framesImageDataCid, saveStateCid } = await this.wasmboyService.run(
       joypadButton,
       prevGameState.saveStateCid,
     );
 
     const instruction = await this.program.methods
-      .updateGameState(
-        jsEnumToAnchorEnum(joypadButton),
-        framesImageDataCid,
-        saveStateCid,
-      )
+      .updateGameState(framesImageDataCid, saveStateCid)
       .accounts({
         authority: this.wallet.publicKey,
         gameData: gameDataId,

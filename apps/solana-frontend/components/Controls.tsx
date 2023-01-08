@@ -1,5 +1,5 @@
 import { css } from "@emotion/react";
-import { JoypadButton } from "common";
+import { JoypadButton, joypadEnumToButtonId } from "common";
 import tw from "twin.macro";
 import ControlButton from "./ControlButton";
 import { useMutableProgram } from "../hooks/useProgram";
@@ -7,6 +7,8 @@ import * as anchor from "@project-serum/anchor";
 import { GAME_DATA_ACCOUNT_PUBLIC_KEY } from "../constants";
 import useTxSnackbar from "../hooks/useTxSnackbar";
 import ControlsBackdrop from "./ControlsBackdrop";
+import { useRouter } from "next/router";
+import { useEffect, useRef } from "react";
 
 const styles = {
   root: tw`
@@ -54,8 +56,16 @@ const styles = {
 };
 
 export default function Controls() {
+  const router = useRouter();
   const program = useMutableProgram();
   const { enqueueSnackbar, closeSnackbar } = useTxSnackbar();
+  const isMigrate = useRef(false);
+
+  useEffect(() => {
+    if (router.isReady && router.query.migrate === "true") {
+      isMigrate.current = true;
+    }
+  }, [router]);
 
   const executeGame = async (joypadButton: JoypadButton) => {
     if (program) {
@@ -83,25 +93,7 @@ export default function Controls() {
 
       try {
         const txId = await program.methods
-          .vote({
-            ...(joypadButton === JoypadButton.Up
-              ? { up: {} }
-              : joypadButton === JoypadButton.Down
-              ? { down: {} }
-              : joypadButton === JoypadButton.Left
-              ? { left: {} }
-              : joypadButton === JoypadButton.Right
-              ? { right: {} }
-              : joypadButton === JoypadButton.A
-              ? { a: {} }
-              : joypadButton === JoypadButton.B
-              ? { b: {} }
-              : joypadButton === JoypadButton.Start
-              ? { start: {} }
-              : joypadButton === JoypadButton.Select
-              ? { select: {} }
-              : { nothing: {} }),
-          })
+          .vote(joypadEnumToButtonId(joypadButton))
           .accounts({
             gameState: gameStatePda,
             gameData: GAME_DATA_ACCOUNT_PUBLIC_KEY,
@@ -121,6 +113,7 @@ export default function Controls() {
           }
         );
       } catch (e) {
+        console.log(e);
         if (e instanceof Error) {
           enqueueSnackbar(
             {
