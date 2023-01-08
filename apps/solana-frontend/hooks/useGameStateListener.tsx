@@ -111,6 +111,7 @@ export default function useGameStateListener() {
       program.account.gameState,
       gameStatePdaPrev,
       didGameStatePdaChange,
+      program.account.gameStateV2,
     ]
   );
 }
