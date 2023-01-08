@@ -10,6 +10,7 @@ import {
   selectGameStateById,
   selectGameStateIds,
 } from "../slices/gameStatesSlice";
+import { useMemo } from "react";
 
 const styles = {
   root: tw`
@@ -62,20 +63,28 @@ export default function ControlsBackdrop() {
 }
 
 const MoveButton = ({ currentGameState }: { currentGameState: any }) => {
-  if (!currentGameState) {
+  const executedButton = useMemo(() => {
+    const votes = currentGameState?.votes;
+
+    if (!votes) {
+      return;
+    }
+
+    let maxVoteCount = Number.MIN_SAFE_INTEGER;
+    let executedButton = 0;
+    for (let i = 0; i < votes.length; i++) {
+      if (votes[i] > maxVoteCount) {
+        maxVoteCount = votes[i];
+        executedButton = i;
+      }
+    }
+
+    return executedButton;
+  }, [currentGameState]);
+
+  if (executedButton === undefined) {
     return null;
   }
-
-  const votes = currentGameState.votes;
-
-  let maxVoteCount = Number.MIN_SAFE_INTEGER;
-  let executedButton = 0;
-  for (let i = 0; i < votes.length; i++) {
-    if (votes[i] > maxVoteCount) {
-      maxVoteCount = votes[i];
-      executedButton = i;
-    }
-  }
-
+  
   return <SmallControl>{BUTTON_ID_TO_ENUM[executedButton]}</SmallControl>;
 };
