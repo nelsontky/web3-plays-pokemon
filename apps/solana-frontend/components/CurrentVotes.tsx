@@ -13,6 +13,13 @@ const styles = {
     text-4xl
     text-center
   `,
+  timeLeft: tw`
+    text-2xl
+    leading-5
+    text-center
+    mb-4
+    underline
+`,
   tableContainer: tw`
     flex
     flex-wrap
@@ -41,37 +48,40 @@ export default function CurrentVotes() {
   );
 
   const [secondsLeft, setSecondsLeft] = useState<string>("0");
-  useEffect(() => {
-    const calcSecondsLeft = () => {
-      const secondsLeft = currentState
-        ? VOTE_SECONDS -
-          (Math.floor(Date.now() / 1000) - currentState.createdAt)
-        : VOTE_SECONDS;
-      setSecondsLeft(
-        secondsLeft > 0
-          ? secondsLeft + "s"
-          : "Next button will be the last vote"
-      );
-    };
+  useEffect(
+    function updateTimer() {
+      const calcSecondsLeft = () => {
+        const secondsLeft = currentState
+          ? VOTE_SECONDS -
+            (Math.floor(Date.now() / 1000) - currentState.createdAt)
+          : VOTE_SECONDS;
+        setSecondsLeft(
+          secondsLeft > 0
+            ? secondsLeft + "s"
+            : "Please send in one last vote for the game to proceed"
+        );
+      };
 
-    const timer = setInterval(calcSecondsLeft, 500);
-    calcSecondsLeft();
+      const timer = setInterval(calcSecondsLeft, 500);
+      calcSecondsLeft();
 
-    return () => {
-      clearInterval(timer);
-    };
-  }, [currentState]);
+      return () => {
+        clearInterval(timer);
+      };
+    },
+    [currentState]
+  );
 
   return (
     <div css={styles.root}>
-      <h2 css={styles.header}>Current votes</h2>
+      <h2 css={styles.header}>Time left for vote</h2>
+      <p css={styles.timeLeft}>{secondsLeft}</p>
       <div css={styles.tableContainer}>
         <div css={styles.tableWrapper}>
           <table>
             <tbody>
               <tr>
                 <th css={styles.textHeader}>Round</th>
-                <th css={styles.textHeader}>Time left to vote</th>
                 <th>
                   <SmallControl>↑</SmallControl>
                 </th>
@@ -87,9 +97,6 @@ export default function CurrentVotes() {
               </tr>
               <tr>
                 <td css={styles.tableData}>{executedStatesCount}</td>
-                <td css={[styles.tableData, tw`max-w-[1rem]`]}>
-                  {secondsLeft}
-                </td>
                 <td css={styles.tableData}>{currentState?.votes[1] ?? 0}</td>
                 <td css={styles.tableData}>{currentState?.votes[2] ?? 0}</td>
                 <td css={styles.tableData}>{currentState?.votes[3] ?? 0}</td>
