@@ -159,6 +159,43 @@ export type SolanaPlaysPokemonProgram = {
       }
     },
     {
+      "name": "gameStateV2",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "index",
+            "type": "u32"
+          },
+          {
+            "name": "votes",
+            "type": {
+              "array": [
+                "u8",
+                13
+              ]
+            }
+          },
+          {
+            "name": "createdAt",
+            "type": "i64"
+          },
+          {
+            "name": "executedButton",
+            "type": "i8"
+          },
+          {
+            "name": "framesImageCid",
+            "type": "string"
+          },
+          {
+            "name": "saveStateCid",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
       "name": "gameState",
       "type": {
         "kind": "struct",
@@ -449,6 +486,43 @@ export const IDL: SolanaPlaysPokemonProgram = {
           {
             "name": "authority",
             "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "gameStateV2",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "index",
+            "type": "u32"
+          },
+          {
+            "name": "votes",
+            "type": {
+              "array": [
+                "u8",
+                13
+              ]
+            }
+          },
+          {
+            "name": "createdAt",
+            "type": "i64"
+          },
+          {
+            "name": "executedButton",
+            "type": "i8"
+          },
+          {
+            "name": "framesImageCid",
+            "type": "string"
+          },
+          {
+            "name": "saveStateCid",
+            "type": "string"
           }
         ]
       }

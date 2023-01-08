@@ -1,5 +1,20 @@
 use anchor_lang::prelude::*;
 
+// Button mappings:
+// 0 = DO NOTHING
+// 1 = UP
+// 2 = DOWN
+// 3 = LEFT
+// 4 = RIGHT
+// 5 = TURBO UP
+// 6 = TURBO DOWN
+// 7 = TURBO LEFT
+// 8 = TURBO RIGHT
+// 9 = A
+// 10 = B
+// 11 = START
+// 12 = SELECT
+
 // Mainnet
 declare_id!("pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg");
 
@@ -7,6 +22,7 @@ declare_id!("pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg");
 // declare_id!("pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK");
 
 const VOTE_SECONDS: i64 = 10;
+const NUMBER_OF_BUTTONS: usize = 13;
 
 #[program]
 pub mod solana_plays_pokemon_program {
@@ -24,21 +40,9 @@ pub mod solana_plays_pokemon_program {
 
         let game_state = &mut ctx.accounts.game_state;
         game_state.index = 0;
-
-        game_state.up_count = 0;
-        game_state.down_count = 0;
-        game_state.left_count = 0;
-        game_state.right_count = 0;
-        game_state.a_count = 0;
-        game_state.b_count = 0;
-        game_state.start_count = 0;
-        game_state.select_count = 0;
-        game_state.nothing_count = 1;
-
+        game_state.votes = [0; NUMBER_OF_BUTTONS];
         game_state.created_at = ctx.accounts.clock.unix_timestamp;
-
-        game_state.executed_button = JoypadButton::Nothing;
-
+        game_state.executed_button = -1; // empty value is -1
         game_state.frames_image_cid = frames_image_cid;
         game_state.save_state_cid = save_state_cid;
         msg!("First game state account initialized");
@@ -46,44 +50,26 @@ pub mod solana_plays_pokemon_program {
         // init next game state
         let next_game_state = &mut ctx.accounts.next_game_state;
         next_game_state.index = game_data.executed_states_count;
+        game_state.votes = [0; NUMBER_OF_BUTTONS];
         next_game_state.created_at = ctx.accounts.clock.unix_timestamp;
-        next_game_state.executed_button = JoypadButton::Nothing;
+        next_game_state.executed_button = -1;
         msg!("Second game state account initialized");
 
         Ok(())
     }
 
-    pub fn vote(ctx: Context<Vote>, joypad_button: JoypadButton) -> Result<()> {
+    pub fn vote(ctx: Context<Vote>, joypad_button: usize) -> Result<()> {
+        if joypad_button >= NUMBER_OF_BUTTONS {
+            return err!(ErrorCode::InvalidButton);
+        }
+
         let game_data = &mut ctx.accounts.game_data;
         if game_data.is_executing {
             return err!(ErrorCode::GameIsExecuting);
         }
 
         let game_state = &mut ctx.accounts.game_state;
-
-        match joypad_button {
-            JoypadButton::Up => game_state.up_count = game_state.up_count.checked_add(1).unwrap(),
-            JoypadButton::Down => {
-                game_state.down_count = game_state.down_count.checked_add(1).unwrap()
-            }
-            JoypadButton::Left => {
-                game_state.left_count = game_state.left_count.checked_add(1).unwrap()
-            }
-            JoypadButton::Right => {
-                game_state.right_count = game_state.right_count.checked_add(1).unwrap()
-            }
-            JoypadButton::A => game_state.a_count = game_state.a_count.checked_add(1).unwrap(),
-            JoypadButton::B => game_state.b_count = game_state.b_count.checked_add(1).unwrap(),
-            JoypadButton::Start => {
-                game_state.start_count = game_state.start_count.checked_add(1).unwrap()
-            }
-            JoypadButton::Select => {
-                game_state.select_count = game_state.select_count.checked_add(1).unwrap()
-            }
-            JoypadButton::Nothing => {
-                game_state.nothing_count = game_state.nothing_count.checked_add(1).unwrap()
-            }
-        }
+        game_state.votes[joypad_button] = game_state.votes[joypad_button].checked_add(1).unwrap();
 
         // execute if game state is at least 10 seconds old
         let should_execute =
@@ -91,8 +77,20 @@ pub mod solana_plays_pokemon_program {
         if should_execute {
             game_data.is_executing = true;
 
+            let mut executed_button: i8 = 0;
+            let mut most_voted_count: i32 = -1;
+            let votes = game_state.votes;
+            for i in 0..votes.len() {
+                if i32::from(votes[i]) > most_voted_count {
+                    most_voted_count = i32::from(votes[i]);
+                    executed_button = i8::try_from(i).unwrap();
+                }
+            }
+
+            game_state.executed_button = executed_button;
+
             emit!(ExecuteGameState {
-                index: game_data.executed_states_count,
+                executed_button,
                 game_data_id: ctx.accounts.game_data.key()
             });
         }
@@ -102,7 +100,6 @@ pub mod solana_plays_pokemon_program {
 
     pub fn update_game_state(
         ctx: Context<UpdateGameState>,
-        executed_button: JoypadButton,
         frames_image_cid: String,
         save_state_cid: String,
     ) -> Result<()> {
@@ -115,15 +112,15 @@ pub mod solana_plays_pokemon_program {
         game_data.executed_states_count = game_data.executed_states_count.checked_add(1).unwrap();
 
         let game_state = &mut ctx.accounts.game_state;
-        game_state.executed_button = executed_button;
         game_state.frames_image_cid = frames_image_cid;
         game_state.save_state_cid = save_state_cid;
 
         // init next game state
         let next_game_state = &mut ctx.accounts.next_game_state;
         next_game_state.index = game_data.executed_states_count;
+        game_state.votes = [0; NUMBER_OF_BUTTONS];
         next_game_state.created_at = ctx.accounts.clock.unix_timestamp;
-        next_game_state.executed_button = JoypadButton::Nothing;
+        next_game_state.executed_button = -1;
 
         Ok(())
     }
@@ -137,19 +134,19 @@ pub struct Initialize<'info> {
     #[account(
         init,
         payer = authority,
-        space = 8 + GameState::LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
+        space = 8 + GameStateV2::BASE_LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
         seeds = [game_data.key().as_ref(), b"game_state", b"0"], // seeds comprise of game_data key, a static text, and the index
         bump
     )]
-    pub game_state: Account<'info, GameState>,
+    pub game_state: Account<'info, GameStateV2>,
     #[account(
         init,
         payer = authority,
-        space = 8 + GameState::LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
+        space = 8 + GameStateV2::BASE_LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
         seeds = [game_data.key().as_ref(), b"game_state", b"1"], // seeds comprise of game_data key, a static text, and the index
         bump
     )]
-    pub next_game_state: Account<'info, GameState>,
+    pub next_game_state: Account<'info, GameStateV2>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
@@ -167,7 +164,7 @@ pub struct Vote<'info> {
             ],
         bump
     )]
-    pub game_state: Account<'info, GameState>,
+    pub game_state: Account<'info, GameStateV2>,
     #[account(mut)]
     pub game_data: Account<'info, GameData>,
     #[account(mut)]
@@ -178,7 +175,6 @@ pub struct Vote<'info> {
 
 #[derive(Accounts)]
 #[instruction(
-    executed_button: JoypadButton,
     frames_image_cid: String,
     save_state_cid: String,
 )]
@@ -191,15 +187,15 @@ pub struct UpdateGameState<'info> {
             (game_data.executed_states_count).to_string().as_ref()
         ],
         bump,
-        realloc = 8 + GameState::LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
+        realloc = 8 + GameStateV2::BASE_LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
         realloc::payer = authority,
         realloc::zero = true,
     )]
-    pub game_state: Account<'info, GameState>,
+    pub game_state: Account<'info, GameStateV2>,
     #[account(
         init,
         payer = authority,
-        space = 8 + GameState::LEN + 4 + 59 + 4 + 59, // nft.storage cids are 59 characters long by default
+        space = 8 + GameStateV2::BASE_LEN + 4 + 59 + 4 + 59, // nft.storage cids are 59 characters long by default
         seeds = [
                 game_data.key().as_ref(),
                 b"game_state", 
@@ -207,7 +203,7 @@ pub struct UpdateGameState<'info> {
             ],
         bump
     )]
-    pub next_game_state: Account<'info, GameState>,
+    pub next_game_state: Account<'info, GameStateV2>,
     #[account(mut, has_one = authority)]
     pub game_data: Account<'info, GameData>,
     #[account(mut)]
@@ -225,6 +221,24 @@ pub struct GameData {
 
 impl GameData {
     pub const LEN: usize = 4 + 1 + 32;
+}
+
+#[account]
+pub struct GameStateV2 {
+    pub index: u32,
+
+    pub votes: [u8; NUMBER_OF_BUTTONS],
+
+    pub created_at: i64,
+
+    pub executed_button: i8,
+
+    pub frames_image_cid: String,
+    pub save_state_cid: String,
+}
+
+impl GameStateV2 {
+    pub const BASE_LEN: usize = 4 + (13 * 1) + 8 + 1; // does not include CIDs sizes
 }
 
 #[account]
@@ -268,7 +282,7 @@ pub enum JoypadButton {
 
 #[event]
 pub struct ExecuteGameState {
-    pub index: u32,
+    pub executed_button: i8,
     pub game_data_id: Pubkey,
 }
 
@@ -278,4 +292,6 @@ pub enum ErrorCode {
     GameIsExecuting,
     #[msg("Game state cannot be updated when the game is not executing.")]
     NoUpdatesIfNotExecuting,
+    #[msg("Invalid button sent.")]
+    InvalidButton,
 }
