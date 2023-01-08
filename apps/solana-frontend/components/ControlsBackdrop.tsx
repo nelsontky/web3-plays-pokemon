@@ -4,7 +4,7 @@ import tw from "twin.macro";
 import { useAppSelector } from "../hooks/redux";
 import AppWalletMultiButton from "./AppWalletMultiButton";
 import CircularProgress from "@mui/material/CircularProgress";
-import { computeButtonVotes, JoypadButton } from "common";
+import { BUTTON_ID_TO_ENUM, computeButtonVotes, JoypadButton } from "common";
 import SmallControl from "./SmallControl";
 import {
   selectGameStateById,
@@ -62,28 +62,20 @@ export default function ControlsBackdrop() {
 }
 
 const MoveButton = ({ currentGameState }: { currentGameState: any }) => {
-  const joypadButton = currentGameState
-    ? computeButtonVotes(currentGameState)
-    : JoypadButton.Nothing;
-
-  switch (joypadButton) {
-    case JoypadButton.Up:
-      return <SmallControl>↑</SmallControl>;
-    case JoypadButton.Down:
-      return <SmallControl>↓</SmallControl>;
-    case JoypadButton.Left:
-      return <SmallControl>←</SmallControl>;
-    case JoypadButton.Right:
-      return <SmallControl>→</SmallControl>;
-    case JoypadButton.A:
-      return <SmallControl>A</SmallControl>;
-    case JoypadButton.B:
-      return <SmallControl>B</SmallControl>;
-    case JoypadButton.Start:
-      return <SmallControl>START</SmallControl>;
-    case JoypadButton.Select:
-      return <SmallControl>SELECT</SmallControl>;
-    default:
-      return <SmallControl>DO NOTHING</SmallControl>;
+  if (!currentGameState) {
+    return null;
   }
+
+  const votes = currentGameState.votes;
+
+  let maxVoteCount = Number.MIN_SAFE_INTEGER;
+  let executedButton = 0;
+  for (let i = 0; i < votes.length; i++) {
+    if (votes[i] > maxVoteCount) {
+      maxVoteCount = votes[i];
+      executedButton = i;
+    }
+  }
+
+  return <SmallControl>{BUTTON_ID_TO_ENUM[executedButton]}</SmallControl>;
 };

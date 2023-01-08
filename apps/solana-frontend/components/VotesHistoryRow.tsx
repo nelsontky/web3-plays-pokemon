@@ -27,15 +27,15 @@ export default function VotesHistoryRow({ gameStateId }: VotesHistoryRowProps) {
   return (
     <tr>
       <td css={styles.tableData}>{gameState.index}</td>
-      <td css={styles.tableData}>{gameState.upCount}</td>
-      <td css={styles.tableData}>{gameState.downCount}</td>
-      <td css={styles.tableData}>{gameState.leftCount}</td>
-      <td css={styles.tableData}>{gameState.rightCount}</td>
-      <td css={styles.tableData}>{gameState.aCount}</td>
-      <td css={styles.tableData}>{gameState.bCount}</td>
-      <td css={styles.tableData}>{gameState.startCount}</td>
-      <td css={styles.tableData}>{gameState.selectCount}</td>
-      <td css={styles.tableData}>{gameState.nothingCount}</td>
+      <td css={styles.tableData}>{gameState.votes[1]}</td>
+      <td css={styles.tableData}>{gameState.votes[2]}</td>
+      <td css={styles.tableData}>{gameState.votes[3]}</td>
+      <td css={styles.tableData}>{gameState.votes[4]}</td>
+      <td css={styles.tableData}>{gameState.votes[9]}</td>
+      <td css={styles.tableData}>{gameState.votes[10]}</td>
+      <td css={styles.tableData}>{gameState.votes[11]}</td>
+      <td css={styles.tableData}>{gameState.votes[12]}</td>
+      <td css={styles.tableData}>{gameState.votes[0]}</td>
       <td css={styles.tableData}>
         <SmallControl
           containerStyles={{

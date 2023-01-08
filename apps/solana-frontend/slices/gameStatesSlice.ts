@@ -17,15 +17,7 @@ interface GameState {
 
   index: number;
 
-  upCount: number;
-  downCount: number;
-  leftCount: number;
-  rightCount: number;
-  aCount: number;
-  bCount: number;
-  startCount: number;
-  selectCount: number;
-  nothingCount: number;
+  votes: number[];
 
   createdAt: number;
 
