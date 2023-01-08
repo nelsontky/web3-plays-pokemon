@@ -29,10 +29,14 @@ export default function HowToPlay() {
         any of the above buttons to send in a vote to the blockchain!
       </p>
       <p css={styles.text}>
-        Votes are tallied every{" "}
-        <span css={tw`font-bold`}>{VOTE_SECONDS} seconds</span>, and after the
-        votes are tallied, the most voted upon button will be pressed and the
-        game will be executed for{" "}
+        Votes are counted every{" "}
+        <span css={tw`font-bold`}>{VOTE_SECONDS} seconds</span>. The first vote
+        after {VOTE_SECONDS} seconds will trigger the counting of the votes and
+        this first vote will also be included in the final vote count.
+      </p>
+      <p css={styles.text}>
+        After the votes are counted, the most voted upon button will be pressed
+        and the game will be executed for{" "}
         <span css={tw`font-bold`}>
           {NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS} seconds
         </span>{" "}
