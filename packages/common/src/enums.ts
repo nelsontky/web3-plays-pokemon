@@ -1,11 +1,15 @@
 export enum JoypadButton {
+  Nothing = "DO NOTHING",
   Up = "↑",
   Down = "↓",
   Left = "←",
   Right = "→",
+  TurboUp = "↑+",
+  TurboDown = "↓+",
+  TurboLeft = "←+",
+  TurboRight = "→+",
   A = "A",
   B = "B",
   Start = "START",
   Select = "SELECT",
-  Nothing = "DO NOTHING",
 }

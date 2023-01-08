@@ -127,6 +127,56 @@ export type SolanaPlaysPokemonProgram = {
           "type": "string"
         }
       ]
+    },
+    {
+      "name": "migrateGameStateToV2",
+      "accounts": [
+        {
+          "name": "gameState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "nextGameState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "nextNextGameState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "gameData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "clock",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "framesImageCid",
+          "type": "string"
+        },
+        {
+          "name": "saveStateCid",
+          "type": "string"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -298,6 +348,11 @@ export type SolanaPlaysPokemonProgram = {
         {
           "name": "executedButton",
           "type": "i8",
+          "index": false
+        },
+        {
+          "name": "index",
+          "type": "u32",
           "index": false
         },
         {
@@ -456,6 +511,56 @@ export const IDL: SolanaPlaysPokemonProgram = {
           "type": "string"
         }
       ]
+    },
+    {
+      "name": "migrateGameStateToV2",
+      "accounts": [
+        {
+          "name": "gameState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "nextGameState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "nextNextGameState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "gameData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "clock",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "framesImageCid",
+          "type": "string"
+        },
+        {
+          "name": "saveStateCid",
+          "type": "string"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -627,6 +732,11 @@ export const IDL: SolanaPlaysPokemonProgram = {
         {
           "name": "executedButton",
           "type": "i8",
+          "index": false
+        },
+        {
+          "name": "index",
+          "type": "u32",
           "index": false
         },
         {

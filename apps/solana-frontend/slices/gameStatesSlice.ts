@@ -8,9 +8,9 @@ import * as anchor from "@project-serum/anchor";
 import { SolanaPlaysPokemonProgram } from "solana-plays-pokemon-program";
 import { GAME_DATA_ACCOUNT_PUBLIC_KEY, PROGRAM_PUBLIC_KEY } from "../constants";
 import { RootState } from "../store";
-import { anchorEnumToJsEnum, JoypadButton } from "common";
+import { anchorEnumToJsEnum, BUTTON_ID_TO_ENUM, JoypadButton } from "common";
 
-const NUMBER_OF_STATES_TO_LOAD = 20;
+const NUMBER_OF_STATES_TO_LOAD = 2;
 
 interface GameState {
   accountPublicKey: string;
@@ -73,17 +73,17 @@ export const fetchInitialGameStates = createAsyncThunk(
     );
 
     type RawGameState = Awaited<
-      ReturnType<typeof program.account.gameState.fetch>
+      ReturnType<typeof program.account.gameStateV2.fetch>
     >;
     const existingGameStates = (
-      await program.account.gameState.fetchMultiple(gameStatesPdas)
+      await program.account.gameStateV2.fetchMultiple(gameStatesPdas)
     ).filter(Boolean) as RawGameState[];
 
     const reduxGameStates: GameState[] = existingGameStates.map((state, i) => ({
       ...state,
       accountPublicKey: gameStatesPdas[i].toBase58(),
       createdAt: state.createdAt.toNumber(),
-      executedButton: anchorEnumToJsEnum(state.executedButton),
+      executedButton: BUTTON_ID_TO_ENUM[state.executedButton as number],
     }));
 
     return reduxGameStates;

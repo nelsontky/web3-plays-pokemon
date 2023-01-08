@@ -5,7 +5,7 @@ import { useReadonlyProgram } from "./useProgram";
 import * as anchor from "@project-serum/anchor";
 import { GAME_DATA_ACCOUNT_PUBLIC_KEY, PROGRAM_PUBLIC_KEY } from "../constants";
 import usePrevious from "./usePrevious";
-import { anchorEnumToJsEnum } from "common";
+import { BUTTON_ID_TO_ENUM } from "common";
 
 export default function useGameStateListener() {
   const dispatch = useAppDispatch();
@@ -38,7 +38,7 @@ export default function useGameStateListener() {
         gameStatesStatus === "succeeded" &&
         (didGameStatePdaChange || isInitialSetup.current)
       ) {
-        const emitter = program.account.gameState.subscribe(
+        const emitter = program.account.gameStateV2.subscribe(
           new anchor.web3.PublicKey(gameStatePda)
         );
 
@@ -49,7 +49,8 @@ export default function useGameStateListener() {
                 ...account,
                 accountPublicKey: gameStatePda.toBase58(),
                 createdAt: account.createdAt.toNumber(),
-                executedButton: anchorEnumToJsEnum(account.executedButton),
+                executedButton:
+                  BUTTON_ID_TO_ENUM[account.executedButton as number],
               })
             );
 
@@ -68,6 +69,7 @@ export default function useGameStateListener() {
       program.account.gameState,
       gameStatePdaPrev,
       didGameStatePdaChange,
+      program.account.gameStateV2,
     ]
   );
 
@@ -78,7 +80,7 @@ export default function useGameStateListener() {
 
         (async () => {
           try {
-            const gameState = await program.account.gameState.fetch(
+            const gameState = await program.account.gameStateV2.fetch(
               gameStatePda
             );
             if (!hasUnmounted) {
@@ -87,7 +89,8 @@ export default function useGameStateListener() {
                   ...gameState,
                   accountPublicKey: gameStatePda.toBase58(),
                   createdAt: gameState.createdAt.toNumber(),
-                  executedButton: anchorEnumToJsEnum(gameState.executedButton),
+                  executedButton:
+                    BUTTON_ID_TO_ENUM[gameState.executedButton as number],
                 })
               );
             }
