@@ -9,7 +9,6 @@ import * as anchor from "@project-serum/anchor";
 import {
   GAME_DATA_ACCOUNT_ID,
   PROGRAM_ID,
-  VOTE_SECONDS,
   BUTTON_ID_TO_ENUM,
   JoypadButton,
 } from "common";
@@ -114,7 +113,7 @@ export class ProgramService implements OnModuleDestroy {
     await this.executeGameState(gameData.executedStatesCount);
   }
 
-  @Cron(`*/${VOTE_SECONDS * 2} * * * * *`)
+  @Cron(`*/20 * * * * *`)
   async cronExecute() {
     const gameDataId = new anchor.web3.PublicKey(GAME_DATA_ACCOUNT_ID);
     const gameData = await this.program.account.gameData.fetch(gameDataId);

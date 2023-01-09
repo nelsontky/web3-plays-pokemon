@@ -16,12 +16,12 @@ use anchor_lang::prelude::*;
 // 12 = SELECT
 
 // Mainnet
-declare_id!("pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg");
+// declare_id!("pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg");
 
 // Devnet
-// declare_id!("pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK");
+declare_id!("pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK");
 
-const VOTE_SECONDS: i64 = 10;
+const VOTE_SECONDS: i64 = 7;
 const NUMBER_OF_BUTTONS: usize = 13;
 
 #[program]
