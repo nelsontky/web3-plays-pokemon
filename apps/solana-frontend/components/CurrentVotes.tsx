@@ -17,10 +17,9 @@ const styles = {
     text-2xl
     leading-5
     text-center
-    mb-4
-    underline
 `,
   tableContainer: tw`
+    mt-4
     flex
     flex-wrap
     justify-center
@@ -55,11 +54,7 @@ export default function CurrentVotes() {
           ? VOTE_SECONDS -
             (Math.floor(Date.now() / 1000) - currentState.createdAt)
           : VOTE_SECONDS;
-        setSecondsLeft(
-          secondsLeft > 0
-            ? secondsLeft + "s"
-            : "Please send in one last vote for the game to proceed"
-        );
+        setSecondsLeft(secondsLeft > 0 ? secondsLeft + "s" : "0s");
       };
 
       const timer = setInterval(calcSecondsLeft, 500);
@@ -76,6 +71,15 @@ export default function CurrentVotes() {
     <div css={styles.root}>
       <h2 css={styles.header}>Time left for vote</h2>
       <p css={styles.timeLeft}>{secondsLeft}</p>
+      <p
+        css={[
+          styles.timeLeft,
+          tw`invisible underline`,
+          secondsLeft === "0s" && tw`visible`,
+        ]}
+      >
+        Please send in one last vote for the game to proceed
+      </p>
       <div css={styles.tableContainer}>
         <div css={styles.tableWrapper}>
           <table>
