@@ -106,6 +106,13 @@ export default function CurrentVotes() {
                 <td css={styles.tableData}>{currentState?.votes[3] ?? 0}</td>
                 <td css={styles.tableData}>{currentState?.votes[4] ?? 0}</td>
               </tr>
+              <tr>
+                <td css={styles.tableData}>Turbo:</td>
+                <td css={styles.tableData}>{currentState?.votes[5] ?? 0}</td>
+                <td css={styles.tableData}>{currentState?.votes[6] ?? 0}</td>
+                <td css={styles.tableData}>{currentState?.votes[7] ?? 0}</td>
+                <td css={styles.tableData}>{currentState?.votes[8] ?? 0}</td>
+              </tr>
             </tbody>
           </table>
         </div>

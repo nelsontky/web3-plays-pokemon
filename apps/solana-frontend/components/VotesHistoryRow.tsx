@@ -31,6 +31,10 @@ export default function VotesHistoryRow({ gameStateId }: VotesHistoryRowProps) {
       <td css={styles.tableData}>{gameState.votes[2]}</td>
       <td css={styles.tableData}>{gameState.votes[3]}</td>
       <td css={styles.tableData}>{gameState.votes[4]}</td>
+      <td css={styles.tableData}>{gameState.votes[5]}</td>
+      <td css={styles.tableData}>{gameState.votes[6]}</td>
+      <td css={styles.tableData}>{gameState.votes[7]}</td>
+      <td css={styles.tableData}>{gameState.votes[8]}</td>
       <td css={styles.tableData}>{gameState.votes[9]}</td>
       <td css={styles.tableData}>{gameState.votes[10]}</td>
       <td css={styles.tableData}>{gameState.votes[11]}</td>

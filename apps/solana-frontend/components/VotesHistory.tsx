@@ -52,6 +52,18 @@ export default function VotesHistory() {
                 <SmallControl>→</SmallControl>
               </th>
               <th>
+                <SmallControl>Turbo ↑</SmallControl>
+              </th>
+              <th>
+                <SmallControl>Turbo ↓</SmallControl>
+              </th>
+              <th>
+                <SmallControl>Turbo ←</SmallControl>
+              </th>
+              <th>
+                <SmallControl>Turbo →</SmallControl>
+              </th>
+              <th>
                 <SmallControl>A</SmallControl>
               </th>
               <th>
