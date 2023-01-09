@@ -21,8 +21,8 @@ export default function GameState() {
       {pokemons === undefined ? (
         <LinearProgress color="inherit" />
       ) : (
-        pokemons.map((pokemon, i) => (
-          <PokemonDisplay pokemon={pokemon} key={i} />
+        pokemons.map((pokemon) => (
+          <PokemonDisplay pokemon={pokemon} key={JSON.stringify(pokemon)} />
         ))
       )}
     </div>

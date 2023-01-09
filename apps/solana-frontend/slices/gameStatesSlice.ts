@@ -92,6 +92,10 @@ const gameStatesSlice = createSlice({
       if (action.payload.framesImageCid.length > 0) {
         state.framesImageCidToRender = action.payload.framesImageCid;
       }
+      if (action.payload.saveStateCid.length > 0) {
+        state.currentSaveStateCid = action.payload.saveStateCid;
+      }
+
       gameStatesAdapter.upsertOne(state, action.payload);
     },
   },
