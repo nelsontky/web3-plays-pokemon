@@ -7,6 +7,7 @@ import {
   GAMEBOY_FPS,
   GAMEBOY_MEMORY_OFFSET,
   JoypadButton,
+  LETTER_PRINTING_DELAY_FLAGS_LOCATION,
   NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS,
   TURBO_BUTTON_PRESS_FRAMES,
 } from "common";
@@ -201,8 +202,7 @@ export class WasmboyService {
         wasmBoy.GAMEBOY_INTERNAL_MEMORY_SIZE,
     );
 
-    const LETTER_PRINTING_DELAY_FLAGS_LOCATION = 0xd358;
-    // set no text delay
+    // set no text delay sometimes it works sometimes it doesn't idk why
     gameboyMemory[
       LETTER_PRINTING_DELAY_FLAGS_LOCATION - GAMEBOY_MEMORY_OFFSET
     ] = 0;
