@@ -5,10 +5,11 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { SIGNATURE_MESSAGE } from "../constants";
 import useReadMessages from "../hooks/useReadMessages";
 import Message from "../types/message";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import tw from "twin.macro";
 import useTxSnackbar from "../hooks/useTxSnackbar";
 import ChatConnectWallet from "./ChatConnectWallet";
+import { MAX_MESSAGE_LENGTH } from "common";
 
 interface ChatContentProps {
   setOpen: Dispatch<SetStateAction<boolean>>;
@@ -45,6 +46,19 @@ const ChatContent = ({ setOpen }: ChatContentProps) => {
   };
 
   const handleSend = async (_type: string, content: string) => {
+    if (content.length > MAX_MESSAGE_LENGTH) {
+      enqueueSnackbar(
+        {
+          title: "Message too long",
+        },
+        {
+          variant: "error",
+        }
+      );
+
+      return;
+    }
+
     if (wallet.signMessage && wallet.publicKey) {
       let signatureToUse = walletSignature;
       if (!signatureToUse) {
@@ -69,18 +83,32 @@ const ChatContent = ({ setOpen }: ChatContentProps) => {
         }
       }
 
-      await axios.post(
-        "/api/messages",
-        {
-          publicKey: wallet.publicKey.toBase58(),
-          text: content,
-        },
-        {
-          headers: {
-            authorization: signatureToUse,
+      try {
+        await axios.post(
+          "/api/messages",
+          {
+            publicKey: wallet.publicKey.toBase58(),
+            text: content,
           },
+          {
+            headers: {
+              authorization: signatureToUse,
+            },
+          }
+        );
+      } catch (e) {
+        if (e instanceof AxiosError) {
+          enqueueSnackbar(
+            {
+              title: e.message,
+            },
+            {
+              variant: "error",
+            }
+          );
+          return;
         }
-      );
+      }
     } else {
       enqueueSnackbar(
         {
