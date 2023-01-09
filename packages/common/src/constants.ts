@@ -33,4 +33,4 @@ export const BUTTON_ID_TO_ENUM = [
 // Devnet
 export const PROGRAM_ID = "pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK";
 export const GAME_DATA_ACCOUNT_ID =
-  "redFxqfCk6MBYgLa81jKjU2uZn4F4VGLNwCHYg2SURZ";
+  "red3x1U3kz3AHMwos25vRLFVrm9YT8bWBgDnmZ6Az85";

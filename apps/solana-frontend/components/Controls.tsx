@@ -8,7 +8,7 @@ import { GAME_DATA_ACCOUNT_PUBLIC_KEY } from "../constants";
 import useTxSnackbar from "../hooks/useTxSnackbar";
 import ControlsBackdrop from "./ControlsBackdrop";
 import { useState } from "react";
-import TurboSwitch from "./TurboSwitch";
+import TurboCheckbox from "./TurboCheckbox";
 
 const styles = {
   root: tw`
@@ -124,89 +124,99 @@ export default function Controls() {
   };
 
   return (
-    <div css={styles.root}>
-      <ControlsBackdrop />
-      <div css={styles.mainButtons}>
-        <div css={styles.directionalPadContainer}>
-          <TurboSwitch
-            isTurboMode={isTurboMode}
-            setIsTurboMode={setIsTurboMode}
-          />
-          <div css={styles.padUpContainer}>
-            <div css={styles.padUpNeighbor} />
-            <ControlButton
-              onClick={() => {
-                executeGame(JoypadButton.Up);
-              }}
-            >
-              ↑
-            </ControlButton>
-            <div css={styles.padUpNeighbor} />
+    <>
+      <TurboCheckbox
+        isTurboMode={isTurboMode}
+        setIsTurboMode={setIsTurboMode}
+      />
+      <div css={styles.root}>
+        <ControlsBackdrop />
+        <div css={styles.mainButtons}>
+          <div css={styles.directionalPadContainer}>
+            <div css={styles.padUpContainer}>
+              <div css={styles.padUpNeighbor} />
+              <ControlButton
+                onClick={() => {
+                  executeGame(
+                    isTurboMode ? JoypadButton.TurboUp : JoypadButton.Up
+                  );
+                }}
+              >
+                ↑
+              </ControlButton>
+              <div css={styles.padUpNeighbor} />
+            </div>
+            <div css={tw`flex`}>
+              <ControlButton
+                onClick={() => {
+                  executeGame(
+                    isTurboMode ? JoypadButton.TurboLeft : JoypadButton.Left
+                  );
+                }}
+              >
+                ←
+              </ControlButton>
+              <ControlButton
+                onClick={() => {
+                  executeGame(
+                    isTurboMode ? JoypadButton.TurboDown : JoypadButton.Down
+                  );
+                }}
+              >
+                ↓
+              </ControlButton>
+              <ControlButton
+                onClick={() => {
+                  executeGame(
+                    isTurboMode ? JoypadButton.TurboRight : JoypadButton.Right
+                  );
+                }}
+              >
+                →
+              </ControlButton>
+            </div>
           </div>
-          <div css={tw`flex`}>
+          <div css={styles.actionButtons}>
             <ControlButton
               onClick={() => {
-                executeGame(JoypadButton.Left);
+                executeGame(JoypadButton.B);
               }}
             >
-              ←
+              B
             </ControlButton>
             <ControlButton
               onClick={() => {
-                executeGame(JoypadButton.Down);
+                executeGame(JoypadButton.A);
               }}
             >
-              ↓
-            </ControlButton>
-            <ControlButton
-              onClick={() => {
-                executeGame(JoypadButton.Right);
-              }}
-            >
-              →
+              A
             </ControlButton>
           </div>
         </div>
-        <div css={styles.actionButtons}>
+        <div css={styles.menuButtons}>
           <ControlButton
             onClick={() => {
-              executeGame(JoypadButton.B);
+              executeGame(JoypadButton.Select);
             }}
           >
-            B
+            SELECT
           </ControlButton>
           <ControlButton
             onClick={() => {
-              executeGame(JoypadButton.A);
+              executeGame(JoypadButton.Nothing);
             }}
           >
-            A
+            DO NOTHING
+          </ControlButton>
+          <ControlButton
+            onClick={() => {
+              executeGame(JoypadButton.Start);
+            }}
+          >
+            START
           </ControlButton>
         </div>
       </div>
-      <div css={styles.menuButtons}>
-        <ControlButton
-          onClick={() => {
-            executeGame(JoypadButton.Select);
-          }}
-        >
-          SELECT
-        </ControlButton>
-        <ControlButton
-          onClick={() => {
-            executeGame(JoypadButton.Nothing);
-          }}
-        >
-          DO NOTHING
-        </ControlButton>
-        <ControlButton
-          onClick={() => {
-            executeGame(JoypadButton.Start);
-          }}
-        >
-          START
-        </ControlButton>
-      </div>
-    </div>
+    </>
   );
 }

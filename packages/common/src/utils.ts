@@ -113,6 +113,14 @@ export const joypadEnumToButtonId = (joypadButton: JoypadButton) =>
     ? 3
     : joypadButton === JoypadButton.Right
     ? 4
+    : joypadButton === JoypadButton.TurboUp
+    ? 5
+    : joypadButton === JoypadButton.TurboDown
+    ? 6
+    : joypadButton === JoypadButton.TurboLeft
+    ? 7
+    : joypadButton === JoypadButton.TurboRight
+    ? 8
     : joypadButton === JoypadButton.A
     ? 9
     : joypadButton === JoypadButton.B

@@ -11,15 +11,15 @@ import tw from "twin.macro";
 import { NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS } from "common";
 import { POKEMON_PIXEL_FONT } from "../constants";
 
-interface TurboSwitchProps {
+interface TurboCheckboxProps {
   isTurboMode: boolean;
   setIsTurboMode: Dispatch<SetStateAction<boolean>>;
 }
 
-export default function TurboSwitch({
+export default function TurboCheckbox({
   isTurboMode,
   setIsTurboMode,
-}: TurboSwitchProps) {
+}: TurboCheckboxProps) {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setIsTurboMode(event.target.checked);
   };
