@@ -12,6 +12,21 @@ importers:
       prettier: 2.8.2
       turbo: 1.6.3
 
+  apps/scripts:
+    specifiers:
+      eslint: ^7.32.0
+      eslint-config-custom: workspace:*
+      pako: ^2.1.0
+      tsconfig: workspace:*
+      typescript: ^4.5.2
+    dependencies:
+      pako: 2.1.0
+    devDependencies:
+      eslint: 7.32.0
+      eslint-config-custom: link:../../packages/eslint-config-custom
+      tsconfig: link:../../packages/tsconfig
+      typescript: 4.9.4
+
   apps/solana-backend:
     specifiers:
       '@nestjs/cli': ^9.0.0
