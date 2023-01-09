@@ -15,6 +15,7 @@ const styles = {
     px-6
     whitespace-nowrap
     select-none
+    uppercase
   `,
   background: tw`
     bg-black
