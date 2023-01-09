@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import {
+  BUTTON_PRESS_FRAMES,
   FRAMES_TO_DRAW_PER_EXECUTION,
   GAMEBOY_CAMERA_HEIGHT,
   GAMEBOY_CAMERA_WIDTH,
@@ -7,6 +8,7 @@ import {
   GAMEBOY_MEMORY_OFFSET,
   JoypadButton,
   NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS,
+  TURBO_BUTTON_PRESS_FRAMES,
 } from "common";
 import * as fs from "fs/promises";
 import * as path from "path";
@@ -80,8 +82,8 @@ export class WasmboyService {
       joypadButton === JoypadButton.TurboDown ||
       joypadButton === JoypadButton.TurboLeft ||
       joypadButton === JoypadButton.TurboRight
-        ? frames
-        : FRAMES_TO_HOLD_BUTTON;
+        ? TURBO_BUTTON_PRESS_FRAMES
+        : BUTTON_PRESS_FRAMES;
 
     const framesToExecutePerStep = frames / FRAMES_TO_DRAW_PER_EXECUTION;
     const framesImageData: number[][] = [];
