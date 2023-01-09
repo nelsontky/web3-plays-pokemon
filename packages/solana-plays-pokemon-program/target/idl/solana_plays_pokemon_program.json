@@ -379,5 +379,8 @@
       "name": "InvalidButton",
       "msg": "Invalid button sent."
     }
-  ]
+  ],
+  "metadata": {
+    "address": "pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg"
+  }
 }
