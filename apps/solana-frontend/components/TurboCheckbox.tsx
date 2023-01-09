@@ -8,7 +8,11 @@ import {
 } from "@mui/material";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import tw from "twin.macro";
-import { NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS } from "common";
+import {
+  GAMEBOY_FPS,
+  NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS,
+  TURBO_BUTTON_PRESS_FRAMES,
+} from "common";
 import { POKEMON_PIXEL_FONT } from "../constants";
 
 interface TurboCheckboxProps {
@@ -46,11 +50,14 @@ export default function TurboCheckbox({
             </span>
             <Tooltip
               title={
-                <span className={POKEMON_PIXEL_FONT.className} css={tw`text-base`}>
+                <span
+                  className={POKEMON_PIXEL_FONT.className}
+                  css={tw`text-base`}
+                >
                   Enabling Turbo direction and voting for a direction button
                   will send in a vote to hold down the direction button for{" "}
                   <span css={tw`font-bold`}>
-                    {NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS} seconds
+                    {TURBO_BUTTON_PRESS_FRAMES / GAMEBOY_FPS} seconds
                   </span>
                 </span>
               }
