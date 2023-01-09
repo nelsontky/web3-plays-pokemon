@@ -2,7 +2,6 @@ import {
   FRAMES_TO_DRAW_PER_EXECUTION,
   GAMEBOY_CAMERA_HEIGHT,
   GAMEBOY_CAMERA_WIDTH,
-  NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS,
 } from "common";
 import { useEffect, useRef, useState } from "react";
 import tw from "twin.macro";
@@ -10,6 +9,8 @@ import renderFrame, { CELL_SIZE } from "../utils/renderFrame";
 import axios from "axios";
 import pako from "pako";
 import { useAppSelector } from "../hooks/redux";
+
+const ANIMATION_DURATION = 3; // run game for 3 seconds
 
 export default function GameCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -58,7 +59,7 @@ export default function GameCanvas() {
       if (framesImageData) {
         let now;
         let then = Date.now();
-        const fps = FRAMES_TO_DRAW_PER_EXECUTION / NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS;
+        const fps = FRAMES_TO_DRAW_PER_EXECUTION / ANIMATION_DURATION;
         let interval = 1000 / fps;
         let delta;
 
