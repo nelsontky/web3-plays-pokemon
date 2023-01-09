@@ -19,7 +19,7 @@ import fs from "fs/promises";
       results.push(undefined);
       i++;
     } else {
-      results.push(withMissingNo[i]);
+      results.push(withMissingNo[i].toUpperCase());
     }
     i++;
   }
