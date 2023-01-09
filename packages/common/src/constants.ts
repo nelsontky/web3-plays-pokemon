@@ -11,7 +11,7 @@ export const MAX_MESSAGE_LENGTH = 2200;
 export const BUTTON_PRESS_FRAMES = 0.05 * GAMEBOY_FPS;
 export const TURBO_BUTTON_PRESS_FRAMES = 2 * GAMEBOY_FPS;
 
-export const VOTE_SECONDS = 10;
+export const VOTE_SECONDS = 7;
 
 export const BUTTON_ID_TO_ENUM = [
   JoypadButton.Nothing,
