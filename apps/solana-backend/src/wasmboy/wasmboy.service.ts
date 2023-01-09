@@ -75,6 +75,14 @@ export class WasmboyService {
   ) {
     this.setJoypadState(wasmBoy, joypadButton);
 
+    const framesToHoldButton =
+      joypadButton === JoypadButton.TurboUp ||
+      joypadButton === JoypadButton.TurboDown ||
+      joypadButton === JoypadButton.TurboLeft ||
+      joypadButton === JoypadButton.TurboRight
+        ? frames
+        : FRAMES_TO_HOLD_BUTTON;
+
     const framesToExecutePerStep = frames / FRAMES_TO_DRAW_PER_EXECUTION;
     const framesImageData: number[][] = [];
     for (let i = 0; i < FRAMES_TO_DRAW_PER_EXECUTION; i++) {
@@ -84,11 +92,13 @@ export class WasmboyService {
       );
 
       const shouldReleaseJoyPad =
-        (i + 1) * framesToExecutePerStep >= FRAMES_TO_HOLD_BUTTON;
+        (i + 1) * framesToExecutePerStep >= framesToHoldButton;
       if (shouldReleaseJoyPad) {
         this.setJoypadState(wasmBoy, null);
       }
     }
+
+    this.setJoypadState(wasmBoy, null);
 
     // prevent last frame from being a white or black screen
     while (
@@ -241,10 +251,21 @@ export class WasmboyService {
 
   private setJoypadState(wasmboy: any, joypadButton: JoypadButton | null) {
     wasmboy.setJoypadState(
-      JoypadButton.Up === joypadButton ? 1 : 0,
-      JoypadButton.Right === joypadButton ? 1 : 0,
-      JoypadButton.Down === joypadButton ? 1 : 0,
-      JoypadButton.Left === joypadButton ? 1 : 0,
+      JoypadButton.Up === joypadButton || JoypadButton.TurboUp === joypadButton
+        ? 1
+        : 0,
+      JoypadButton.Right === joypadButton ||
+        JoypadButton.TurboRight === joypadButton
+        ? 1
+        : 0,
+      JoypadButton.Down === joypadButton ||
+        JoypadButton.TurboDown === joypadButton
+        ? 1
+        : 0,
+      JoypadButton.Left === joypadButton ||
+        JoypadButton.TurboLeft === joypadButton
+        ? 1
+        : 0,
       JoypadButton.A === joypadButton ? 1 : 0,
       JoypadButton.B === joypadButton ? 1 : 0,
       JoypadButton.Select === joypadButton ? 1 : 0,

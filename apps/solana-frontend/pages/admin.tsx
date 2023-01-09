@@ -5,10 +5,16 @@ import { GAME_DATA_ACCOUNT_PUBLIC_KEY, PROGRAM_PUBLIC_KEY } from "../constants";
 import { useAppSelector } from "../hooks/redux";
 import { useMutableProgram } from "../hooks/useProgram";
 
+// Initial Game Freak screen
+// const FRAMES_IMAGES_CID =
+//   "bafkreiajqssnp7kgdly427gkmdkl42zjpjlcbhat33ob2dlu4ngeabkriq";
+// const SAVE_STATE_CID =
+//   "bafkreigta3nr75v35u3vpod5pbye5yslgkafxxamhiaiffd6elfbkdw4by";
+
 const FRAMES_IMAGES_CID =
-  "bafkreiajqssnp7kgdly427gkmdkl42zjpjlcbhat33ob2dlu4ngeabkriq";
+  "bafkreihzutmgwwlpn3vvhzipvxjb5ljwzhis4qq72pt4wg5kgomrs5q2gq";
 const SAVE_STATE_CID =
-  "bafkreigta3nr75v35u3vpod5pbye5yslgkafxxamhiaiffd6elfbkdw4by";
+  "bafkreigka5p7dseiqx7wvvhxt7eqasgiikxu4uodapz5gjx66zfscpuium";
 
 let gameData: anchor.web3.Keypair | null = null;
 try {

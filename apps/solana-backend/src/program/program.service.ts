@@ -8,7 +8,6 @@ import {
 import * as anchor from "@project-serum/anchor";
 import {
   GAME_DATA_ACCOUNT_ID,
-  computeButtonVotes,
   PROGRAM_ID,
   VOTE_SECONDS,
   BUTTON_ID_TO_ENUM,
