@@ -7,6 +7,8 @@ import * as anchor from "@project-serum/anchor";
 import { GAME_DATA_ACCOUNT_PUBLIC_KEY } from "../constants";
 import useTxSnackbar from "../hooks/useTxSnackbar";
 import ControlsBackdrop from "./ControlsBackdrop";
+import { useState } from "react";
+import TurboSwitch from "./TurboSwitch";
 
 const styles = {
   root: tw`
@@ -55,6 +57,7 @@ const styles = {
 export default function Controls() {
   const program = useMutableProgram();
   const { enqueueSnackbar, closeSnackbar } = useTxSnackbar();
+  const [isTurboMode, setIsTurboMode] = useState(false);
 
   const executeGame = async (joypadButton: JoypadButton) => {
     if (program) {
@@ -125,6 +128,10 @@ export default function Controls() {
       <ControlsBackdrop />
       <div css={styles.mainButtons}>
         <div css={styles.directionalPadContainer}>
+          <TurboSwitch
+            isTurboMode={isTurboMode}
+            setIsTurboMode={setIsTurboMode}
+          />
           <div css={styles.padUpContainer}>
             <div css={styles.padUpNeighbor} />
             <ControlButton
