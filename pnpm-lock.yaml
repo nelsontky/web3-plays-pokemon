@@ -14,14 +14,20 @@ importers:
 
   apps/scripts:
     specifiers:
+      '@types/node': ^18.11.18
+      '@types/pako': ^2.0.0
+      axios: ^1.2.1
       eslint: ^7.32.0
       eslint-config-custom: workspace:*
       pako: ^2.1.0
       tsconfig: workspace:*
       typescript: ^4.5.2
     dependencies:
+      axios: 1.2.1
       pako: 2.1.0
     devDependencies:
+      '@types/node': 18.11.18
+      '@types/pako': 2.0.0
       eslint: 7.32.0
       eslint-config-custom: link:../../packages/eslint-config-custom
       tsconfig: link:../../packages/tsconfig
@@ -4253,6 +4259,10 @@ packages:
 
   /@types/node/18.0.3:
     resolution: {integrity: sha512-HzNRZtp4eepNitP+BD6k2L6DROIDG4Q0fm4x+dwfsr6LGmROENnok75VGw40628xf+iR24WeMFcHuuBDUAzzsQ==}
+
+  /@types/node/18.11.18:
+    resolution: {integrity: sha512-DHQpWGjyQKSHj3ebjFI/wRKcqQcdR+MoFBygntYOZytCqNfkd2ZC4ARDJ2DQqhjH5p85Nnd3jhUJIXrszFX/JA==}
+    dev: true
 
   /@types/normalize-package-data/2.4.1:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}

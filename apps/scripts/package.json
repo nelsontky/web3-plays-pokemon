@@ -18,12 +18,15 @@
     "lint": "TIMING=1 eslint \"**/*.ts*\""
   },
   "devDependencies": {
+    "@types/node": "^18.11.18",
+    "@types/pako": "^2.0.0",
     "eslint": "^7.32.0",
     "eslint-config-custom": "workspace:*",
     "tsconfig": "workspace:*",
     "typescript": "^4.5.2"
   },
   "dependencies": {
+    "axios": "^1.2.1",
     "pako": "^2.1.0"
   }
 }
