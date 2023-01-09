@@ -3,6 +3,7 @@ import { JoypadButton } from "./enums";
 export const GAMEBOY_CAMERA_WIDTH = 160;
 export const GAMEBOY_CAMERA_HEIGHT = 144;
 export const GAMEBOY_FPS = 60;
+export const GAMEBOY_MEMORY_OFFSET = 0x8000;
 export const FRAMES_TO_DRAW_PER_EXECUTION = 30;
 export const NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS = 2;
 
