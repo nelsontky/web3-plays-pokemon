@@ -6,6 +6,7 @@ export const GAMEBOY_FPS = 60;
 export const GAMEBOY_MEMORY_OFFSET = 0x8000;
 export const FRAMES_TO_DRAW_PER_EXECUTION = 30;
 export const NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS = 2;
+export const MAX_MESSAGE_LENGTH = 2200;
 
 export const VOTE_SECONDS = 10;
 

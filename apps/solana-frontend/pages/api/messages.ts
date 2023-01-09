@@ -4,6 +4,7 @@ import admin from "../../firebase/nodeApp";
 import nacl from "tweetnacl";
 import { SIGNATURE_MESSAGE } from "../../constants";
 import { PublicKey } from "@solana/web3.js";
+import { MAX_MESSAGE_LENGTH } from "common";
 
 export default async function handler(
   req: NextApiRequest,
@@ -18,6 +19,10 @@ export default async function handler(
     const signature = req.headers.authorization;
     if (!signature || !publicKey) {
       return res.status(401).end();
+    }
+
+    if (text === undefined || text.length > MAX_MESSAGE_LENGTH) {
+      return res.status(400).end();
     }
 
     const isSignatureValid = nacl.sign.detached.verify(
