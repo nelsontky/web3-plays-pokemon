@@ -4,6 +4,7 @@ import tw from "twin.macro";
 import Controls from "../components/Controls";
 import CurrentVotes from "../components/CurrentVotes";
 import GameCanvas from "../components/GameCanvas";
+import GameState from "../components/GameState";
 import HowToPlay from "../components/HowToPlay";
 import SocialLinks from "../components/SocialLinks";
 import VotesHistory from "../components/VotesHistory";
@@ -44,6 +45,7 @@ export default function Web() {
         />
       </Head>
       <SocialLinks />
+      <GameState />
       <GameCanvas />
       <CurrentVotes />
       <Controls />

@@ -107,7 +107,7 @@ const gameStatesSlice = createSlice({
 
         const currentSaveStateCid =
           action.payload.find((state) => state.saveStateCid.length > 0)
-            ?.framesImageCid ?? "";
+            ?.saveStateCid ?? "";
 
         state.status = "succeeded";
         state.framesImageCidToRender = latestFramesImageCid;
