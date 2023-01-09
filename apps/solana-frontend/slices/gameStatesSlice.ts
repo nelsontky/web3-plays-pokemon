@@ -8,7 +8,7 @@ import * as anchor from "@project-serum/anchor";
 import { SolanaPlaysPokemonProgram } from "solana-plays-pokemon-program";
 import { GAME_DATA_ACCOUNT_PUBLIC_KEY, PROGRAM_PUBLIC_KEY } from "../constants";
 import { RootState } from "../store";
-import { anchorEnumToJsEnum, BUTTON_ID_TO_ENUM, JoypadButton } from "common";
+import { BUTTON_ID_TO_ENUM, JoypadButton } from "common";
 
 const NUMBER_OF_STATES_TO_LOAD = 20;
 
@@ -35,9 +35,11 @@ const gameStatesAdapter = createEntityAdapter<GameState>({
 const initialState = gameStatesAdapter.getInitialState<{
   status: "idle" | "loading" | "failed" | "succeeded";
   framesImageCidToRender: string;
+  currentSaveStateCid: string;
 }>({
   status: "idle",
   framesImageCidToRender: "",
+  currentSaveStateCid: "",
 });
 
 export const fetchInitialGameStates = createAsyncThunk(
@@ -99,12 +101,17 @@ const gameStatesSlice = createSlice({
         state.status = "loading";
       })
       .addCase(fetchInitialGameStates.fulfilled, (state, action) => {
-        const latestFramesImageCId =
+        const latestFramesImageCid =
           action.payload.find((state) => state.framesImageCid.length > 0)
             ?.framesImageCid ?? "";
 
+        const currentSaveStateCid =
+          action.payload.find((state) => state.saveStateCid.length > 0)
+            ?.framesImageCid ?? "";
+
         state.status = "succeeded";
-        state.framesImageCidToRender = latestFramesImageCId;
+        state.framesImageCidToRender = latestFramesImageCid;
+        state.currentSaveStateCid = currentSaveStateCid;
         gameStatesAdapter.upsertMany(state, action.payload);
       })
       .addCase(fetchInitialGameStates.rejected, (state) => {
