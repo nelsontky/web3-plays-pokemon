@@ -26,11 +26,11 @@ export const BUTTON_ID_TO_ENUM = [
 ];
 
 // Mainnet
-// export const PROGRAM_ID = "pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg";
-// export const GAME_DATA_ACCOUNT_ID =
-//   "redHPYj5C9X7TyEqQPHMTsfevKZ9eHCTQ8BJVee9JWC";
+export const PROGRAM_ID = "pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg";
+export const GAME_DATA_ACCOUNT_ID =
+  "redHPYj5C9X7TyEqQPHMTsfevKZ9eHCTQ8BJVee9JWC";
 
 // Devnet
-export const PROGRAM_ID = "pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK";
-export const GAME_DATA_ACCOUNT_ID =
-  "red3x1U3kz3AHMwos25vRLFVrm9YT8bWBgDnmZ6Az85";
+// export const PROGRAM_ID = "pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK";
+// export const GAME_DATA_ACCOUNT_ID =
+//   "red3x1U3kz3AHMwos25vRLFVrm9YT8bWBgDnmZ6Az85";
