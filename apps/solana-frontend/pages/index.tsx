@@ -20,7 +20,7 @@ const DESCRIPTION = "Play Pokemon collaboratively on the Solana blockchain!";
 
 export default function Web() {
   return (
-    <div css={tw`max-w-2xl mx-auto px-4 pb-8`}>
+    <div css={tw`px-4 pb-8`}>
       <Head>
         <title>Solana Plays Pokemon</title>
         <meta name="description" content={DESCRIPTION} key="desc" />
@@ -45,11 +45,15 @@ export default function Web() {
         />
       </Head>
       <SocialLinks />
-      <GameState />
-      <GameCanvas />
-      <CurrentVotes />
-      <Controls />
-      <HowToPlay />
+      <div css={tw`flex justify-center flex-wrap-reverse gap-6`}>
+        <GameState />
+        <div css={tw`max-w-2xl`}>
+          <GameCanvas />
+          <CurrentVotes />
+          <Controls />
+          <HowToPlay />
+        </div>
+      </div>
       <VotesHistory />
       <ChatWidgetDynamic />
     </div>
