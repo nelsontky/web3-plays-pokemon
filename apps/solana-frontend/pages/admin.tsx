@@ -50,7 +50,7 @@ export default function Admin() {
   useEffect(
     function printOldGameStates() {
       if (program) {
-        program.account.gameState
+        program.account.gameStateV2
           .fetchMultiple(oldGameStatesPdas)
           .then((result) => {
             console.log(result);
@@ -81,10 +81,11 @@ export default function Admin() {
         );
       console.log("sending");
 
-      const FRAMES_IMAGES_CID = // update this;
-      const SAVE_STATE_CID = // update this;
+      const FRAMES_IMAGES_CID =
+        "bafkreifiqnnhhd7d63fm74i6lgchgsmwww4nm5gtmcvejqjryft7asnrgm";
+      const SAVE_STATE_CID =
+        "bafkreieubvbxq2l6duscnpiwfwqdrf6jixbuqoyn6b67lkekbpbqc66ghy";
 
-      console.log(program.programId.toBase58());
       await program.methods
         .migrateGameStateToV3(FRAMES_IMAGES_CID, SAVE_STATE_CID)
         .accounts({
