@@ -26,8 +26,11 @@
     "typescript": "^4.5.2"
   },
   "dependencies": {
+    "@project-serum/anchor": "^0.26.0",
     "axios": "^1.2.1",
     "cheerio": "1.0.0-rc.12",
-    "pako": "^2.1.0"
+    "pako": "^2.1.0",
+    "solana-plays-pokemon-program": "workspace:*",
+    "common": "workspace:*"
   }
 }
