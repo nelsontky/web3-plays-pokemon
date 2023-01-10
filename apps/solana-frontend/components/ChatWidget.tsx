@@ -60,6 +60,7 @@ export default function ChatWidget() {
         anchorEl={fabRef.current}
         open={open}
         sx={(theme) => ({
+          pointerEvents: "none",
           width: 400,
           height: "min(800px, 80vh)",
           [theme.breakpoints.down("sm")]: {
@@ -69,6 +70,7 @@ export default function ChatWidget() {
         })}
         PaperProps={{
           sx: (theme) => ({
+            pointerEvents: "all",
             height: "100%",
             boxShadow: "none",
             border: "6px solid #000000",
