@@ -8,7 +8,8 @@ import { GAME_DATA_ACCOUNT_PUBLIC_KEY } from "../constants";
 import useTxSnackbar from "../hooks/useTxSnackbar";
 import ControlsBackdrop from "./ControlsBackdrop";
 import { useState } from "react";
-import TurboCheckbox from "./TurboCheckbox";
+import TurboDirectionCheckbox from "./TurboDirectionCheckbox";
+import TurboAbCheckbox from "./TurboAbCheckbox";
 
 const styles = {
   root: tw`
@@ -58,6 +59,7 @@ export default function Controls() {
   const program = useMutableProgram();
   const { enqueueSnackbar, closeSnackbar } = useTxSnackbar();
   const [isTurboMode, setIsTurboMode] = useState(false);
+  const [isTurboAb, setIsTurboAb] = useState(false);
 
   const executeGame = async (joypadButton: JoypadButton) => {
     if (program) {
@@ -125,10 +127,16 @@ export default function Controls() {
 
   return (
     <>
-      <TurboCheckbox
-        isTurboMode={isTurboMode}
-        setIsTurboMode={setIsTurboMode}
-      />
+      <div css={tw`flex justify-between`}>
+        <TurboDirectionCheckbox
+          isTurboMode={isTurboMode}
+          setIsTurboMode={setIsTurboMode}
+        />
+        <TurboAbCheckbox
+          isTurboMode={isTurboAb}
+          setIsTurboMode={setIsTurboAb}
+        />
+      </div>
       <div css={styles.root}>
         <ControlsBackdrop />
         <div css={styles.mainButtons}>
@@ -179,15 +187,14 @@ export default function Controls() {
           <div css={styles.actionButtons}>
             <ControlButton
               onClick={() => {
-                executeGame(JoypadButton.B);
+                executeGame(isTurboAb ? JoypadButton.TurboB : JoypadButton.B);
               }}
             >
               B
             </ControlButton>
             <ControlButton
               onClick={() => {
-                // executeGame(JoypadButton.A);
-                executeGame(JoypadButton.TurboA);
+                executeGame(isTurboAb ? JoypadButton.TurboA : JoypadButton.A);
               }}
             >
               A

@@ -98,6 +98,12 @@ export default function CurrentVotes() {
                 <th>
                   <SmallControl>→</SmallControl>
                 </th>
+                <th>
+                  <SmallControl>A</SmallControl>
+                </th>
+                <th>
+                  <SmallControl>B</SmallControl>
+                </th>
               </tr>
               <tr>
                 <td css={styles.tableData}>{executedStatesCount}</td>
@@ -105,6 +111,8 @@ export default function CurrentVotes() {
                 <td css={styles.tableData}>{currentState?.votes[2] ?? 0}</td>
                 <td css={styles.tableData}>{currentState?.votes[3] ?? 0}</td>
                 <td css={styles.tableData}>{currentState?.votes[4] ?? 0}</td>
+                <td css={styles.tableData}>{currentState?.votes[9] ?? 0}</td>
+                <td css={styles.tableData}>{currentState?.votes[10] ?? 0}</td>
               </tr>
               <tr>
                 <td css={styles.tableData}>Turbo:</td>
@@ -112,6 +120,8 @@ export default function CurrentVotes() {
                 <td css={styles.tableData}>{currentState?.votes[6] ?? 0}</td>
                 <td css={styles.tableData}>{currentState?.votes[7] ?? 0}</td>
                 <td css={styles.tableData}>{currentState?.votes[8] ?? 0}</td>
+                <td css={styles.tableData}>{currentState?.votes[13] ?? 0}</td>
+                <td css={styles.tableData}>{currentState?.votes[14] ?? 0}</td>
               </tr>
             </tbody>
           </table>
@@ -120,12 +130,6 @@ export default function CurrentVotes() {
           <table>
             <tbody>
               <tr>
-                <th>
-                  <SmallControl>A</SmallControl>
-                </th>
-                <th>
-                  <SmallControl>B</SmallControl>
-                </th>
                 <th>
                   <SmallControl>START</SmallControl>
                 </th>
@@ -137,8 +141,6 @@ export default function CurrentVotes() {
                 </th>
               </tr>
               <tr>
-                <td css={styles.tableData}>{currentState?.votes[9] ?? 0}</td>
-                <td css={styles.tableData}>{currentState?.votes[10] ?? 0}</td>
                 <td css={styles.tableData}>{currentState?.votes[11] ?? 0}</td>
                 <td css={styles.tableData}>{currentState?.votes[12] ?? 0}</td>
                 <td css={styles.tableData}>{currentState?.votes[0] ?? 0}</td>

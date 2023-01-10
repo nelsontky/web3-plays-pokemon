@@ -70,6 +70,12 @@ export default function VotesHistory() {
                 <SmallControl>B</SmallControl>
               </th>
               <th>
+                <SmallControl>Turbo A</SmallControl>
+              </th>
+              <th>
+                <SmallControl>Turbo B</SmallControl>
+              </th>
+              <th>
                 <SmallControl>START</SmallControl>
               </th>
               <th>
