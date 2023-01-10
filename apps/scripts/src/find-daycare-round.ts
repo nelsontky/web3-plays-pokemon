@@ -28,8 +28,8 @@ const program = new anchor.Program(
 ) as unknown as anchor.Program<SolanaPlaysPokemonProgram>;
 
 (async () => {
-  const LEFT_INDEX = 10240;
-  const RIGHT_INDEX = 10241;
+  const LEFT_INDEX = 10250;
+  const RIGHT_INDEX = 10251;
 
   const [gameStatePda1] = anchor.web3.PublicKey.findProgramAddressSync(
     [
@@ -50,7 +50,7 @@ const program = new anchor.Program(
   const inflated1 = inflate(response1.data, { to: "string" });
   const data1 = JSON.parse(inflated1);
   console.log(LEFT_INDEX, parsePokemonData(data1.gameboyMemory));
-  console.log(saveStateCid1);
+  console.log(gameState1);
 
   const [gameStatePda2] = anchor.web3.PublicKey.findProgramAddressSync(
     [
