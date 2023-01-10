@@ -4,7 +4,7 @@ import tw from "twin.macro";
 import { useAppSelector } from "../hooks/redux";
 import AppWalletMultiButton from "./AppWalletMultiButton";
 import CircularProgress from "@mui/material/CircularProgress";
-import { BUTTON_ID_TO_ENUM, computeButtonVotes, JoypadButton } from "common";
+import { BUTTON_ID_TO_ENUM } from "common";
 import SmallControl from "./SmallControl";
 import {
   selectGameStateById,
@@ -85,6 +85,6 @@ const MoveButton = ({ currentGameState }: { currentGameState: any }) => {
   if (executedButton === undefined) {
     return null;
   }
-  
+
   return <SmallControl>{BUTTON_ID_TO_ENUM[executedButton]}</SmallControl>;
 };
