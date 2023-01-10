@@ -14,15 +14,18 @@ use anchor_lang::prelude::*;
 // 10 = B
 // 11 = START
 // 12 = SELECT
+// 13 = Turbo A
+// 14 = Turbo B
 
 // Mainnet
-declare_id!("pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg");
+// declare_id!("pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg");
 
 // Devnet
-// declare_id!("pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK");
+declare_id!("pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK");
 
 const VOTE_SECONDS: i64 = 7;
-const NUMBER_OF_BUTTONS: usize = 13;
+const V2_NUMBER_OF_BUTTONS: usize = 13;
+const NUMBER_OF_BUTTONS: usize = 15;
 
 #[program]
 pub mod solana_plays_pokemon_program {
@@ -73,7 +76,7 @@ pub mod solana_plays_pokemon_program {
             .checked_add(1)
             .unwrap();
 
-        // execute if game state is at least 10 seconds old
+        // execute if game state is at least 7 seconds old
         let should_execute =
             ctx.accounts.clock.unix_timestamp - game_state.created_at >= VOTE_SECONDS;
         if should_execute {
@@ -128,8 +131,8 @@ pub mod solana_plays_pokemon_program {
         Ok(())
     }
 
-    pub fn migrate_game_state_to_v2(
-        ctx: Context<MigrateGameStateToV2>,
+    pub fn migrate_game_state_to_v3(
+        ctx: Context<MigrateGameStateToV3>,
         frames_image_cid: String,
         save_state_cid: String,
     ) -> Result<()> {
@@ -140,7 +143,7 @@ pub mod solana_plays_pokemon_program {
         let game_state = &mut ctx.accounts.game_state;
         game_state.frames_image_cid = frames_image_cid.clone();
         game_state.save_state_cid = save_state_cid.clone();
-        game_state.executed_button = JoypadButton::Nothing;
+        game_state.executed_button = 0;
 
         let next_game_state = &mut ctx.accounts.next_game_state;
         next_game_state.index = game_data.executed_states_count.checked_sub(1).unwrap();
@@ -168,19 +171,19 @@ pub struct Initialize<'info> {
     #[account(
         init,
         payer = authority,
-        space = 8 + GameStateV2::BASE_LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
+        space = 8 + GameStateV3::BASE_LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
         seeds = [game_data.key().as_ref(), b"game_state", b"0"], // seeds comprise of game_data key, a static text, and the index
         bump
     )]
-    pub game_state: Account<'info, GameStateV2>,
+    pub game_state: Account<'info, GameStateV3>,
     #[account(
         init,
         payer = authority,
-        space = 8 + GameStateV2::BASE_LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
+        space = 8 + GameStateV3::BASE_LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
         seeds = [game_data.key().as_ref(), b"game_state", b"1"], // seeds comprise of game_data key, a static text, and the index
         bump
     )]
-    pub next_game_state: Account<'info, GameStateV2>,
+    pub next_game_state: Account<'info, GameStateV3>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
@@ -198,7 +201,7 @@ pub struct Vote<'info> {
             ],
         bump
     )]
-    pub game_state: Account<'info, GameStateV2>,
+    pub game_state: Account<'info, GameStateV3>,
     #[account(mut)]
     pub game_data: Account<'info, GameData>,
     #[account(mut)]
@@ -221,15 +224,15 @@ pub struct UpdateGameState<'info> {
             (game_data.executed_states_count).to_string().as_ref()
         ],
         bump,
-        realloc = 8 + GameStateV2::BASE_LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
+        realloc = 8 + GameStateV3::BASE_LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
         realloc::payer = authority,
         realloc::zero = true,
     )]
-    pub game_state: Account<'info, GameStateV2>,
+    pub game_state: Account<'info, GameStateV3>,
     #[account(
         init,
         payer = authority,
-        space = 8 + GameStateV2::BASE_LEN + 4 + 59 + 4 + 59, // nft.storage cids are 59 characters long by default
+        space = 8 + GameStateV3::BASE_LEN + 4 + 59 + 4 + 59, // nft.storage cids are 59 characters long by default
         seeds = [
                 game_data.key().as_ref(),
                 b"game_state", 
@@ -237,7 +240,7 @@ pub struct UpdateGameState<'info> {
             ],
         bump
     )]
-    pub next_game_state: Account<'info, GameStateV2>,
+    pub next_game_state: Account<'info, GameStateV3>,
     #[account(mut, has_one = authority)]
     pub game_data: Account<'info, GameData>,
     #[account(mut)]
@@ -251,7 +254,7 @@ pub struct UpdateGameState<'info> {
     frames_image_cid: String,
     save_state_cid: String,
 )]
-pub struct MigrateGameStateToV2<'info> {
+pub struct MigrateGameStateToV3<'info> {
     #[account(
         mut,
         seeds = [
@@ -260,15 +263,15 @@ pub struct MigrateGameStateToV2<'info> {
             (game_data.executed_states_count).to_string().as_ref()
         ],
         bump,
-        realloc = 8 + GameState::LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
+        realloc = 8 + GameStateV2::BASE_LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
         realloc::payer = authority,
         realloc::zero = true,
     )]
-    pub game_state: Account<'info, GameState>,
+    pub game_state: Account<'info, GameStateV2>,
     #[account(
         init,
         payer = authority,
-        space = 8 + GameStateV2::BASE_LEN + 4 + 59 + 4 + 59, // nft.storage cids are 59 characters long by default
+        space = 8 + GameStateV3::BASE_LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
         seeds = [
                 game_data.key().as_ref(),
                 b"game_state", 
@@ -276,11 +279,11 @@ pub struct MigrateGameStateToV2<'info> {
             ],
         bump
     )]
-    pub next_game_state: Account<'info, GameStateV2>,
+    pub next_game_state: Account<'info, GameStateV3>,
     #[account(
         init,
         payer = authority,
-        space = 8 + GameStateV2::BASE_LEN + 4 + 59 + 4 + 59, // nft.storage cids are 59 characters long by default
+        space = 8 + GameStateV3::BASE_LEN + 4 + 59 + 4 + 59, // nft.storage cids are 59 characters long by default
         seeds = [
                 game_data.key().as_ref(),
                 b"game_state", 
@@ -288,7 +291,7 @@ pub struct MigrateGameStateToV2<'info> {
             ],
         bump
     )]
-    pub next_next_game_state: Account<'info, GameStateV2>,
+    pub next_next_game_state: Account<'info, GameStateV3>,
     #[account(mut, has_one = authority)]
     pub game_data: Account<'info, GameData>,
     #[account(mut)]
@@ -309,7 +312,7 @@ impl GameData {
 }
 
 #[account]
-pub struct GameStateV2 {
+pub struct GameStateV3 {
     pub index: u32,
 
     pub votes: [u8; NUMBER_OF_BUTTONS],
@@ -322,8 +325,26 @@ pub struct GameStateV2 {
     pub save_state_cid: String,
 }
 
+impl GameStateV3 {
+    pub const BASE_LEN: usize = 4 + (NUMBER_OF_BUTTONS * 1) + 8 + 1; // does not include CIDs sizes
+}
+
+#[account]
+pub struct GameStateV2 {
+    pub index: u32,
+
+    pub votes: [u8; V2_NUMBER_OF_BUTTONS],
+
+    pub created_at: i64,
+
+    pub executed_button: i8,
+
+    pub frames_image_cid: String,
+    pub save_state_cid: String,
+}
+
 impl GameStateV2 {
-    pub const BASE_LEN: usize = 4 + (13 * 1) + 8 + 1; // does not include CIDs sizes
+    pub const BASE_LEN: usize = 4 + (V2_NUMBER_OF_BUTTONS * 1) + 8 + 1; // does not include CIDs sizes
 }
 
 #[account]

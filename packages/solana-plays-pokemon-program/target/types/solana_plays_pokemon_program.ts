@@ -129,7 +129,7 @@ export type SolanaPlaysPokemonProgram = {
       ]
     },
     {
-      "name": "migrateGameStateToV2",
+      "name": "migrateGameStateToV3",
       "accounts": [
         {
           "name": "gameState",
@@ -196,6 +196,43 @@ export type SolanaPlaysPokemonProgram = {
           {
             "name": "authority",
             "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "gameStateV3",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "index",
+            "type": "u32"
+          },
+          {
+            "name": "votes",
+            "type": {
+              "array": [
+                "u8",
+                15
+              ]
+            }
+          },
+          {
+            "name": "createdAt",
+            "type": "i64"
+          },
+          {
+            "name": "executedButton",
+            "type": "i8"
+          },
+          {
+            "name": "framesImageCid",
+            "type": "string"
+          },
+          {
+            "name": "saveStateCid",
+            "type": "string"
           }
         ]
       }
@@ -513,7 +550,7 @@ export const IDL: SolanaPlaysPokemonProgram = {
       ]
     },
     {
-      "name": "migrateGameStateToV2",
+      "name": "migrateGameStateToV3",
       "accounts": [
         {
           "name": "gameState",
@@ -580,6 +617,43 @@ export const IDL: SolanaPlaysPokemonProgram = {
           {
             "name": "authority",
             "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "gameStateV3",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "index",
+            "type": "u32"
+          },
+          {
+            "name": "votes",
+            "type": {
+              "array": [
+                "u8",
+                15
+              ]
+            }
+          },
+          {
+            "name": "createdAt",
+            "type": "i64"
+          },
+          {
+            "name": "executedButton",
+            "type": "i8"
+          },
+          {
+            "name": "framesImageCid",
+            "type": "string"
+          },
+          {
+            "name": "saveStateCid",
+            "type": "string"
           }
         ]
       }

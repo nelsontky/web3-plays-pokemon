@@ -57,14 +57,14 @@ describe("solana-plays-pokemon-program", () => {
     );
     assert.isFalse(gameDataAccount.isExecuting);
 
-    const gameStateAccount = await program.account.gameStateV2.fetch(
+    const gameStateAccount = await program.account.gameStateV3.fetch(
       gameStatePda
     );
     assert.strictEqual(gameStateAccount.index, 0);
 
     assert.deepEqual(
       gameStateAccount.votes,
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     );
 
     assert.isAbove(gameStateAccount.createdAt.toNumber(), 0);
@@ -74,14 +74,14 @@ describe("solana-plays-pokemon-program", () => {
     assert.strictEqual(gameStateAccount.framesImageCid, FRAMES_IMAGES_CID);
     assert.strictEqual(gameStateAccount.saveStateCid, SAVE_STATE_CID);
 
-    const nextGameStateAccount = await program.account.gameStateV2.fetch(
+    const nextGameStateAccount = await program.account.gameStateV3.fetch(
       nextGameStatePda
     );
     assert.strictEqual(nextGameStateAccount.index, 1);
 
     assert.deepEqual(
       nextGameStateAccount.votes,
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     );
 
     assert.isAbove(nextGameStateAccount.createdAt.toNumber(), 0);
@@ -198,7 +198,7 @@ describe("solana-plays-pokemon-program", () => {
 
     try {
       await program.methods
-        .vote(13)
+        .vote(15)
         .accounts({
           gameState: gameStatePda,
           gameData: gameData.publicKey,
@@ -254,13 +254,13 @@ describe("solana-plays-pokemon-program", () => {
       })
       .rpc();
 
-    const currentGameState = await program.account.gameStateV2.fetch(
+    const currentGameState = await program.account.gameStateV3.fetch(
       gameStatePda
     );
 
     assert.deepEqual(
       currentGameState.votes,
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0]
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0]
     );
   });
 
