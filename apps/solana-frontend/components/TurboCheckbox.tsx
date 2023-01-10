@@ -1,6 +1,7 @@
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import {
   Checkbox,
+  ClickAwayListener,
   FormControlLabel,
   FormGroup,
   IconButton,
@@ -28,8 +29,18 @@ export default function TurboCheckbox({
     setIsTurboMode(event.target.checked);
   };
 
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+
+  const handleTooltipClose = () => {
+    setTooltipOpen(false);
+  };
+
+  const handleTooltipOpen = () => {
+    setTooltipOpen(true);
+  };
+
   return (
-    <FormGroup>
+    <FormGroup css={tw`inline-block`}>
       <FormControlLabel
         control={
           <Checkbox
@@ -44,34 +55,50 @@ export default function TurboCheckbox({
           />
         }
         label={
-          <div>
+          <div css={tw`flex items-center`}>
             <span css={tw`text-lg`} className={POKEMON_PIXEL_FONT.className}>
               Turbo direction
             </span>
-            <Tooltip
-              title={
-                <span
-                  className={POKEMON_PIXEL_FONT.className}
-                  css={tw`text-base`}
-                >
-                  Enabling Turbo direction and voting for a direction button
-                  will send in a vote to hold down the direction button for{" "}
-                  <span css={tw`font-bold`}>
-                    {TURBO_BUTTON_PRESS_FRAMES / GAMEBOY_FPS} seconds
-                  </span>
-                </span>
-              }
-              placement="top"
-            >
-              <IconButton size="small">
-                <HelpOutlineIcon
-                  sx={{
-                    color: "#000000",
+            <ClickAwayListener onClickAway={handleTooltipClose}>
+              <div>
+                <Tooltip
+                  disableTouchListener
+                  PopperProps={{
+                    disablePortal: true,
                   }}
-                  fontSize="small"
-                />
-              </IconButton>
-            </Tooltip>
+                  onClose={handleTooltipClose}
+                  onOpen={handleTooltipOpen}
+                  open={tooltipOpen}
+                  title={
+                    <span
+                      className={POKEMON_PIXEL_FONT.className}
+                      css={tw`text-base`}
+                    >
+                      Enabling Turbo direction and voting for a direction button
+                      will send in a vote to hold down the direction button for{" "}
+                      <span css={tw`font-bold`}>
+                        {TURBO_BUTTON_PRESS_FRAMES / GAMEBOY_FPS} seconds
+                      </span>
+                    </span>
+                  }
+                  placement="top"
+                >
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      setTooltipOpen((open) => !open);
+                    }}
+                  >
+                    <HelpOutlineIcon
+                      sx={{
+                        color: "#000000",
+                      }}
+                      fontSize="small"
+                    />
+                  </IconButton>
+                </Tooltip>
+              </div>
+            </ClickAwayListener>
           </div>
         }
       />
