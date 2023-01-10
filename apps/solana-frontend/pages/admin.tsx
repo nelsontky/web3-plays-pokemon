@@ -81,14 +81,12 @@ export default function Admin() {
         );
       console.log("sending");
 
-      const FRAMES_IMAGES_CID =
-        "bafkreigrikmqvirqnjneccayfbzlfhndfrn7zdfmbxywdwk3gyn5u6gteu";
-      const SAVE_STATE_CID =
-        "bafkreiakjwilw572br3xnbqnch43kibqacm5aczv23ezih5ryyflghmnja";
+      const FRAMES_IMAGES_CID = // update this;
+      const SAVE_STATE_CID = // update this;
 
       console.log(program.programId.toBase58());
       await program.methods
-        .migrateGameStateToV2(FRAMES_IMAGES_CID, SAVE_STATE_CID)
+        .migrateGameStateToV3(FRAMES_IMAGES_CID, SAVE_STATE_CID)
         .accounts({
           gameData: GAME_DATA_ACCOUNT_PUBLIC_KEY,
           gameState: oldGameStatesPdas[0],

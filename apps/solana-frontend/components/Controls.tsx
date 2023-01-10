@@ -186,7 +186,8 @@ export default function Controls() {
             </ControlButton>
             <ControlButton
               onClick={() => {
-                executeGame(JoypadButton.A);
+                // executeGame(JoypadButton.A);
+                executeGame(JoypadButton.TurboA);
               }}
             >
               A

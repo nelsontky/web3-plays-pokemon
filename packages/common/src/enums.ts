@@ -12,4 +12,6 @@ export enum JoypadButton {
   B = "B",
   Start = "START",
   Select = "SELECT",
+  TurboA = "Turbo A",
+  TurboB = "Turbo B",
 }

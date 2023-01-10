@@ -10,7 +10,7 @@ import { GAME_DATA_ACCOUNT_PUBLIC_KEY, PROGRAM_PUBLIC_KEY } from "../constants";
 import { RootState } from "../store";
 import { BUTTON_ID_TO_ENUM, JoypadButton } from "common";
 
-const NUMBER_OF_STATES_TO_LOAD = 20;
+const NUMBER_OF_STATES_TO_LOAD = 2;
 
 interface GameState {
   accountPublicKey: string;
@@ -67,10 +67,10 @@ export const fetchInitialGameStates = createAsyncThunk(
     );
 
     type RawGameState = Awaited<
-      ReturnType<typeof program.account.gameStateV2.fetch>
+      ReturnType<typeof program.account.gameStateV3.fetch>
     >;
     const existingGameStates = (
-      await program.account.gameStateV2.fetchMultiple(gameStatesPdas)
+      await program.account.gameStateV3.fetchMultiple(gameStatesPdas)
     ).filter(Boolean) as RawGameState[];
 
     const reduxGameStates: GameState[] = existingGameStates.map((state, i) => ({
