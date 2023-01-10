@@ -3,55 +3,21 @@ import {
   GAMEBOY_CAMERA_HEIGHT,
   GAMEBOY_CAMERA_WIDTH,
 } from "common";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import tw from "twin.macro";
 import renderFrame, { CELL_SIZE } from "../utils/renderFrame";
-import axios from "axios";
-import pako from "pako";
 import { useAppSelector } from "../hooks/redux";
+import useGameStateCidData from "../hooks/useGameStateCidData";
 
 const ANIMATION_DURATION = 3; // run game for 3 seconds
 
 export default function GameCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const gameStatesStatus = useAppSelector((state) => state.gameStates.status);
   const framesImageToRenderCid = useAppSelector(
     (state) => state.gameStates.framesImageCidToRender
   );
-  const [framesImageData, setFrameImagesData] = useState<number[][]>();
-
-  useEffect(
-    function renderFrames() {
-      if (
-        gameStatesStatus === "succeeded" &&
-        framesImageToRenderCid !== undefined &&
-        framesImageToRenderCid.length > 0
-      ) {
-        let hasUnmounted = false;
-
-        (async () => {
-          const response = await axios.get(
-            `https://${framesImageToRenderCid}.ipfs.cf-ipfs.com`,
-            {
-              responseType: "arraybuffer",
-            }
-          );
-
-          if (hasUnmounted) {
-            return;
-          }
-
-          const inflated = pako.inflate(response.data, { to: "string" });
-          const framesImageData: number[][] = JSON.parse(inflated);
-          setFrameImagesData(framesImageData);
-        })();
-
-        return () => {
-          hasUnmounted = true;
-        };
-      }
-    },
-    [framesImageToRenderCid, gameStatesStatus]
+  const framesImageData = useGameStateCidData<number[][]>(
+    framesImageToRenderCid
   );
 
   useEffect(
