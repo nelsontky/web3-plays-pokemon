@@ -9,11 +9,7 @@ import {
 } from "@mui/material";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import tw from "twin.macro";
-import {
-  GAMEBOY_FPS,
-  NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS,
-  TURBO_BUTTON_PRESS_FRAMES,
-} from "common";
+import { GAMEBOY_FPS, TURBO_BUTTON_PRESS_FRAMES } from "common";
 import { POKEMON_PIXEL_FONT } from "../constants";
 
 interface TurboCheckboxProps {
