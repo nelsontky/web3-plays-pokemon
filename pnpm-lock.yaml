@@ -14,19 +14,25 @@ importers:
 
   apps/scripts:
     specifiers:
+      '@project-serum/anchor': ^0.26.0
       '@types/node': ^18.11.18
       '@types/pako': ^2.0.0
       axios: ^1.2.1
       cheerio: 1.0.0-rc.12
+      common: workspace:*
       eslint: ^7.32.0
       eslint-config-custom: workspace:*
       pako: ^2.1.0
+      solana-plays-pokemon-program: workspace:*
       tsconfig: workspace:*
       typescript: ^4.5.2
     dependencies:
+      '@project-serum/anchor': 0.26.0
       axios: 1.2.1
       cheerio: 1.0.0-rc.12
+      common: link:../../packages/common
       pako: 2.1.0
+      solana-plays-pokemon-program: link:../../packages/solana-plays-pokemon-program
     devDependencies:
       '@types/node': 18.11.18
       '@types/pako': 2.0.0
@@ -3695,7 +3701,7 @@ packages:
     resolution: {integrity: sha512-xMoCk0y/GpiQhHbRjMcrd5NpmkwhAA0c01id7lrr6nhNdz6Uc/CywPdBeZw3Qz6BVZ/qlUoerpKPWeiXqMUjwA==}
     engines: {node: '>=12.20.0'}
     dependencies:
-      '@babel/runtime': 7.20.6
+      '@babel/runtime': 7.20.7
       '@noble/ed25519': 1.7.1
       '@noble/hashes': 1.1.5
       '@noble/secp256k1': 1.7.0
@@ -4102,7 +4108,7 @@ packages:
   /@types/connect/3.4.35:
     resolution: {integrity: sha512-cdeYyv4KWoEgpBISTxWvqYsVy444DOqehiF3fM3ne10AmJ62RSyNkUnxMJXHQWRQQX2eR94m5y1IZyDwBjV9FQ==}
     dependencies:
-      '@types/node': 18.0.3
+      '@types/node': 18.11.18
 
   /@types/cookiejar/2.1.2:
     resolution: {integrity: sha512-t73xJJrvdTjXrn4jLS9VSGRbz0nUY3cl2DMGDU48lKl+HR9dbbjW2A9r3g40VA++mQpy6uuHg33gy7du2BKpog==}
@@ -4264,7 +4270,6 @@ packages:
 
   /@types/node/18.11.18:
     resolution: {integrity: sha512-DHQpWGjyQKSHj3ebjFI/wRKcqQcdR+MoFBygntYOZytCqNfkd2ZC4ARDJ2DQqhjH5p85Nnd3jhUJIXrszFX/JA==}
-    dev: true
 
   /@types/normalize-package-data/2.4.1:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
@@ -4363,7 +4368,7 @@ packages:
   /@types/ws/7.4.7:
     resolution: {integrity: sha512-JQbbmxZTZehdc2iszGKs5oC3NFnjeay7mtAWrdt7qNtAVK0g19muApzAy4bm9byz79xa2ZnO/BOBC2R8RC5Lww==}
     dependencies:
-      '@types/node': 18.0.3
+      '@types/node': 18.11.18
     dev: false
 
   /@types/yargs-parser/21.0.0:

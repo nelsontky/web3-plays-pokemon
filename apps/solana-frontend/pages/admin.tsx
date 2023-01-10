@@ -12,9 +12,9 @@ import { useMutableProgram } from "../hooks/useProgram";
 //   "bafkreigta3nr75v35u3vpod5pbye5yslgkafxxamhiaiffd6elfbkdw4by";
 
 const FRAMES_IMAGES_CID =
-  "bafkreihzutmgwwlpn3vvhzipvxjb5ljwzhis4qq72pt4wg5kgomrs5q2gq";
+  "bafkreiay7vrduzi234zszhpy6cxqooxa7erg4by2j6def4wajuebkbabs4";
 const SAVE_STATE_CID =
-  "bafkreigka5p7dseiqx7wvvhxt7eqasgiikxu4uodapz5gjx66zfscpuium";
+  "bafkreic4g747ynwm6vvubrjor6rx7soppnp2dm5muev3ymqfczghipnqem";
 
 let gameData: anchor.web3.Keypair | null = null;
 try {
@@ -82,9 +82,9 @@ export default function Admin() {
       console.log("sending");
 
       const FRAMES_IMAGES_CID =
-        "bafkreifiqnnhhd7d63fm74i6lgchgsmwww4nm5gtmcvejqjryft7asnrgm";
+        "bafkreiay7vrduzi234zszhpy6cxqooxa7erg4by2j6def4wajuebkbabs4";
       const SAVE_STATE_CID =
-        "bafkreieubvbxq2l6duscnpiwfwqdrf6jixbuqoyn6b67lkekbpbqc66ghy";
+        "bafkreic4g747ynwm6vvubrjor6rx7soppnp2dm5muev3ymqfczghipnqem";
 
       await program.methods
         .migrateGameStateToV3(FRAMES_IMAGES_CID, SAVE_STATE_CID)
