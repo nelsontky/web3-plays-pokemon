@@ -163,13 +163,13 @@ export class ProgramService implements OnModuleDestroy {
       this.program.programId,
     );
 
-    const prevGameState = await this.program.account.gameStateV2.fetch(
+    const prevGameState = await this.program.account.gameStateV3.fetch(
       prevGameStatePda,
     );
 
     let joypadButton: JoypadButton;
     if (executedButtonId === undefined) {
-      const currentGameState = await this.program.account.gameStateV2.fetch(
+      const currentGameState = await this.program.account.gameStateV3.fetch(
         currentGameStatePda,
       );
       joypadButton =

@@ -5,19 +5,18 @@ import {
   GAMEBOY_CAMERA_HEIGHT,
   GAMEBOY_CAMERA_WIDTH,
   GAMEBOY_FPS,
-  GAMEBOY_MEMORY_OFFSET,
+  // GAMEBOY_MEMORY_OFFSET,
   JoypadButton,
-  LETTER_PRINTING_DELAY_FLAGS_LOCATION,
+  // LETTER_PRINTING_DELAY_FLAGS_LOCATION,
   NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS,
-  TURBO_BUTTON_PRESS_FRAMES,
+  TURBO_AB_PRESS_COUNT,
+  TURBO_DIRECTION_PRESS_FRAMES,
 } from "common";
 import * as fs from "fs/promises";
 import * as path from "path";
 import wasmImportObject from "./import-object.util";
 import * as pako from "pako";
 import { IpfsService } from "src/ipfs/ipfs.service";
-
-const FRAMES_TO_HOLD_BUTTON = 15;
 
 @Injectable()
 export class WasmboyService {
@@ -78,14 +77,6 @@ export class WasmboyService {
   ) {
     this.setJoypadState(wasmBoy, joypadButton);
 
-    const framesToHoldButton =
-      joypadButton === JoypadButton.TurboUp ||
-      joypadButton === JoypadButton.TurboDown ||
-      joypadButton === JoypadButton.TurboLeft ||
-      joypadButton === JoypadButton.TurboRight
-        ? TURBO_BUTTON_PRESS_FRAMES
-        : BUTTON_PRESS_FRAMES;
-
     const framesToExecutePerStep = frames / FRAMES_TO_DRAW_PER_EXECUTION;
     const framesImageData: number[][] = [];
     for (let i = 0; i < FRAMES_TO_DRAW_PER_EXECUTION; i++) {
@@ -94,11 +85,12 @@ export class WasmboyService {
         this.getImageDataFromGraphicsFrameBuffer(wasmBoy, wasmByteMemory),
       );
 
-      const shouldReleaseJoyPad =
-        (i + 1) * framesToExecutePerStep >= framesToHoldButton;
-      if (shouldReleaseJoyPad) {
-        this.setJoypadState(wasmBoy, null);
-      }
+      this.processJoypadRelease({
+        framesExecuted: (i + 1) * framesToExecutePerStep,
+        totalFramesToExecute: frames,
+        joypadButton,
+        wasmBoy,
+      });
     }
 
     this.setJoypadState(wasmBoy, null);
@@ -117,6 +109,57 @@ export class WasmboyService {
     }
 
     return framesImageData;
+  }
+
+  private processJoypadRelease({
+    framesExecuted,
+    totalFramesToExecute,
+    joypadButton,
+    wasmBoy,
+  }: {
+    framesExecuted: number;
+    totalFramesToExecute: number;
+    joypadButton: JoypadButton;
+    wasmBoy: any;
+  }) {
+    const framesToHoldButton =
+      joypadButton === JoypadButton.TurboUp ||
+      joypadButton === JoypadButton.TurboDown ||
+      joypadButton === JoypadButton.TurboLeft ||
+      joypadButton === JoypadButton.TurboRight
+        ? TURBO_DIRECTION_PRESS_FRAMES
+        : BUTTON_PRESS_FRAMES;
+
+    const shouldReleaseJoyPad = framesExecuted >= framesToHoldButton;
+    if (shouldReleaseJoyPad) {
+      this.setJoypadState(wasmBoy, null);
+    }
+
+    // turbo AB logic
+    const isTurboAb =
+      joypadButton === JoypadButton.TurboA ||
+      joypadButton === JoypadButton.TurboB;
+    if (isTurboAb) {
+      const turboAbHoldFrames = Math.floor(
+        totalFramesToExecute / TURBO_AB_PRESS_COUNT / 2,
+      );
+      const holdIntervals = Array.from(
+        {
+          length: Math.floor(totalFramesToExecute / turboAbHoldFrames),
+        },
+        (_, i) => ({
+          start: i * turboAbHoldFrames,
+          end: i * turboAbHoldFrames + turboAbHoldFrames - 1,
+        }),
+      ).filter((_, i) => i % 2 === 0);
+
+      const shouldPress = holdIntervals.some(
+        ({ start, end }) => framesExecuted >= start && framesExecuted <= end,
+      );
+      if (shouldPress) {
+        this.setJoypadState(wasmBoy, joypadButton);
+      }
+    }
   }
 
   private async getWasmBoyCore() {
@@ -202,10 +245,10 @@ export class WasmboyService {
         wasmBoy.GAMEBOY_INTERNAL_MEMORY_SIZE,
     );
 
-    // set no text delay sometimes it works sometimes it doesn't idk why
-    gameboyMemory[
-      LETTER_PRINTING_DELAY_FLAGS_LOCATION - GAMEBOY_MEMORY_OFFSET
-    ] = 0;
+    // // set no text delay sometimes it works sometimes it doesn't idk why
+    // gameboyMemory[
+    //   LETTER_PRINTING_DELAY_FLAGS_LOCATION - GAMEBOY_MEMORY_OFFSET
+    // ] = 0;
 
     const paletteMemory = wasmByteMemory.slice(
       wasmBoy.GBC_PALETTE_LOCATION,
@@ -268,8 +311,12 @@ export class WasmboyService {
         JoypadButton.TurboLeft === joypadButton
         ? 1
         : 0,
-      JoypadButton.A === joypadButton ? 1 : 0,
-      JoypadButton.B === joypadButton ? 1 : 0,
+      JoypadButton.A === joypadButton || JoypadButton.TurboA === joypadButton
+        ? 1
+        : 0,
+      JoypadButton.B === joypadButton || JoypadButton.TurboB === joypadButton
+        ? 1
+        : 0,
       JoypadButton.Select === joypadButton ? 1 : 0,
       JoypadButton.Start === joypadButton ? 1 : 0,
     );
