@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import {
   BUTTON_PRESS_FRAMES,
   FRAMES_TO_DRAW_PER_EXECUTION,
@@ -20,6 +20,8 @@ import { IpfsService } from "src/ipfs/ipfs.service";
 
 @Injectable()
 export class WasmboyService {
+  private readonly logger = new Logger(WasmboyService.name);
+
   // wasmboy config
   private enableBootRom = false;
   private preferGbc = false;
@@ -220,6 +222,15 @@ export class WasmboyService {
     const inflated = pako.inflate(data, { to: "string" });
     const saveState = JSON.parse(inflated);
 
+    if (saveState.cartridgeRam !== undefined) {
+      wasmByteMemory.set(
+        saveState.cartridgeRam,
+        wasmBoy.CARTRIDGE_RAM_LOCATION,
+      );
+    } else {
+      this.logger.warn("loadState: cartridgeRam is undefined");
+    }
+
     wasmByteMemory.set(
       new Uint8Array(saveState.gameboyMemory),
       wasmBoy.GAMEBOY_INTERNAL_MEMORY_LOCATION,
@@ -239,6 +250,10 @@ export class WasmboyService {
   private async saveState(wasmBoy: any, wasmByteMemory: Uint8Array) {
     wasmBoy.saveState();
 
+    const cartridgeRam = wasmByteMemory.slice(
+      wasmBoy.CARTRIDGE_RAM_LOCATION,
+      wasmBoy.CARTRIDGE_RAM_LOCATION + wasmBoy.CARTRIDGE_RAM_SIZE,
+    );
     const gameboyMemory = wasmByteMemory.slice(
       wasmBoy.GAMEBOY_INTERNAL_MEMORY_LOCATION,
       wasmBoy.GAMEBOY_INTERNAL_MEMORY_LOCATION +
@@ -260,6 +275,7 @@ export class WasmboyService {
     );
 
     return {
+      cartridgeRam: Array.from(cartridgeRam),
       gameboyMemory: Array.from(gameboyMemory),
       paletteMemory: Array.from(paletteMemory),
       wasmboyState: Array.from(wasmboyState),
