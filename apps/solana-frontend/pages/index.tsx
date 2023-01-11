@@ -46,13 +46,15 @@ export default function Web() {
       </Head>
       <SocialLinks />
       <div css={tw`flex justify-center flex-wrap gap-6`}>
-        <div css={tw`max-w-2xl`}>
+        <div css={tw`max-w-2xl grow`}>
           <GameCanvas />
           <CurrentVotes />
           <Controls />
-          <HowToPlay />
         </div>
         <GameState />
+        <div css={tw`max-w-2xl`}>
+          <HowToPlay />
+        </div>
       </div>
       <VotesHistory />
       <ChatWidgetDynamic />
