@@ -18,6 +18,19 @@ export const POKEMON_SIZE = 44;
 
 export const TOTAL_ITEMS_INDEX = 0xd31d;
 
+export const BADGES_INDEX = 0xd356;
+
+export const BADGE_NAMES = [
+  "Boulder",
+  "Cascade",
+  "Thunder",
+  "Rainbow",
+  "Soul",
+  "Marsh",
+  "Volcano",
+  "Earth",
+];
+
 // https://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_index_number_(Generation_I)
 export const POKEMON_INDEX = [
   null,
@@ -374,12 +387,13 @@ export const memorySliceToString = (memorySlice: Uint8Array) => {
     const char = CHARCTER_ENCODING[firstNibble][secondNibble];
     charArray.push(char);
   }
-  const relevantText = charArray.filter(
-    (_char, i, arr) => arr.findIndex((char) => char === "") > i
+  const relevantChars = charArray.filter(
+    (_char, i, arr) => arr.findIndex((char) => char === "") > i // drop all characters after the first empty string
   );
-  return relevantText.join("");
+  return relevantChars.join("");
 };
 
+// https://bulbapedia.bulbagarden.net/wiki/List_of_items_by_index_number_(Generation_I)
 export const ITEMS_INDEX: Record<number, string> = {
   1: "Master Ball",
   2: "Ultra Ball",
