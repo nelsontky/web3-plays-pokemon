@@ -15,12 +15,14 @@ export default function useGameStateCidData<T>(ipfsCid: string | undefined) {
 
           while (responseData === undefined) {
             try {
-              const response = await axios.get(
-                `https://${ipfsCid}.ipfs.cf-ipfs.com`,
-                {
+              const response = await Promise.any([
+                axios.get(`/api/ipfs/${ipfsCid}`, {
                   responseType: "arraybuffer",
-                }
-              );
+                }),
+                axios.get(`https://${ipfsCid}.ipfs.cf-ipfs.com`, {
+                  responseType: "arraybuffer",
+                }),
+              ]);
               responseData = response.data;
               if (hasUnmounted) {
                 return;
