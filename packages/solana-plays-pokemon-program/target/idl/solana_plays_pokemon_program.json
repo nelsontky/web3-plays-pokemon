@@ -48,7 +48,7 @@
       ]
     },
     {
-      "name": "vote",
+      "name": "sendButton",
       "accounts": [
         {
           "name": "gameState",
@@ -129,7 +129,7 @@
       ]
     },
     {
-      "name": "migrateGameStateToV3",
+      "name": "migrateGameStateToV4",
       "accounts": [
         {
           "name": "gameState",
@@ -196,6 +196,38 @@
           {
             "name": "authority",
             "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "GameStateV4",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "version",
+            "type": "u8"
+          },
+          {
+            "name": "index",
+            "type": "u32"
+          },
+          {
+            "name": "buttonPresses",
+            "type": "bytes"
+          },
+          {
+            "name": "createdAt",
+            "type": "i64"
+          },
+          {
+            "name": "framesImageCid",
+            "type": "string"
+          },
+          {
+            "name": "saveStateCid",
+            "type": "string"
           }
         ]
       }
@@ -383,8 +415,13 @@
       "name": "ExecuteGameState",
       "fields": [
         {
-          "name": "executedButton",
-          "type": "i8",
+          "name": "buttonPresses",
+          "type": {
+            "array": [
+              "u8",
+              10
+            ]
+          },
           "index": false
         },
         {
@@ -418,6 +455,6 @@
     }
   ],
   "metadata": {
-    "address": "pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg"
+    "address": "pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK"
   }
 }
