@@ -89,8 +89,6 @@ export class IpfsService {
   }
 
   private async uploadToNftStorage(data: Uint8Array) {
-    this.logger.log("Uploading to nft.storage");
-
     const client = new NFTStorage({ token: process.env.NFT_STORAGE_TOKEN });
     const cid = await client.storeBlob(new Blob([data]));
     return cid.toString();
