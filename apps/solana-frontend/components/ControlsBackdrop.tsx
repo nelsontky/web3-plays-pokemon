@@ -4,8 +4,8 @@ import tw from "twin.macro";
 import { useAppSelector } from "../hooks/redux";
 import AppWalletMultiButton from "./AppWalletMultiButton";
 import CircularProgress from "@mui/material/CircularProgress";
-import { BUTTON_ID_TO_ENUM } from "common";
-import SmallControl from "./SmallControl";
+// import { BUTTON_ID_TO_ENUM } from "common";
+// import SmallControl from "./SmallControl";
 import {
   selectGameStateById,
   selectGameStateIds,
@@ -52,39 +52,36 @@ export default function ControlsBackdrop() {
       ) : (
         <div css={tw`text-center`}>
           <CircularProgress css={tw`text-black`} />
-          <div css={tw`text-lg`}>
-            Voting for this round has ended. Executing
-            <MoveButton currentGameState={currentGameState} /> ...
-          </div>
+          <div css={tw`text-lg`}>The round has ended. Executing game...</div>
         </div>
       )}
     </Backdrop>
   );
 }
 
-const MoveButton = ({ currentGameState }: { currentGameState: any }) => {
-  const executedButton = useMemo(() => {
-    const votes = currentGameState?.votes;
+// const MoveButton = ({ currentGameState }: { currentGameState: any }) => {
+//   const executedButton = useMemo(() => {
+//     const votes = currentGameState?.votes;
 
-    if (!votes) {
-      return;
-    }
+//     if (!votes) {
+//       return;
+//     }
 
-    let maxVoteCount = Number.MIN_SAFE_INTEGER;
-    let executedButton = 0;
-    for (let i = 0; i < votes.length; i++) {
-      if (votes[i] > maxVoteCount) {
-        maxVoteCount = votes[i];
-        executedButton = i;
-      }
-    }
+//     let maxVoteCount = Number.MIN_SAFE_INTEGER;
+//     let executedButton = 0;
+//     for (let i = 0; i < votes.length; i++) {
+//       if (votes[i] > maxVoteCount) {
+//         maxVoteCount = votes[i];
+//         executedButton = i;
+//       }
+//     }
 
-    return executedButton;
-  }, [currentGameState]);
+//     return executedButton;
+//   }, [currentGameState]);
 
-  if (executedButton === undefined) {
-    return null;
-  }
+//   if (executedButton === undefined) {
+//     return null;
+//   }
 
-  return <SmallControl>{BUTTON_ID_TO_ENUM[executedButton]}</SmallControl>;
-};
+//   return <SmallControl>{BUTTON_ID_TO_ENUM[executedButton]}</SmallControl>;
+// };

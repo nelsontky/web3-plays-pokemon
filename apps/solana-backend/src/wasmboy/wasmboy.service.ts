@@ -1,17 +1,13 @@
 import { Injectable, Logger } from "@nestjs/common";
 import {
-  BUTTON_PRESS_FRAMES,
   FRAMES_TO_DRAW_PER_EXECUTION,
   GAMEBOY_CAMERA_HEIGHT,
   GAMEBOY_CAMERA_WIDTH,
   GAMEBOY_FPS,
   // GAMEBOY_MEMORY_OFFSET,
   JoypadButton,
-  MAX_BUTTONS_PER_ROUND,
   // LETTER_PRINTING_DELAY_FLAGS_LOCATION,
   NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS,
-  TURBO_AB_PRESS_COUNT,
-  TURBO_DIRECTION_PRESS_FRAMES,
 } from "common";
 import * as fs from "fs/promises";
 import * as path from "path";
@@ -81,8 +77,8 @@ export class WasmboyService {
     const framesToExecutePerStep = frames / FRAMES_TO_DRAW_PER_EXECUTION;
     const framesImageData: number[][] = [];
     for (let i = 0; i < FRAMES_TO_DRAW_PER_EXECUTION; i++) {
-      if (i < MAX_BUTTONS_PER_ROUND) {
-        this.setJoypadState(wasmBoy, buttonPresses[i] ?? null);
+      if (i % 2 === 0) {
+        this.setJoypadState(wasmBoy, buttonPresses.shift());
       } else {
         this.setJoypadState(wasmBoy, null);
       }
