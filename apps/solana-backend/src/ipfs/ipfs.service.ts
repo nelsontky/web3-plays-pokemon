@@ -57,9 +57,9 @@ export class IpfsService {
       if (this.pinningProvider === "nft.storage") {
         try {
           cid = await this.uploadToNftStorage(data);
-          this.logger.log(
-            `Pinned ${cid} successfully on ${this.pinningProvider}`,
-          );
+          // this.logger.log(
+          //   `Pinned ${cid} successfully on ${this.pinningProvider}`,
+          // );
           return cid;
         } catch (e) {
           this.pinningProvider = "web3.storage";
@@ -70,9 +70,9 @@ export class IpfsService {
       } else {
         try {
           cid = await this.uploadToWeb3Storage(data);
-          this.logger.log(
-            `Pinned ${cid} successfully on ${this.pinningProvider}`,
-          );
+          // this.logger.log(
+          //   `Pinned ${cid} successfully on ${this.pinningProvider}`,
+          // );
           return cid;
         } catch (e) {
           this.pinningProvider = "nft.storage";
