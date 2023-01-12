@@ -50,7 +50,7 @@ export default function Admin() {
   useEffect(
     function printOldGameStates() {
       if (program) {
-        program.account.gameStateV2
+        program.account.gameStateV3
           .fetchMultiple(oldGameStatesPdas)
           .then((result) => {
             console.log(result);
@@ -81,23 +81,23 @@ export default function Admin() {
         );
       console.log("sending");
 
-      const FRAMES_IMAGES_CID =
-        "bafkreiay7vrduzi234zszhpy6cxqooxa7erg4by2j6def4wajuebkbabs4";
-      const SAVE_STATE_CID =
-        "bafkreic4g747ynwm6vvubrjor6rx7soppnp2dm5muev3ymqfczghipnqem";
+      const FRAMES_IMAGES_CID = "";
+      const SAVE_STATE_CID = "";
 
-      await program.methods
-        .migrateGameStateToV3(FRAMES_IMAGES_CID, SAVE_STATE_CID)
-        .accounts({
-          gameData: GAME_DATA_ACCOUNT_PUBLIC_KEY,
-          gameState: oldGameStatesPdas[0],
-          nextGameState: nextGameStatePda,
-          nextNextGameState: nextNextGameStatePda,
-          systemProgram: anchor.web3.SystemProgram.programId,
-          clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
-        })
-        .rpc();
-      console.log("sent");
+      if (FRAMES_IMAGES_CID.length > 0 && SAVE_STATE_CID.length > 0) {
+        await program.methods
+          .migrateGameStateToV4(FRAMES_IMAGES_CID, SAVE_STATE_CID)
+          .accounts({
+            gameData: GAME_DATA_ACCOUNT_PUBLIC_KEY,
+            gameState: oldGameStatesPdas[0],
+            nextGameState: nextGameStatePda,
+            nextNextGameState: nextNextGameStatePda,
+            systemProgram: anchor.web3.SystemProgram.programId,
+            clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+          })
+          .rpc();
+        console.log("sent");
+      }
     }
   };
 
