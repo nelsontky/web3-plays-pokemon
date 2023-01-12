@@ -8,20 +8,20 @@ import * as anchor from "@project-serum/anchor";
 import { SolanaPlaysPokemonProgram } from "solana-plays-pokemon-program";
 import { GAME_DATA_ACCOUNT_PUBLIC_KEY, PROGRAM_PUBLIC_KEY } from "../constants";
 import { RootState } from "../store";
-import { BUTTON_ID_TO_ENUM, JoypadButton } from "common";
+import { BUTTON_ID_TO_ENUM } from "common";
 
-const NUMBER_OF_STATES_TO_LOAD = 20;
+const NUMBER_OF_STATES_TO_LOAD = 2;
 
 interface GameState {
+  version: number;
+
   accountPublicKey: string;
 
   index: number;
 
-  votes: number[];
+  buttonPresses: number[];
 
   createdAt: number;
-
-  executedButton: JoypadButton;
 
   framesImageCid: string;
   saveStateCid: string;
@@ -67,10 +67,10 @@ export const fetchInitialGameStates = createAsyncThunk(
     );
 
     type RawGameState = Awaited<
-      ReturnType<typeof program.account.gameStateV3.fetch>
+      ReturnType<typeof program.account.gameStateV4.fetch>
     >;
     const existingGameStates = (
-      await program.account.gameStateV3.fetchMultiple(gameStatesPdas)
+      await program.account.gameStateV4.fetchMultiple(gameStatesPdas)
     ).filter(Boolean) as RawGameState[];
 
     const reduxGameStates: GameState[] = existingGameStates.map((state, i) => ({
@@ -78,6 +78,7 @@ export const fetchInitialGameStates = createAsyncThunk(
       accountPublicKey: gameStatesPdas[i].toBase58(),
       createdAt: state.createdAt.toNumber(),
       executedButton: BUTTON_ID_TO_ENUM[state.executedButton as number],
+      buttonPresses: Array.from(state.buttonPresses),
     }));
 
     return reduxGameStates;

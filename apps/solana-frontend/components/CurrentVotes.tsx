@@ -80,7 +80,7 @@ export default function CurrentVotes() {
       >
         Please send in one last vote for the game to proceed
       </p>
-      <div css={styles.tableContainer}>
+      {/* <div css={styles.tableContainer}>
         <div css={styles.tableWrapper}>
           <table>
             <tbody>
@@ -148,7 +148,7 @@ export default function CurrentVotes() {
             </tbody>
           </table>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
