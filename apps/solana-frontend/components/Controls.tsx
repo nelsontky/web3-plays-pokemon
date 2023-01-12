@@ -7,9 +7,6 @@ import * as anchor from "@project-serum/anchor";
 import { GAME_DATA_ACCOUNT_PUBLIC_KEY } from "../constants";
 import useTxSnackbar from "../hooks/useTxSnackbar";
 import ControlsBackdrop from "./ControlsBackdrop";
-import { useState } from "react";
-import TurboDirectionCheckbox from "./TurboDirectionCheckbox";
-import TurboAbCheckbox from "./TurboAbCheckbox";
 
 const styles = {
   root: tw`
@@ -17,6 +14,7 @@ const styles = {
     p-2
     pr-4
     pb-4
+    mt-6
   `,
   mainButtons: tw`
     flex

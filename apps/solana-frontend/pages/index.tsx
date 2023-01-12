@@ -7,7 +7,7 @@ import GameCanvas from "../components/GameCanvas";
 import GameState from "../components/GameState";
 import HowToPlay from "../components/HowToPlay";
 import SocialLinks from "../components/SocialLinks";
-import VotesHistory from "../components/VotesHistory";
+// import VotesHistory from "../components/VotesHistory";
 
 const ChatWidgetDynamic = dynamic(
   async () => await import("../components/ChatWidget"),
@@ -56,7 +56,7 @@ export default function Web() {
           <HowToPlay />
         </div>
       </div>
-      <VotesHistory />
+      {/* <VotesHistory /> */}
       <ChatWidgetDynamic />
     </div>
   );
