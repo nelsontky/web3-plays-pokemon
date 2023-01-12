@@ -48,7 +48,7 @@ export type SolanaPlaysPokemonProgram = {
       ]
     },
     {
-      "name": "vote",
+      "name": "sendButton",
       "accounts": [
         {
           "name": "gameState",
@@ -129,7 +129,7 @@ export type SolanaPlaysPokemonProgram = {
       ]
     },
     {
-      "name": "migrateGameStateToV3",
+      "name": "migrateGameStateToV4",
       "accounts": [
         {
           "name": "gameState",
@@ -196,6 +196,38 @@ export type SolanaPlaysPokemonProgram = {
           {
             "name": "authority",
             "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "gameStateV4",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "version",
+            "type": "u8"
+          },
+          {
+            "name": "index",
+            "type": "u32"
+          },
+          {
+            "name": "buttonPresses",
+            "type": "bytes"
+          },
+          {
+            "name": "createdAt",
+            "type": "i64"
+          },
+          {
+            "name": "framesImageCid",
+            "type": "string"
+          },
+          {
+            "name": "saveStateCid",
+            "type": "string"
           }
         ]
       }
@@ -383,8 +415,13 @@ export type SolanaPlaysPokemonProgram = {
       "name": "ExecuteGameState",
       "fields": [
         {
-          "name": "executedButton",
-          "type": "i8",
+          "name": "buttonPresses",
+          "type": {
+            "array": [
+              "u8",
+              10
+            ]
+          },
           "index": false
         },
         {
@@ -469,7 +506,7 @@ export const IDL: SolanaPlaysPokemonProgram = {
       ]
     },
     {
-      "name": "vote",
+      "name": "sendButton",
       "accounts": [
         {
           "name": "gameState",
@@ -550,7 +587,7 @@ export const IDL: SolanaPlaysPokemonProgram = {
       ]
     },
     {
-      "name": "migrateGameStateToV3",
+      "name": "migrateGameStateToV4",
       "accounts": [
         {
           "name": "gameState",
@@ -617,6 +654,38 @@ export const IDL: SolanaPlaysPokemonProgram = {
           {
             "name": "authority",
             "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "gameStateV4",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "version",
+            "type": "u8"
+          },
+          {
+            "name": "index",
+            "type": "u32"
+          },
+          {
+            "name": "buttonPresses",
+            "type": "bytes"
+          },
+          {
+            "name": "createdAt",
+            "type": "i64"
+          },
+          {
+            "name": "framesImageCid",
+            "type": "string"
+          },
+          {
+            "name": "saveStateCid",
+            "type": "string"
           }
         ]
       }
@@ -804,8 +873,13 @@ export const IDL: SolanaPlaysPokemonProgram = {
       "name": "ExecuteGameState",
       "fields": [
         {
-          "name": "executedButton",
-          "type": "i8",
+          "name": "buttonPresses",
+          "type": {
+            "array": [
+              "u8",
+              10
+            ]
+          },
           "index": false
         },
         {

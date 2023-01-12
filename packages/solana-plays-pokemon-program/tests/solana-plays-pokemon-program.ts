@@ -57,36 +57,26 @@ describe("solana-plays-pokemon-program", () => {
     );
     assert.isFalse(gameDataAccount.isExecuting);
 
-    const gameStateAccount = await program.account.gameStateV3.fetch(
+    const gameStateAccount = await program.account.gameStateV4.fetch(
       gameStatePda
     );
     assert.strictEqual(gameStateAccount.index, 0);
 
-    assert.deepEqual(
-      gameStateAccount.votes,
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    );
+    assert.strictEqual(gameStateAccount.buttonPresses.length, 0);
 
     assert.isAbove(gameStateAccount.createdAt.toNumber(), 0);
-
-    assert.strictEqual(gameStateAccount.executedButton, -1);
 
     assert.strictEqual(gameStateAccount.framesImageCid, FRAMES_IMAGES_CID);
     assert.strictEqual(gameStateAccount.saveStateCid, SAVE_STATE_CID);
 
-    const nextGameStateAccount = await program.account.gameStateV3.fetch(
+    const nextGameStateAccount = await program.account.gameStateV4.fetch(
       nextGameStatePda
     );
     assert.strictEqual(nextGameStateAccount.index, 1);
 
-    assert.deepEqual(
-      nextGameStateAccount.votes,
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    );
+    assert.strictEqual(nextGameStateAccount.buttonPresses.length, 0);
 
     assert.isAbove(nextGameStateAccount.createdAt.toNumber(), 0);
-
-    assert.strictEqual(nextGameStateAccount.executedButton, -1);
 
     assert.strictEqual(nextGameStateAccount.framesImageCid, "");
     assert.strictEqual(nextGameStateAccount.saveStateCid, "");
@@ -126,7 +116,7 @@ describe("solana-plays-pokemon-program", () => {
 
     try {
       await program.methods
-        .vote(9) // A
+        .sendButton(9) // A
         .accounts({
           gameState: invalidNextGameStatePda,
           gameData: gameData.publicKey,
@@ -162,7 +152,7 @@ describe("solana-plays-pokemon-program", () => {
 
     try {
       await program.methods
-        .vote(9) // A
+        .sendButton(9) // A
         .accounts({
           gameState: invalidGameStatePda,
           gameData: gameData.publicKey,
@@ -198,7 +188,7 @@ describe("solana-plays-pokemon-program", () => {
 
     try {
       await program.methods
-        .vote(15)
+        .sendButton(13)
         .accounts({
           gameState: gameStatePda,
           gameData: gameData.publicKey,
@@ -233,7 +223,7 @@ describe("solana-plays-pokemon-program", () => {
     );
 
     await program.methods
-      .vote(9) // A
+      .sendButton(9) // A
       .accounts({
         gameState: gameStatePda,
         gameData: gameData.publicKey,
@@ -244,7 +234,7 @@ describe("solana-plays-pokemon-program", () => {
       .rpc();
 
     await program.methods
-      .vote(10) // B
+      .sendButton(10) // B
       .accounts({
         gameState: gameStatePda,
         gameData: gameData.publicKey,
@@ -254,14 +244,12 @@ describe("solana-plays-pokemon-program", () => {
       })
       .rpc();
 
-    const currentGameState = await program.account.gameStateV3.fetch(
+    const currentGameState = await program.account.gameStateV4.fetch(
       gameStatePda
     );
 
-    assert.deepEqual(
-      currentGameState.votes,
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0]
-    );
+    assert.strictEqual(currentGameState.buttonPresses.readUInt8(), 9);
+    assert.strictEqual(currentGameState.buttonPresses.readUInt8(1), 10);
   });
 
   it("Does not allow update of executed game state when not executing", async () => {
