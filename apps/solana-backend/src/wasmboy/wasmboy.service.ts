@@ -81,12 +81,11 @@ export class WasmboyService {
     const framesToExecutePerStep = frames / FRAMES_TO_DRAW_PER_EXECUTION;
     const framesImageData: number[][] = [];
     for (let i = 0; i < FRAMES_TO_DRAW_PER_EXECUTION; i++) {
-      this.setJoypadState(
-        wasmBoy,
-        buttonPresses[
-          Math.floor(i / (FRAMES_TO_DRAW_PER_EXECUTION / MAX_BUTTONS_PER_ROUND))
-        ],
-      );
+      if (Math.floor(i / 2) < buttonPresses.length) {
+        this.setJoypadState(wasmBoy, buttonPresses[Math.floor(i / 2)]);
+      } else {
+        this.setJoypadState(wasmBoy, null);
+      }
 
       wasmBoy.executeMultipleFrames(framesToExecutePerStep);
       framesImageData.push(

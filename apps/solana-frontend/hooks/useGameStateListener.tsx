@@ -49,8 +49,7 @@ export default function useGameStateListener() {
                 ...account,
                 accountPublicKey: gameStatePda.toBase58(),
                 createdAt: account.createdAt.toNumber(),
-                executedButton:
-                  BUTTON_ID_TO_ENUM[account.executedButton as number],
+                buttonPresses: Array.from(account.buttonPresses),
               })
             );
 
@@ -89,8 +88,7 @@ export default function useGameStateListener() {
                   ...gameState,
                   accountPublicKey: gameStatePda.toBase58(),
                   createdAt: gameState.createdAt.toNumber(),
-                  executedButton:
-                    BUTTON_ID_TO_ENUM[gameState.executedButton as number],
+                  buttonPresses: Array.from(gameState.buttonPresses),
                 })
               );
             }

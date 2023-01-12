@@ -18,7 +18,9 @@ export class IpfsService {
   }
 
   async upload(data: Uint8Array) {
-    this.uploadToPinningService(data);
+    if (process.env.NODE_ENV === "development") {
+      return this.uploadToPinningService(data);
+    }
 
     const { cid } = await this.client.add(data, {
       cidVersion: 1,

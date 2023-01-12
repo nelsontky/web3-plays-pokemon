@@ -1,4 +1,4 @@
-import { VOTE_SECONDS } from "common";
+import { BUTTON_ID_TO_ENUM, VOTE_SECONDS } from "common";
 import { useEffect, useState } from "react";
 import tw from "twin.macro";
 import { useAppSelector } from "../hooks/redux";
@@ -22,7 +22,6 @@ const styles = {
     mt-4
     flex
     flex-wrap
-    justify-center
     items-start
   `,
   tableWrapper: tw`
@@ -69,7 +68,7 @@ export default function CurrentVotes() {
 
   return (
     <div css={styles.root}>
-      <h2 css={styles.header}>Time left for vote</h2>
+      <h2 css={styles.header}>Time left</h2>
       <p css={styles.timeLeft}>{secondsLeft}</p>
       <p
         css={[
@@ -78,77 +77,20 @@ export default function CurrentVotes() {
           secondsLeft === "0s" && tw`visible`,
         ]}
       >
-        Please send in one last vote for the game to proceed
+        Please send in one last button for the game to proceed
       </p>
-      {/* <div css={styles.tableContainer}>
-        <div css={styles.tableWrapper}>
-          <table>
-            <tbody>
-              <tr>
-                <th css={styles.textHeader}>Round</th>
-                <th>
-                  <SmallControl>↑</SmallControl>
-                </th>
-                <th>
-                  <SmallControl>↓</SmallControl>
-                </th>
-                <th>
-                  <SmallControl>←</SmallControl>
-                </th>
-                <th>
-                  <SmallControl>→</SmallControl>
-                </th>
-                <th>
-                  <SmallControl>A</SmallControl>
-                </th>
-                <th>
-                  <SmallControl>B</SmallControl>
-                </th>
-              </tr>
-              <tr>
-                <td css={styles.tableData}>{executedStatesCount}</td>
-                <td css={styles.tableData}>{currentState?.votes[1] ?? 0}</td>
-                <td css={styles.tableData}>{currentState?.votes[2] ?? 0}</td>
-                <td css={styles.tableData}>{currentState?.votes[3] ?? 0}</td>
-                <td css={styles.tableData}>{currentState?.votes[4] ?? 0}</td>
-                <td css={styles.tableData}>{currentState?.votes[9] ?? 0}</td>
-                <td css={styles.tableData}>{currentState?.votes[10] ?? 0}</td>
-              </tr>
-              <tr>
-                <td css={styles.tableData}>Turbo:</td>
-                <td css={styles.tableData}>{currentState?.votes[5] ?? 0}</td>
-                <td css={styles.tableData}>{currentState?.votes[6] ?? 0}</td>
-                <td css={styles.tableData}>{currentState?.votes[7] ?? 0}</td>
-                <td css={styles.tableData}>{currentState?.votes[8] ?? 0}</td>
-                <td css={styles.tableData}>{currentState?.votes[13] ?? 0}</td>
-                <td css={styles.tableData}>{currentState?.votes[14] ?? 0}</td>
-              </tr>
-            </tbody>
-          </table>
+      <div css={tw`flex items-center gap-4 justify-center`}>
+        <div css={tw`whitespace-nowrap translate-y-3`}>
+          Round {executedStatesCount}:
         </div>
-        <div css={styles.tableWrapper}>
-          <table>
-            <tbody>
-              <tr>
-                <th>
-                  <SmallControl>START</SmallControl>
-                </th>
-                <th>
-                  <SmallControl>SELECT</SmallControl>
-                </th>
-                <th>
-                  <SmallControl>DO NOTHING</SmallControl>
-                </th>
-              </tr>
-              <tr>
-                <td css={styles.tableData}>{currentState?.votes[11] ?? 0}</td>
-                <td css={styles.tableData}>{currentState?.votes[12] ?? 0}</td>
-                <td css={styles.tableData}>{currentState?.votes[0] ?? 0}</td>
-              </tr>
-            </tbody>
-          </table>
+        <div css={styles.tableContainer}>
+          {currentState?.buttonPresses.map((buttonId, i) => {
+            return (
+              <SmallControl key={i}>{BUTTON_ID_TO_ENUM[buttonId]}</SmallControl>
+            );
+          })}
         </div>
-      </div> */}
+      </div>
     </div>
   );
 }
