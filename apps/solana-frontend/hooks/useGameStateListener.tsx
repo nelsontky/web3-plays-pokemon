@@ -38,7 +38,7 @@ export default function useGameStateListener() {
         gameStatesStatus === "succeeded" &&
         (didGameStatePdaChange || isInitialSetup.current)
       ) {
-        const emitter = program.account.gameStateV3.subscribe(
+        const emitter = program.account.gameStateV4.subscribe(
           new anchor.web3.PublicKey(gameStatePda)
         );
 
@@ -69,7 +69,7 @@ export default function useGameStateListener() {
       program.account.gameState,
       gameStatePdaPrev,
       didGameStatePdaChange,
-      program.account.gameStateV3,
+      program.account.gameStateV4,
     ]
   );
 
@@ -80,7 +80,7 @@ export default function useGameStateListener() {
 
         (async () => {
           try {
-            const gameState = await program.account.gameStateV3.fetch(
+            const gameState = await program.account.gameStateV4.fetch(
               gameStatePda
             );
             if (!hasUnmounted) {
@@ -111,7 +111,7 @@ export default function useGameStateListener() {
       program.account.gameState,
       gameStatePdaPrev,
       didGameStatePdaChange,
-      program.account.gameStateV3,
+      program.account.gameStateV4,
     ]
   );
 }

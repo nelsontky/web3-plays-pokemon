@@ -248,8 +248,7 @@ describe("solana-plays-pokemon-program", () => {
       gameStatePda
     );
 
-    assert.strictEqual(currentGameState.buttonPresses.readUInt8(), 9);
-    assert.strictEqual(currentGameState.buttonPresses.readUInt8(1), 10);
+    assert.deepEqual(Array.from(currentGameState.buttonPresses), [9, 10]);
   });
 
   it("Does not allow update of executed game state when not executing", async () => {

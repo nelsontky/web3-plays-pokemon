@@ -7,6 +7,7 @@ import {
   GAMEBOY_FPS,
   // GAMEBOY_MEMORY_OFFSET,
   JoypadButton,
+  MAX_BUTTONS_PER_ROUND,
   // LETTER_PRINTING_DELAY_FLAGS_LOCATION,
   NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS,
   TURBO_AB_PRESS_COUNT,
@@ -35,7 +36,7 @@ export class WasmboyService {
 
   constructor(private readonly ipfsService: IpfsService) {}
 
-  async run(joypadButton: JoypadButton, prevSaveStateCid: string) {
+  async run(buttonPresses: JoypadButton[], prevSaveStateCid: string) {
     const [wasmBoy, wasmByteMemory] = await this.getWasmBoyCore();
     await this.loadRom(wasmBoy, wasmByteMemory);
     await this.loadState(wasmBoy, wasmByteMemory, prevSaveStateCid);
@@ -44,7 +45,7 @@ export class WasmboyService {
       wasmBoy,
       wasmByteMemory,
       GAMEBOY_FPS * NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS,
-      joypadButton,
+      buttonPresses,
     );
     const saveState = await this.saveState(wasmBoy, wasmByteMemory);
 
@@ -75,24 +76,29 @@ export class WasmboyService {
     wasmBoy: any,
     wasmByteMemory: Uint8Array,
     frames: number,
-    joypadButton: JoypadButton,
+    buttonPresses: JoypadButton[],
   ) {
-    this.setJoypadState(wasmBoy, joypadButton);
-
     const framesToExecutePerStep = frames / FRAMES_TO_DRAW_PER_EXECUTION;
     const framesImageData: number[][] = [];
     for (let i = 0; i < FRAMES_TO_DRAW_PER_EXECUTION; i++) {
+      this.setJoypadState(
+        wasmBoy,
+        buttonPresses[
+          Math.floor(i / (FRAMES_TO_DRAW_PER_EXECUTION / MAX_BUTTONS_PER_ROUND))
+        ],
+      );
+
       wasmBoy.executeMultipleFrames(framesToExecutePerStep);
       framesImageData.push(
         this.getImageDataFromGraphicsFrameBuffer(wasmBoy, wasmByteMemory),
       );
 
-      this.processJoypadRelease({
-        framesExecuted: (i + 1) * framesToExecutePerStep,
-        totalFramesToExecute: frames,
-        joypadButton,
-        wasmBoy,
-      });
+      // this.processJoypadRelease({
+      //   framesExecuted: (i + 1) * framesToExecutePerStep,
+      //   totalFramesToExecute: frames,
+      //   joypadButton,
+      //   wasmBoy,
+      // });
     }
 
     this.setJoypadState(wasmBoy, null);
@@ -113,56 +119,56 @@ export class WasmboyService {
     return framesImageData;
   }
 
-  private processJoypadRelease({
-    framesExecuted,
-    totalFramesToExecute,
-    joypadButton,
-    wasmBoy,
-  }: {
-    framesExecuted: number;
-    totalFramesToExecute: number;
-    joypadButton: JoypadButton;
-    wasmBoy: any;
-  }) {
-    const framesToHoldButton =
-      joypadButton === JoypadButton.TurboUp ||
-      joypadButton === JoypadButton.TurboDown ||
-      joypadButton === JoypadButton.TurboLeft ||
-      joypadButton === JoypadButton.TurboRight
-        ? TURBO_DIRECTION_PRESS_FRAMES
-        : BUTTON_PRESS_FRAMES;
+  // private processJoypadRelease({
+  //   framesExecuted,
+  //   totalFramesToExecute,
+  //   joypadButton,
+  //   wasmBoy,
+  // }: {
+  //   framesExecuted: number;
+  //   totalFramesToExecute: number;
+  //   joypadButton: JoypadButton;
+  //   wasmBoy: any;
+  // }) {
+  //   const framesToHoldButton =
+  //     joypadButton === JoypadButton.TurboUp ||
+  //     joypadButton === JoypadButton.TurboDown ||
+  //     joypadButton === JoypadButton.TurboLeft ||
+  //     joypadButton === JoypadButton.TurboRight
+  //       ? TURBO_DIRECTION_PRESS_FRAMES
+  //       : BUTTON_PRESS_FRAMES;
 
-    const shouldReleaseJoyPad = framesExecuted >= framesToHoldButton;
-    if (shouldReleaseJoyPad) {
-      this.setJoypadState(wasmBoy, null);
-    }
+  //   const shouldReleaseJoyPad = framesExecuted >= framesToHoldButton;
+  //   if (shouldReleaseJoyPad) {
+  //     this.setJoypadState(wasmBoy, null);
+  //   }
 
-    // turbo AB logic
-    const isTurboAb =
-      joypadButton === JoypadButton.TurboA ||
-      joypadButton === JoypadButton.TurboB;
-    if (isTurboAb) {
-      const turboAbHoldFrames = Math.floor(
-        totalFramesToExecute / TURBO_AB_PRESS_COUNT / 2,
-      );
-      const holdIntervals = Array.from(
-        {
-          length: Math.floor(totalFramesToExecute / turboAbHoldFrames),
-        },
-        (_, i) => ({
-          start: i * turboAbHoldFrames,
-          end: i * turboAbHoldFrames + turboAbHoldFrames - 1,
-        }),
-      ).filter((_, i) => i % 2 === 0);
+  //   // turbo AB logic
+  //   const isTurboAb =
+  //     joypadButton === JoypadButton.TurboA ||
+  //     joypadButton === JoypadButton.TurboB;
+  //   if (isTurboAb) {
+  //     const turboAbHoldFrames = Math.floor(
+  //       totalFramesToExecute / TURBO_AB_PRESS_COUNT / 2,
+  //     );
+  //     const holdIntervals = Array.from(
+  //       {
+  //         length: Math.floor(totalFramesToExecute / turboAbHoldFrames),
+  //       },
+  //       (_, i) => ({
+  //         start: i * turboAbHoldFrames,
+  //         end: i * turboAbHoldFrames + turboAbHoldFrames - 1,
+  //       }),
+  //     ).filter((_, i) => i % 2 === 0);
 
-      const shouldPress = holdIntervals.some(
-        ({ start, end }) => framesExecuted >= start && framesExecuted <= end,
-      );
-      if (shouldPress) {
-        this.setJoypadState(wasmBoy, joypadButton);
-      }
-    }
-  }
+  //     const shouldPress = holdIntervals.some(
+  //       ({ start, end }) => framesExecuted >= start && framesExecuted <= end,
+  //     );
+  //     if (shouldPress) {
+  //       this.setJoypadState(wasmBoy, joypadButton);
+  //     }
+  //   }
+  // }
 
   private async getWasmBoyCore() {
     const wasmBinary = await fs.readFile(

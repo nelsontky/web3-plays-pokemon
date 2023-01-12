@@ -84,10 +84,9 @@ export class ProgramService implements OnModuleDestroy {
             );
             return;
           }
-          const executedButton: number = event.executedButton;
+          const buttonPresses: number[] = event.buttonPresses;
           const gameStateIndex: number = event.index;
-
-          await this.executeGameState(gameStateIndex, executedButton);
+          await this.executeGameState(gameStateIndex, buttonPresses);
           this.logger.log("Execution success");
           return;
         } catch (e) {
@@ -135,7 +134,7 @@ export class ProgramService implements OnModuleDestroy {
 
   private async executeGameState(
     gameStateIndex: number,
-    executedButtonId?: number,
+    eventButtonPresses?: number[],
   ) {
     const gameDataId = new anchor.web3.PublicKey(GAME_DATA_ACCOUNT_ID);
     const [prevGameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
@@ -163,23 +162,24 @@ export class ProgramService implements OnModuleDestroy {
       this.program.programId,
     );
 
-    const prevGameState = await this.program.account.gameStateV3.fetch(
+    const prevGameState = await this.program.account.gameStateV4.fetch(
       prevGameStatePda,
     );
 
-    let joypadButton: JoypadButton;
-    if (executedButtonId === undefined) {
-      const currentGameState = await this.program.account.gameStateV3.fetch(
+    let buttonPresses: JoypadButton[];
+    if (buttonPresses === undefined) {
+      const currentGameState = await this.program.account.gameStateV4.fetch(
         currentGameStatePda,
       );
-      joypadButton =
-        BUTTON_ID_TO_ENUM[currentGameState.executedButton as number];
+      buttonPresses = Array.from(currentGameState.buttonPresses).map(
+        (id) => BUTTON_ID_TO_ENUM[id],
+      );
     } else {
-      joypadButton = BUTTON_ID_TO_ENUM[executedButtonId];
+      buttonPresses = eventButtonPresses.map((id) => BUTTON_ID_TO_ENUM[id]);
     }
 
     const { framesImageDataCid, saveStateCid } = await this.wasmboyService.run(
-      joypadButton,
+      buttonPresses,
       prevGameState.saveStateCid,
     );
 

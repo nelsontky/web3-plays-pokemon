@@ -90,8 +90,10 @@ pub mod solana_plays_pokemon_program {
         if should_execute {
             game_data.is_executing = true;
 
-            let button_presses: [u8; MAX_BUTTONS_PER_ROUND] =
-                game_state.button_presses.as_slice().try_into().unwrap();
+            let mut button_presses: [u8; MAX_BUTTONS_PER_ROUND] = [0; MAX_BUTTONS_PER_ROUND];
+            for i in 0..game_state.button_presses.len() {
+                button_presses[i] = *game_state.button_presses.get(i).unwrap();
+            }
             emit!(ExecuteGameState {
                 button_presses,
                 index: game_data.executed_states_count,
@@ -154,11 +156,12 @@ pub mod solana_plays_pokemon_program {
             &frames_image_cid,
             &save_state_cid,
         );
+        next_game_state.button_presses = vec![0];
 
         let next_next_game_state = &mut ctx.accounts.next_next_game_state;
         init_game_state(
             next_next_game_state,
-            game_data.executed_states_count.checked_sub(1).unwrap(),
+            game_data.executed_states_count,
             ctx.accounts.clock.unix_timestamp,
             &String::from(""),
             &String::from(""),

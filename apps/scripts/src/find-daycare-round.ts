@@ -39,7 +39,7 @@
 //     ],
 //     program.programId
 //   );
-//   const gameState1 = await program.account.gameStateV3.fetch(gameStatePda1);
+//   const gameState1 = await program.account.gameStateV4.fetch(gameStatePda1);
 //   const saveStateCid1 = gameState1.saveStateCid;
 //   const response1 = await axios.get(
 //     `https://${saveStateCid1}.ipfs.cf-ipfs.com`,
@@ -60,7 +60,7 @@
 //     ],
 //     program.programId
 //   );
-//   const gameState2 = await program.account.gameStateV3.fetch(gameStatePda2);
+//   const gameState2 = await program.account.gameStateV4.fetch(gameStatePda2);
 //   const saveStateCid2 = gameState2.saveStateCid;
 //   const response2 = await axios.get(
 //     `https://${saveStateCid2}.ipfs.cf-ipfs.com`,

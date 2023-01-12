@@ -19,7 +19,12 @@ const SAVE_STATE_CID =
 let gameData: anchor.web3.Keypair | null = null;
 try {
   gameData = anchor.web3.Keypair.fromSecretKey(
-    new Uint8Array(/* game data key */)
+    new Uint8Array([
+      161, 173, 112, 25, 69, 98, 145, 80, 51, 69, 162, 97, 151, 25, 151, 215,
+      254, 101, 4, 9, 126, 201, 188, 231, 73, 45, 92, 11, 121, 108, 216, 123,
+      12, 184, 4, 29, 174, 133, 186, 203, 177, 37, 97, 92, 222, 171, 69, 60,
+      135, 103, 185, 143, 199, 70, 245, 70, 138, 20, 112, 35, 160, 104, 252, 5,
+    ])
   );
 } catch {}
 
@@ -81,8 +86,8 @@ export default function Admin() {
         );
       console.log("sending");
 
-      const FRAMES_IMAGES_CID = "";
-      const SAVE_STATE_CID = "";
+      const FRAMES_IMAGES_CID = "bafkreiay7vrduzi234zszhpy6cxqooxa7erg4by2j6def4wajuebkbabs4";
+      const SAVE_STATE_CID = "bafkreic4g747ynwm6vvubrjor6rx7soppnp2dm5muev3ymqfczghipnqem";
 
       if (FRAMES_IMAGES_CID.length > 0 && SAVE_STATE_CID.length > 0) {
         await program.methods
