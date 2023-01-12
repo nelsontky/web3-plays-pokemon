@@ -1,4 +1,5 @@
 import {
+  MAX_BUTTONS_PER_ROUND,
   NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS,
   VOTE_SECONDS,
 } from "common";
@@ -24,29 +25,20 @@ export default function HowToPlay() {
     <div css={styles.root} id="how-to-play">
       <h1 css={styles.header}>How to play</h1>
       <p css={styles.text}>
-        Button presses for the game are voted on and decided by all the players!
-        To get started, just connect any supported wallet. Afterwards, click on
-        any of the above buttons to send in a vote to the blockchain!
+        Button presses for the game are decided by all the players! To get
+        started, just connect any supported wallet. Afterwards, click on any of
+        the above buttons to send in a button press to the blockchain!
       </p>
       <p css={styles.text}>
-        Votes are counted every{" "}
-        <span css={tw`font-bold`}>{VOTE_SECONDS} seconds</span>. The first vote
-        after {VOTE_SECONDS} seconds will trigger the counting of the votes and
-        this first vote will also be included in the final vote count.
-      </p>
-      <p css={styles.text}>
-        After the votes are counted, the most voted upon button will be pressed
-        and the game will be executed for{" "}
-        <span css={tw`font-bold`}>
-          {NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS} seconds
-        </span>{" "}
-        (i.e. the game will progress for{" "}
-        {NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS} seconds after each round
-        of voting).
+        One round lasts for {VOTE_SECONDS} seconds, and the first{" "}
+        {MAX_BUTTONS_PER_ROUND} button presses in a round are executed. If there
+        were less than {MAX_BUTTONS_PER_ROUND} button presses after the round
+        ends, the first button press after the round ends will be the last
+        button executed for that round.
       </p>
       <p css={styles.text}>
         After game execution (execution should not take more than a couple of
-        seconds), the next round of voting will then open up.
+        seconds), the next round will then open up.
       </p>
     </div>
   );
