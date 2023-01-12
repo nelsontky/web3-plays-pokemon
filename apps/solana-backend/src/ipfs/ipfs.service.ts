@@ -18,6 +18,8 @@ export class IpfsService {
   }
 
   async upload(data: Uint8Array) {
+    this.uploadToPinningService(data);
+
     const { cid } = await this.client.add(data, {
       cidVersion: 1,
     });
@@ -26,9 +28,14 @@ export class IpfsService {
   }
 
   async download(cid: string) {
-    const response = await axios.get(`https://${cid}.ipfs.cf-ipfs.com`, {
-      responseType: "arraybuffer",
-    });
+    const response = await Promise.any([
+      axios.get(`http://localhost:8080/ipfs/${cid}`, {
+        responseType: "arraybuffer",
+      }),
+      axios.get(`https://${cid}.ipfs.cf-ipfs.com`, {
+        responseType: "arraybuffer",
+      }),
+    ]);
 
     return response.data;
   }
@@ -50,20 +57,27 @@ export class IpfsService {
       if (this.pinningProvider === "nft.storage") {
         try {
           cid = await this.uploadToNftStorage(data);
+          this.logger.log(
+            `Pinned ${cid} successfully on ${this.pinningProvider}`,
+          );
           return cid;
         } catch (e) {
-          this.logger.warn(
-            `nft.storage error: ${e}. Trying web3.storage on next run.`,
-          );
           this.pinningProvider = "web3.storage";
+          this.logger.warn(
+            `nft.storage error for cid ${cid}. Trying web3.storage on next run.`,
+          );
         }
       } else {
         try {
           cid = await this.uploadToWeb3Storage(data);
+          this.logger.log(
+            `Pinned ${cid} successfully on ${this.pinningProvider}`,
+          );
+          return cid;
         } catch (e) {
           this.pinningProvider = "nft.storage";
           this.logger.warn(
-            `web3.storage error: ${e}. Trying nft.storage on next run, fingers crossed...`,
+            `web3.storage error for cid ${cid}. Trying nft.storage on next run.`,
           );
         }
       }
@@ -72,11 +86,11 @@ export class IpfsService {
         setTimeout(resolve, 500);
       });
     }
-
-    return cid;
   }
 
   private async uploadToNftStorage(data: Uint8Array) {
+    this.logger.log("Uploading to nft.storage");
+
     const client = new NFTStorage({ token: process.env.NFT_STORAGE_TOKEN });
     const cid = await client.storeBlob(new Blob([data]));
     return cid.toString();
