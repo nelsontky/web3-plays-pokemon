@@ -17,24 +17,27 @@ const styles = {
     text-2xl
     leading-5
     text-center
+    invisible 
+    underline
 `,
-  tableContainer: tw`
-    mt-4
+  buttonList: tw`
     flex
     flex-wrap
     items-start
   `,
-  tableWrapper: tw`
-    min-h-[72px]
-  `,
-  tableData: tw`
-    text-center
-    align-top
-    leading-none
-  `,
   textHeader: tw`
     px-1
   `,
+  roundText: tw`
+    whitespace-nowrap 
+    translate-y-3
+  `,
+  buttonPresses: tw`
+    flex 
+    gap-4 
+    justify-center 
+    min-h-[52px] 
+    mt-4`,
 };
 
 export default function CurrentVotes() {
@@ -44,6 +47,8 @@ export default function CurrentVotes() {
   const currentState = useAppSelector((state) =>
     selectGameStateById(state, executedStatesCount)
   );
+  const hasButtonPresses =
+    currentState && currentState.buttonPresses.length > 0;
 
   const [secondsLeft, setSecondsLeft] = useState<string>("0");
   useEffect(
@@ -68,27 +73,19 @@ export default function CurrentVotes() {
 
   return (
     <div css={styles.root}>
-      <h2 css={styles.header}>Time left</h2>
+      <h2 css={styles.header}>Time left for round {executedStatesCount}</h2>
       <p css={styles.timeLeft}>{secondsLeft}</p>
-      <p
-        css={[
-          styles.timeLeft,
-          tw`invisible underline`,
-          secondsLeft === "0s" && tw`visible`,
-        ]}
-      >
+      <p css={[styles.timeLeft, secondsLeft === "0s" && tw`visible`]}>
         Please send in one last button for the game to proceed
       </p>
-      <div css={tw`flex items-center gap-4 justify-center`}>
-        <div css={tw`whitespace-nowrap translate-y-3`}>
-          Round {executedStatesCount}:
+      <div css={styles.buttonPresses}>
+        <div css={[styles.roundText, !hasButtonPresses && tw`invisible`]}>
+          Buttons to execute for round {executedStatesCount}:
         </div>
-        <div css={styles.tableContainer}>
-          {currentState?.buttonPresses.map((buttonId, i) => {
-            return (
-              <SmallControl key={i}>{BUTTON_ID_TO_ENUM[buttonId]}</SmallControl>
-            );
-          })}
+        <div css={styles.buttonList}>
+          {currentState?.buttonPresses.map((buttonId, i) => (
+            <SmallControl key={i}>{BUTTON_ID_TO_ENUM[buttonId]}</SmallControl>
+          ))}
         </div>
       </div>
     </div>
