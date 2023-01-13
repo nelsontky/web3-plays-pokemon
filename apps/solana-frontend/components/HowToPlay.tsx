@@ -27,7 +27,7 @@ export default function HowToPlay() {
       <p css={styles.text}>
         Button presses for the game are decided by all the players! To get
         started, just connect any supported wallet. Afterwards, click on any of
-        the above buttons to send in a button press to the blockchain!
+        the gamepad buttons to send in a button press to the blockchain!
       </p>
       <p css={styles.text}>
         One round lasts for {VOTE_SECONDS} seconds, and the first{" "}
