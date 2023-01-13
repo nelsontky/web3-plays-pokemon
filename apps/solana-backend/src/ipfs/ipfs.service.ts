@@ -30,14 +30,20 @@ export class IpfsService {
   }
 
   async download(cid: string) {
+    const abortControllers = [new AbortController(), new AbortController()];
     const response = await Promise.any([
       axios.get(`http://localhost:8080/ipfs/${cid}`, {
         responseType: "arraybuffer",
+        signal: abortControllers[0].signal,
       }),
       axios.get(`https://${cid}.ipfs.cf-ipfs.com`, {
         responseType: "arraybuffer",
+        signal: abortControllers[1].signal,
       }),
     ]);
+    abortControllers.map((controller) => {
+      controller.abort();
+    });
 
     return response.data;
   }

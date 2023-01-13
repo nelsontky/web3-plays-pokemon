@@ -15,22 +15,32 @@ export default function useGameStateCidData<T>(ipfsCid: string | undefined) {
 
           while (responseData === undefined) {
             try {
+              const abortControllers = [
+                new AbortController(),
+                new AbortController(),
+              ];
               const response = await Promise.any([
+                axios.get(`https://ipfs.playspokemon.xyz/ipfs/${ipfsCid}`, {
+                  responseType: "arraybuffer",
+                  signal: abortControllers[0].signal,
+                }),
                 axios.get(`/api/ipfs/${ipfsCid}`, {
                   responseType: "arraybuffer",
-                }),
-                axios.get(`https://${ipfsCid}.ipfs.cf-ipfs.com`, {
-                  responseType: "arraybuffer",
+                  signal: abortControllers[1].signal,
                 }),
               ]);
               responseData = response.data;
+              abortControllers.forEach((controller) => {
+                controller.abort();
+              });
+
               if (hasUnmounted) {
                 return;
               }
             } catch {
               try {
                 const response = await axios.get(
-                  `https://${ipfsCid}.ipfs.nftstorage.link/`,
+                  `https://${ipfsCid}.ipfs.cf-ipfs.com`,
                   {
                     responseType: "arraybuffer",
                   }
@@ -42,7 +52,7 @@ export default function useGameStateCidData<T>(ipfsCid: string | undefined) {
               } catch {
                 try {
                   const response = await axios.get(
-                    `https://${ipfsCid}.ipfs.w3s.link/`,
+                    `https://${ipfsCid}.ipfs.nftstorage.link/`,
                     {
                       responseType: "arraybuffer",
                     }
@@ -52,9 +62,22 @@ export default function useGameStateCidData<T>(ipfsCid: string | undefined) {
                     return;
                   }
                 } catch {
-                  await new Promise((resolve) => {
-                    setTimeout(resolve, 5000);
-                  });
+                  try {
+                    const response = await axios.get(
+                      `https://${ipfsCid}.ipfs.w3s.link/`,
+                      {
+                        responseType: "arraybuffer",
+                      }
+                    );
+                    responseData = response.data;
+                    if (hasUnmounted) {
+                      return;
+                    }
+                  } catch {
+                    await new Promise((resolve) => {
+                      setTimeout(resolve, 500);
+                    });
+                  }
                 }
               }
             }
