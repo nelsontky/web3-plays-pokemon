@@ -30,7 +30,7 @@ export default function AppBar() {
         <h1 css={styles.header}>Solana Plays Pokemon</h1>
         <div css={tw`flex gap-4 items-center`}>
           <button
-            css={tw`underline text-xl cursor-pointer`}
+            css={tw`xl:hidden underline text-xl cursor-pointer`}
             onClick={() => {
               document.getElementById("how-to-play")?.scrollIntoView();
             }}
