@@ -10,14 +10,14 @@ import useItemsData from "./useItemsData";
 const styles = {
   root: tw`
     flex
-    flex-wrap
     gap-8
-    w-[360px]
-    max-w-2xl
   `,
   header: tw`
     text-4xl
     mb-4
+  `,
+  section: tw`
+    w-1/3
   `,
 };
 
@@ -34,17 +34,17 @@ export default function GameState() {
 
   return (
     <div css={styles.root}>
-      <div>
+      <div css={styles.section}>
         <h1 css={styles.header}>Badges</h1>
         <BadgesDisplay badges={badges} />
       </div>
-      <div>
+      <div css={styles.section}>
         <h1 css={styles.header}>Pokemon in party</h1>
         {pokemons.map((pokemon) => (
           <PokemonDisplay pokemon={pokemon} key={JSON.stringify(pokemon)} />
         ))}
       </div>
-      <div>
+      <div css={styles.section}>
         <h1 css={styles.header}>Items in bag</h1>
         {items.map((item) => (
           <ItemDisplay item={item} key={item.name} />

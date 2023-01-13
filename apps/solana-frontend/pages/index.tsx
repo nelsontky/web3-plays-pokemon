@@ -18,9 +18,35 @@ const ChatWidgetDynamic = dynamic(
 
 const DESCRIPTION = "Play Pokemon collaboratively on the Solana blockchain!";
 
+const styles = {
+  root: tw`
+    px-4
+    pb-8
+    max-w-3xl
+    mx-auto
+
+    xl:max-w-none
+    xl:px-12
+  `,
+  section: tw`
+    mx-auto
+
+    xl:grow 
+    xl:w-1/3
+  `,
+  sectionsContainer: tw`
+    flex-wrap
+    flex 
+    justify-center 
+    gap-6
+
+    xl:flex-nowrap
+  `,
+};
+
 export default function Web() {
   return (
-    <div css={tw`px-4 pb-8`}>
+    <div css={styles.root}>
       <Head>
         <title>Solana Plays Pokemon</title>
         <meta name="description" content={DESCRIPTION} key="desc" />
@@ -45,18 +71,36 @@ export default function Web() {
         />
       </Head>
       <SocialLinks />
-      <div css={tw`flex justify-center flex-wrap gap-6`}>
-        <div css={tw`max-w-2xl grow`}>
+      {/* Mobile */}
+      <div css={[styles.sectionsContainer, tw`xl:hidden`]}>
+        <div css={styles.section}>
           <GameCanvas />
           <CurrentVotes />
           <Controls />
         </div>
-        <GameState />
-        <div css={tw`max-w-2xl`}>
+        <div css={styles.section}>
+          <GameState />
+          <HowToPlay />
+        </div>
+        <div css={styles.section}>
+          <VotesHistory />
+        </div>
+      </div>
+      {/* Desktop */}
+      <div css={[styles.sectionsContainer, tw`hidden xl:flex`]}>
+        <div css={styles.section}>
+          <GameState />
+        </div>
+        <div css={styles.section}>
+          <GameCanvas />
+          <CurrentVotes />
+          <Controls />
+          <VotesHistory />
+        </div>
+        <div css={styles.section}>
           <HowToPlay />
         </div>
       </div>
-      <VotesHistory />
       <ChatWidgetDynamic />
     </div>
   );
