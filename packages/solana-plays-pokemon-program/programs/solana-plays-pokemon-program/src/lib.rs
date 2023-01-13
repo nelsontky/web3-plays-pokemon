@@ -85,7 +85,7 @@ pub mod solana_plays_pokemon_program {
         game_state.button_presses.push(joypad_button);
 
         // execute if game state is at least 10 seconds old or we have hit 10 button presses
-        let should_execute = game_state.button_presses.len() >= 10
+        let should_execute = game_state.button_presses.len() >= MAX_BUTTONS_PER_ROUND
             || (ctx.accounts.clock.unix_timestamp - game_state.created_at >= VOTE_SECONDS);
         if should_execute {
             game_data.is_executing = true;

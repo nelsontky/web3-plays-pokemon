@@ -5,12 +5,9 @@ export const GAMEBOY_CAMERA_HEIGHT = 144;
 export const GAMEBOY_FPS = 60;
 
 export const FRAMES_TO_DRAW_PER_EXECUTION = 30;
+export const MAX_BUTTONS_PER_ROUND = 10; // cannot be more than half of FRAMES_TO_DRAW_PER_EXECUTION
 export const NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS = 5;
 export const MAX_MESSAGE_LENGTH = 2200;
-export const MAX_BUTTONS_PER_ROUND = 10;
-export const BUTTON_PRESS_FRAMES = 0.05 * GAMEBOY_FPS;
-export const TURBO_DIRECTION_PRESS_FRAMES = 2 * GAMEBOY_FPS;
-export const TURBO_AB_PRESS_COUNT = 3; // Press A / B 3 times in turbo mode
 
 export const VOTE_SECONDS = 10;
 
