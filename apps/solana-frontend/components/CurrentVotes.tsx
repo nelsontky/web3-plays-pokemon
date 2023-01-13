@@ -84,7 +84,7 @@ export default function CurrentVotes() {
       </p>
       <div css={styles.buttonPresses}>
         <div css={[styles.roundText, !hasButtonPresses && tw`invisible`]}>
-          Buttons to execute for round {executedStatesCount}:
+          Buttons to execute:
         </div>
         <div css={styles.buttonList}>
           {currentState?.buttonPresses.map((buttonId, i) => (
