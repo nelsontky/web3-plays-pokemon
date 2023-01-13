@@ -17,8 +17,6 @@ const styles = {
     text-2xl
     leading-5
     text-center
-    invisible 
-    underline
 `,
   buttonList: tw`
     flex
@@ -75,7 +73,13 @@ export default function CurrentVotes() {
     <div css={styles.root}>
       <h2 css={styles.header}>Time left for round {executedStatesCount}</h2>
       <p css={styles.timeLeft}>{secondsLeft}</p>
-      <p css={[styles.timeLeft, secondsLeft === "0s" && tw`visible`]}>
+      <p
+        css={[
+          styles.timeLeft,
+          tw`invisible underline`,
+          secondsLeft === "0s" && tw`visible`,
+        ]}
+      >
         Please send in one last button for the game to proceed
       </p>
       <div css={styles.buttonPresses}>

@@ -10,7 +10,7 @@ import { GAME_DATA_ACCOUNT_PUBLIC_KEY, PROGRAM_PUBLIC_KEY } from "../constants";
 import { RootState } from "../store";
 import { BUTTON_ID_TO_ENUM } from "common";
 
-const NUMBER_OF_STATES_TO_LOAD = 2;
+const NUMBER_OF_STATES_TO_LOAD = 20;
 
 interface GameState {
   version: number;
