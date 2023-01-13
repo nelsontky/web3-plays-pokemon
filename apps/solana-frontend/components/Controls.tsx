@@ -14,7 +14,6 @@ const styles = {
     p-2
     pr-4
     pb-4
-    mt-6
   `,
   mainButtons: tw`
     flex
