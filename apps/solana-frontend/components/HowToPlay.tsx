@@ -32,9 +32,9 @@ export default function HowToPlay() {
       <p css={styles.text}>
         One round lasts for {VOTE_SECONDS} seconds, and the first{" "}
         {MAX_BUTTONS_PER_ROUND} button presses in a round are executed. If there
-        were less than {MAX_BUTTONS_PER_ROUND} button presses after the round
-        ends, the first button press after the round ends will be the last
-        button executed for that round.
+        are less than {MAX_BUTTONS_PER_ROUND} button presses when a round ends,
+        the first button press after the round ends will be the last button
+        executed for that round.
       </p>
       <p css={styles.text}>
         After game execution (execution should not take more than a couple of
