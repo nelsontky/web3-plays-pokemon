@@ -80,7 +80,7 @@ export default function Web() {
         </div>
         <div css={styles.section}>
           <GameState />
-          <HowToPlay />
+          <HowToPlay id="how-to-play" />
         </div>
         <div css={styles.section}>
           <VotesHistory />

@@ -20,9 +20,9 @@ const styles = {
   `,
 };
 
-export default function HowToPlay() {
+export default function HowToPlay({ id }: { id?: string }) {
   return (
-    <div css={styles.root} id="how-to-play">
+    <div css={styles.root} id={id}>
       <h1 css={styles.header}>How to play</h1>
       <p css={styles.text}>
         Button presses for the game are decided by all the players! To get
