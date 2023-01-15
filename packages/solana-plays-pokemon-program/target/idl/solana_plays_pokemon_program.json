@@ -80,6 +80,10 @@
         {
           "name": "joypadButton",
           "type": "u8"
+        },
+        {
+          "name": "pressCount",
+          "type": "u8"
         }
       ]
     },
@@ -452,9 +456,11 @@
       "code": 6002,
       "name": "InvalidButton",
       "msg": "Invalid button sent."
+    },
+    {
+      "code": 6003,
+      "name": "InvalidButtonPressCount",
+      "msg": "Invalid button press count."
     }
-  ],
-  "metadata": {
-    "address": "pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg"
-  }
+  ]
 }
