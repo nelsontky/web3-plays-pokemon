@@ -8,6 +8,7 @@ import GameState from "../components/GameState";
 import HowToPlay from "../components/HowToPlay";
 import SocialLinks from "../components/SocialLinks";
 import VotesHistory from "../components/VotesHistory";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 const ChatWidgetDynamic = dynamic(
   async () => await import("../components/ChatWidget"),
@@ -45,6 +46,8 @@ const styles = {
 };
 
 export default function Web() {
+  const isWide = useMediaQuery("(min-width:1280px)");
+
   return (
     <div css={styles.root}>
       <Head>
@@ -71,36 +74,40 @@ export default function Web() {
         />
       </Head>
       <SocialLinks />
-      {/* Mobile */}
-      <div css={[styles.sectionsContainer, tw`xl:hidden`]}>
-        <div css={styles.section}>
-          <GameCanvas />
-          <CurrentVotes />
-          <Controls />
+      {isWide ? (
+        // Desktop
+        <div css={[styles.sectionsContainer, tw`hidden xl:flex`]}>
+          <div css={styles.section}>
+            <GameState />
+          </div>
+          <div css={styles.section}>
+            <GameCanvas />
+            <CurrentVotes />
+            <Controls />
+            <VotesHistory />
+          </div>
+          <div css={styles.section}>
+            <HowToPlay />
+          </div>
         </div>
-        <div css={styles.section}>
-          <GameState />
-          <HowToPlay id="how-to-play" />
+      ) : (
+        // Mobile
+        <div css={[styles.sectionsContainer, tw`xl:hidden`]}>
+          <div css={styles.section}>
+            <GameCanvas />
+            <CurrentVotes />
+            <Controls />
+          </div>
+          <div css={styles.section}>
+            <GameState />
+            <HowToPlay id="how-to-play" />
+          </div>
+          <div css={styles.section}>
+            <VotesHistory />
+          </div>
         </div>
-        <div css={styles.section}>
-          <VotesHistory />
-        </div>
-      </div>
-      {/* Desktop */}
-      <div css={[styles.sectionsContainer, tw`hidden xl:flex`]}>
-        <div css={styles.section}>
-          <GameState />
-        </div>
-        <div css={styles.section}>
-          <GameCanvas />
-          <CurrentVotes />
-          <Controls />
-          <VotesHistory />
-        </div>
-        <div css={styles.section}>
-          <HowToPlay />
-        </div>
-      </div>
+      )}
+
       <ChatWidgetDynamic />
     </div>
   );
