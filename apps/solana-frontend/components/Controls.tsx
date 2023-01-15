@@ -4,9 +4,11 @@ import tw from "twin.macro";
 import ControlButton from "./ControlButton";
 import { useMutableProgram } from "../hooks/useProgram";
 import * as anchor from "@project-serum/anchor";
-import { GAME_DATA_ACCOUNT_PUBLIC_KEY } from "../constants";
+import { GAME_DATA_ACCOUNT_PUBLIC_KEY, POKEMON_PIXEL_FONT } from "../constants";
 import useTxSnackbar from "../hooks/useTxSnackbar";
 import ControlsBackdrop from "./ControlsBackdrop";
+import { useState } from "react";
+import HelpfulCheckbox from "./HelpfulCheckbox";
 
 const styles = {
   root: tw`
@@ -55,6 +57,7 @@ const styles = {
 export default function Controls() {
   const program = useMutableProgram();
   const { enqueueSnackbar, closeSnackbar } = useTxSnackbar();
+  const [pressCount, setPressCount] = useState<1 | 2>(1);
 
   const executeGame = async (joypadButton: JoypadButton) => {
     if (program) {
@@ -82,7 +85,7 @@ export default function Controls() {
 
       try {
         const txId = await program.methods
-          .sendButton(joypadEnumToButtonId(joypadButton))
+          .sendButton(joypadEnumToButtonId(joypadButton), pressCount)
           .accounts({
             gameState: gameStatePda,
             gameData: GAME_DATA_ACCOUNT_PUBLIC_KEY,
@@ -120,85 +123,106 @@ export default function Controls() {
   };
 
   return (
-    <div css={styles.root}>
-      <ControlsBackdrop />
-      <div css={styles.mainButtons}>
-        <div css={styles.directionalPadContainer}>
-          <div css={styles.padUpContainer}>
-            <div css={styles.padUpNeighbor} />
-            <ControlButton
-              onClick={() => {
-                executeGame(JoypadButton.Up);
-              }}
-            >
-              ↑
-            </ControlButton>
-            <div css={styles.padUpNeighbor} />
+    <>
+      <div>
+        <HelpfulCheckbox
+          checked={pressCount === 2}
+          setChecked={(isChecked) => {
+            if (isChecked) {
+              setPressCount(2);
+            } else {
+              setPressCount(1);
+            }
+          }}
+          helpContent={
+            <span className={POKEMON_PIXEL_FONT.className} css={tw`text-base`}>
+              Enabling Turbo mode will send in 2 button presses per click
+            </span>
+          }
+        >
+          Turbo mode
+        </HelpfulCheckbox>
+      </div>
+      <div css={styles.root}>
+        <ControlsBackdrop />
+        <div css={styles.mainButtons}>
+          <div css={styles.directionalPadContainer}>
+            <div css={styles.padUpContainer}>
+              <div css={styles.padUpNeighbor} />
+              <ControlButton
+                onClick={() => {
+                  executeGame(JoypadButton.Up);
+                }}
+              >
+                ↑
+              </ControlButton>
+              <div css={styles.padUpNeighbor} />
+            </div>
+            <div css={tw`flex`}>
+              <ControlButton
+                onClick={() => {
+                  executeGame(JoypadButton.Left);
+                }}
+              >
+                ←
+              </ControlButton>
+              <ControlButton
+                onClick={() => {
+                  executeGame(JoypadButton.Down);
+                }}
+              >
+                ↓
+              </ControlButton>
+              <ControlButton
+                onClick={() => {
+                  executeGame(JoypadButton.Right);
+                }}
+              >
+                →
+              </ControlButton>
+            </div>
           </div>
-          <div css={tw`flex`}>
+          <div css={styles.actionButtons}>
             <ControlButton
               onClick={() => {
-                executeGame(JoypadButton.Left);
+                executeGame(JoypadButton.B);
               }}
             >
-              ←
+              B
             </ControlButton>
             <ControlButton
               onClick={() => {
-                executeGame(JoypadButton.Down);
+                executeGame(JoypadButton.A);
               }}
             >
-              ↓
-            </ControlButton>
-            <ControlButton
-              onClick={() => {
-                executeGame(JoypadButton.Right);
-              }}
-            >
-              →
+              A
             </ControlButton>
           </div>
         </div>
-        <div css={styles.actionButtons}>
+        <div css={styles.menuButtons}>
           <ControlButton
             onClick={() => {
-              executeGame(JoypadButton.B);
+              executeGame(JoypadButton.Select);
             }}
           >
-            B
+            SELECT
           </ControlButton>
           <ControlButton
             onClick={() => {
-              executeGame(JoypadButton.A);
+              executeGame(JoypadButton.Nothing);
             }}
           >
-            A
+            DO NOTHING
+          </ControlButton>
+          <ControlButton
+            onClick={() => {
+              executeGame(JoypadButton.Start);
+            }}
+          >
+            START
           </ControlButton>
         </div>
       </div>
-      <div css={styles.menuButtons}>
-        <ControlButton
-          onClick={() => {
-            executeGame(JoypadButton.Select);
-          }}
-        >
-          SELECT
-        </ControlButton>
-        <ControlButton
-          onClick={() => {
-            executeGame(JoypadButton.Nothing);
-          }}
-        >
-          DO NOTHING
-        </ControlButton>
-        <ControlButton
-          onClick={() => {
-            executeGame(JoypadButton.Start);
-          }}
-        >
-          START
-        </ControlButton>
-      </div>
-    </div>
+    </>
   );
 }

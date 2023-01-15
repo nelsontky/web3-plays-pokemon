@@ -7,7 +7,7 @@
     "dev": "tsc -w --project tsconfig.build.json",
     "main": "./dist/index.js",
     "source": "./index.ts",
-    "deploy": "anchor deploy --provider.cluster Mainnet --provider.wallet target/deploy/program_authority.json"
+    "deploy": "anchor deploy --provider.cluster Mainnet --provider.wallet target/deploy/program_authority.json --program-name solana-plays-pokemon-program --program-keypair target/deploy/mainnet-solana_plays_pokemon_program-keypair.json"
   },
   "dependencies": {
     "@project-serum/anchor": "^0.26.0"
