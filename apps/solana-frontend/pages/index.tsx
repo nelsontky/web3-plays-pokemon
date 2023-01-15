@@ -76,7 +76,7 @@ export default function Web() {
       <SocialLinks />
       {isWide ? (
         // Desktop
-        <div css={[styles.sectionsContainer, tw`hidden xl:flex`]}>
+        <div css={styles.sectionsContainer}>
           <div css={styles.section}>
             <HowToPlay />
           </div>
@@ -92,7 +92,7 @@ export default function Web() {
         </div>
       ) : (
         // Mobile
-        <div css={[styles.sectionsContainer, tw`xl:hidden`]}>
+        <div css={styles.sectionsContainer}>
           <div css={styles.section}>
             <GameCanvas />
             <CurrentVotes />
