@@ -35,10 +35,6 @@ export default function GameState() {
   return (
     <div css={styles.root}>
       <div css={styles.section}>
-        <h1 css={styles.header}>Badges</h1>
-        <BadgesDisplay badges={badges} />
-      </div>
-      <div css={styles.section}>
         <h1 css={styles.header}>Pokemon in party</h1>
         {pokemons.map((pokemon) => (
           <PokemonDisplay pokemon={pokemon} key={JSON.stringify(pokemon)} />
@@ -49,6 +45,10 @@ export default function GameState() {
         {items.map((item) => (
           <ItemDisplay item={item} key={item.name} />
         ))}
+      </div>
+      <div css={styles.section}>
+        <h1 css={styles.header}>Badges</h1>
+        <BadgesDisplay badges={badges} />
       </div>
     </div>
   );

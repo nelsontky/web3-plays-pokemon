@@ -78,7 +78,7 @@ export default function Web() {
         // Desktop
         <div css={[styles.sectionsContainer, tw`hidden xl:flex`]}>
           <div css={styles.section}>
-            <GameState />
+            <HowToPlay />
           </div>
           <div css={styles.section}>
             <GameCanvas />
@@ -87,7 +87,7 @@ export default function Web() {
             <VotesHistory />
           </div>
           <div css={styles.section}>
-            <HowToPlay />
+            <GameState />
           </div>
         </div>
       ) : (
