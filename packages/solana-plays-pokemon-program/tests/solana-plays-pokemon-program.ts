@@ -116,7 +116,7 @@ describe("solana-plays-pokemon-program", () => {
 
     try {
       await program.methods
-        .sendButton(9) // A
+        .sendButton(9, 1) // A
         .accounts({
           gameState: invalidNextGameStatePda,
           gameData: gameData.publicKey,
@@ -152,7 +152,7 @@ describe("solana-plays-pokemon-program", () => {
 
     try {
       await program.methods
-        .sendButton(9) // A
+        .sendButton(9, 1) // A
         .accounts({
           gameState: invalidGameStatePda,
           gameData: gameData.publicKey,
@@ -188,7 +188,7 @@ describe("solana-plays-pokemon-program", () => {
 
     try {
       await program.methods
-        .sendButton(13)
+        .sendButton(13, 1)
         .accounts({
           gameState: gameStatePda,
           gameData: gameData.publicKey,
@@ -223,7 +223,7 @@ describe("solana-plays-pokemon-program", () => {
     );
 
     await program.methods
-      .sendButton(9) // A
+      .sendButton(9, 1) // A
       .accounts({
         gameState: gameStatePda,
         gameData: gameData.publicKey,
@@ -234,7 +234,7 @@ describe("solana-plays-pokemon-program", () => {
       .rpc();
 
     await program.methods
-      .sendButton(10) // B
+      .sendButton(10, 1) // B
       .accounts({
         gameState: gameStatePda,
         gameData: gameData.publicKey,
@@ -359,5 +359,96 @@ describe("solana-plays-pokemon-program", () => {
     }
 
     assert.fail();
+  });
+
+  it("Cannot vote for more than 2 buttons at once", async () => {
+    const gameDataAccount = await program.account.gameData.fetch(
+      gameData.publicKey
+    );
+    const secondsPlayed = gameDataAccount.executedStatesCount;
+    const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        gameData.publicKey.toBuffer(),
+        Buffer.from("game_state"),
+        Buffer.from("" + secondsPlayed),
+      ],
+      program.programId
+    );
+
+    try {
+      await program.methods
+        .sendButton(9, 3)
+        .accounts({
+          gameState: gameStatePda,
+          gameData: gameData.publicKey,
+          player: anchor.getProvider().publicKey,
+          systemProgram: anchor.web3.SystemProgram.programId,
+          clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+        })
+        .rpc();
+    } catch (e) {
+      if (e instanceof AnchorError) {
+        // InvalidButtonPressCount error
+        assert.strictEqual(e.error.errorCode.number, 6003);
+        return;
+      }
+    }
+
+    assert.fail();
+  });
+
+  it("Cannot exceed 10 moves per round", async () => {
+    const gameDataAccount = await program.account.gameData.fetch(
+      gameData.publicKey
+    );
+    const secondsPlayed = gameDataAccount.executedStatesCount;
+    const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        gameData.publicKey.toBuffer(),
+        Buffer.from("game_state"),
+        Buffer.from("" + secondsPlayed),
+      ],
+      program.programId
+    );
+
+    for (let i = 0; i < 7; i++) {
+      // make it such that 9 button presses have been sent (2 were sent in a previous test)
+      await program.methods
+        .sendButton(9, 1) // A
+        .accounts({
+          gameState: gameStatePda,
+          gameData: gameData.publicKey,
+          player: anchor.getProvider().publicKey,
+          systemProgram: anchor.web3.SystemProgram.programId,
+          clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+        })
+        .rpc();
+    }
+
+    // send a total of 11 moves
+    await program.methods
+      .sendButton(10, 2) // B
+      .accounts({
+        gameState: gameStatePda,
+        gameData: gameData.publicKey,
+        player: anchor.getProvider().publicKey,
+        systemProgram: anchor.web3.SystemProgram.programId,
+        clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+      })
+      .rpc();
+
+    const currentGameState = await program.account.gameStateV4.fetch(
+      gameStatePda
+    );
+
+    assert.deepEqual(
+      Array.from(currentGameState.buttonPresses),
+      [9, 10, 9, 9, 9, 9, 9, 9, 9, 10]
+    );
+
+    const currentGameDataAccount = await program.account.gameData.fetch(
+      gameData.publicKey
+    );
+    assert.isTrue(currentGameDataAccount.isExecuting);
   });
 });
