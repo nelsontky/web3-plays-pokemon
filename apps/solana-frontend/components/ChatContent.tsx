@@ -127,6 +127,10 @@ const ChatContent = ({ setOpen }: ChatContentProps) => {
       navbar={{
         title: "Live Chat",
         leftContent: {
+          style: {
+            borderRadius: "50%",
+            padding: 8,
+          },
           img: "/assets/close-button.png",
           onClick: () => {
             setOpen(false);
