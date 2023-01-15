@@ -12,10 +12,6 @@ export default function AppSnackBarProvider({
       classes={{
         root: "custom-snackbar-root",
       }}
-      anchorOrigin={{
-        vertical: "top",
-        horizontal: "left",
-      }}
       maxSnack={2}
       iconVariant={{
         info: (
