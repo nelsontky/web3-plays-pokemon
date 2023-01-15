@@ -3,6 +3,7 @@ use crate::constants::*;
 use crate::utils::*;
 
 use anchor_lang::prelude::*;
+use std::cmp;
 
 pub mod account;
 pub mod constants;
@@ -26,10 +27,10 @@ pub mod utils;
 // 14 = Turbo B
 
 // Mainnet
-declare_id!("pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg");
+// declare_id!("pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg");
 
 // Devnet
-// declare_id!("pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK");
+declare_id!("pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK");
 
 #[program]
 pub mod solana_plays_pokemon_program {
@@ -69,11 +70,16 @@ pub mod solana_plays_pokemon_program {
         Ok(())
     }
 
-    pub fn send_button(ctx: Context<SendButton>, joypad_button: u8) -> Result<()> {
+    pub fn send_button(ctx: Context<SendButton>, joypad_button: u8, press_count: u8) -> Result<()> {
         // disable turbo buttons in anarchy mode
         let is_valid_button = joypad_button < 5 || (joypad_button > 8 && joypad_button < 13);
         if !is_valid_button {
             return err!(ErrorCode::InvalidButton);
+        }
+
+        let is_valid_press_count = press_count > 0 && press_count <= MAX_BUTTON_PRESS_COUNT;
+        if !is_valid_press_count {
+            return err!(ErrorCode::InvalidButtonPressCount);
         }
 
         let game_data = &mut ctx.accounts.game_data;
@@ -82,7 +88,11 @@ pub mod solana_plays_pokemon_program {
         }
 
         let game_state = &mut ctx.accounts.game_state;
-        game_state.button_presses.push(joypad_button);
+        let max_presses_left = MAX_BUTTONS_PER_ROUND - game_state.button_presses.len();
+        let computed_press_count = cmp::min(max_presses_left, usize::from(press_count));
+        for _ in 0..computed_press_count {
+            game_state.button_presses.push(joypad_button);
+        }
 
         // execute if game state is at least 10 seconds old or we have hit 10 button presses
         let should_execute = game_state.button_presses.len() >= MAX_BUTTONS_PER_ROUND
@@ -323,4 +333,6 @@ pub enum ErrorCode {
     NoUpdatesIfNotExecuting,
     #[msg("Invalid button sent.")]
     InvalidButton,
+    #[msg("Invalid button press count.")]
+    InvalidButtonPressCount,
 }
