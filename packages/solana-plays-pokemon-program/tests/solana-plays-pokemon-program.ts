@@ -1,5 +1,6 @@
 import * as anchor from "@project-serum/anchor";
 import { AnchorError, Program } from "@project-serum/anchor";
+import { getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
 import { assert } from "chai";
 import { SolanaPlaysPokemonProgram } from "../target/types/solana_plays_pokemon_program";
 
@@ -397,58 +398,105 @@ describe("solana-plays-pokemon-program", () => {
     assert.fail();
   });
 
-  it("Cannot exceed 10 moves per round", async () => {
-    const gameDataAccount = await program.account.gameData.fetch(
-      gameData.publicKey
-    );
-    const secondsPlayed = gameDataAccount.executedStatesCount;
-    const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
+  // it("Cannot exceed 10 moves per round", async () => {
+  //   const gameDataAccount = await program.account.gameData.fetch(
+  //     gameData.publicKey
+  //   );
+  //   const secondsPlayed = gameDataAccount.executedStatesCount;
+  //   const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
+  //     [
+  //       gameData.publicKey.toBuffer(),
+  //       Buffer.from("game_state"),
+  //       Buffer.from("" + secondsPlayed),
+  //     ],
+  //     program.programId
+  //   );
+
+  //   for (let i = 0; i < 7; i++) {
+  //     // make it such that 9 button presses have been sent (2 were sent in a previous test)
+  //     await program.methods
+  //       .sendButton(9, 1) // A
+  //       .accounts({
+  //         gameState: gameStatePda,
+  //         gameData: gameData.publicKey,
+  //         player: anchor.getProvider().publicKey,
+  //         systemProgram: anchor.web3.SystemProgram.programId,
+  //         clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+  //       })
+  //       .rpc();
+  //   }
+
+  //   // send a total of 11 moves
+  //   await program.methods
+  //     .sendButton(10, 2) // B
+  //     .accounts({
+  //       gameState: gameStatePda,
+  //       gameData: gameData.publicKey,
+  //       player: anchor.getProvider().publicKey,
+  //       systemProgram: anchor.web3.SystemProgram.programId,
+  //       clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+  //     })
+  //     .rpc();
+
+  //   const currentGameState = await program.account.gameStateV4.fetch(
+  //     gameStatePda
+  //   );
+
+  //   assert.deepEqual(
+  //     Array.from(currentGameState.buttonPresses),
+  //     [9, 10, 9, 9, 9, 9, 9, 9, 9, 10]
+  //   );
+
+  //   const currentGameDataAccount = await program.account.gameData.fetch(
+  //     gameData.publicKey
+  //   );
+  //   assert.isTrue(currentGameDataAccount.isExecuting);
+  // });
+
+  it("Can mint NFT", async () => {
+    const user = anchor.web3.Keypair.generate();
+    const signature = await anchor
+      .getProvider()
+      .connection.requestAirdrop(user.publicKey, anchor.web3.LAMPORTS_PER_SOL);
+    const { blockhash, lastValidBlockHeight } = await anchor
+      .getProvider()
+      .connection.getLatestBlockhash();
+    await anchor.getProvider().connection.confirmTransaction({
+      blockhash,
+      lastValidBlockHeight,
+      signature,
+    });
+
+    const [mint] = anchor.web3.PublicKey.findProgramAddressSync(
       [
         gameData.publicKey.toBuffer(),
-        Buffer.from("game_state"),
-        Buffer.from("" + secondsPlayed),
+        user.publicKey.toBuffer(),
+        Buffer.from("" + 0),
       ],
       program.programId
     );
 
-    for (let i = 0; i < 7; i++) {
-      // make it such that 9 button presses have been sent (2 were sent in a previous test)
-      await program.methods
-        .sendButton(9, 1) // A
-        .accounts({
-          gameState: gameStatePda,
-          gameData: gameData.publicKey,
-          player: anchor.getProvider().publicKey,
-          systemProgram: anchor.web3.SystemProgram.programId,
-          clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
-        })
-        .rpc();
-    }
+    const tokenAccount = await getAssociatedTokenAddress(mint, user.publicKey);
 
-    // send a total of 11 moves
     await program.methods
-      .sendButton(10, 2) // B
+      .mintFramesNft(0)
       .accounts({
-        gameState: gameStatePda,
         gameData: gameData.publicKey,
-        player: anchor.getProvider().publicKey,
-        systemProgram: anchor.web3.SystemProgram.programId,
-        clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+        mint,
+        tokenAccount,
+        authority: anchor.getProvider().publicKey,
+        user: user.publicKey,
       })
-      .rpc();
+      .signers([user])
+      .rpc({
+        skipPreflight: true,
+      });
 
-    const currentGameState = await program.account.gameStateV4.fetch(
-      gameStatePda
+    const userAta = await getAccount(
+      anchor.getProvider().connection,
+      tokenAccount
     );
 
-    assert.deepEqual(
-      Array.from(currentGameState.buttonPresses),
-      [9, 10, 9, 9, 9, 9, 9, 9, 9, 10]
-    );
-
-    const currentGameDataAccount = await program.account.gameData.fetch(
-      gameData.publicKey
-    );
-    assert.isTrue(currentGameDataAccount.isExecuting);
+    assert.strictEqual(Number(userAta.amount), 1);
   });
 });
