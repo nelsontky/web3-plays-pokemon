@@ -9,12 +9,15 @@ import { GAME_DATA_ACCOUNT_PUBLIC_KEY, PROGRAM_PUBLIC_KEY } from "../constants";
 import { RootState } from "../store";
 import fetchIpfsCid from "../utils/fetchIpfsCid";
 import { inflate } from "pako";
+import type { Participant } from "../utils/getGameStateParticipants";
+import getGameStateParticipants from "../utils/getGameStateParticipants";
 
 interface History {
   accountPublicKey: string;
   index: number;
   createdAt: number;
   framesImageData: number[][];
+  participants: Participant[];
 }
 
 const historyAdapter = createEntityAdapter<History>({
@@ -41,6 +44,8 @@ export const fetchHistory = createAsyncThunk(
       PROGRAM_PUBLIC_KEY
     );
 
+    const participantsPromise = getGameStateParticipants(gameStatePda);
+
     const gameState = await Promise.any([
       program.account.gameStateV4.fetch(gameStatePda),
       program.account.gameStateV3.fetch(gameStatePda),
@@ -58,6 +63,7 @@ export const fetchHistory = createAsyncThunk(
       createdAt: gameState.createdAt.toNumber(),
       index: gameState.index,
       framesImageData,
+      participants: await participantsPromise,
     };
 
     return gameHistory;
