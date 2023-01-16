@@ -6,19 +6,15 @@ import {
 import { useEffect, useRef } from "react";
 import tw from "twin.macro";
 import renderFrame, { CELL_SIZE } from "../utils/renderFrame";
-import { useAppSelector } from "../hooks/redux";
-import useGameStateCidData from "../hooks/useGameStateCidData";
 
 const ANIMATION_DURATION = 3; // run game for 3 seconds
 
-export default function GameCanvas() {
+interface GameCanvasProps {
+  framesImageData: number[][] | undefined;
+}
+
+export default function GameCanvas({ framesImageData }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const framesImageToRenderCid = useAppSelector(
-    (state) => state.gameStates.framesImageCidToRender
-  );
-  const framesImageData = useGameStateCidData<number[][]>(
-    framesImageToRenderCid
-  );
 
   useEffect(
     function drawToCanvas() {

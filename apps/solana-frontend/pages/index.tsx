@@ -3,12 +3,12 @@ import Head from "next/head";
 import tw from "twin.macro";
 import Controls from "../components/Controls";
 import CurrentVotes from "../components/CurrentVotes";
-import GameCanvas from "../components/GameCanvas";
 import GameState from "../components/GameState";
 import HowToPlay from "../components/HowToPlay";
 import SocialLinks from "../components/SocialLinks";
 import VotesHistory from "../components/VotesHistory";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import MainCanvas from "../components/MainCanvas";
 
 const ChatWidgetDynamic = dynamic(
   async () => await import("../components/ChatWidget"),
@@ -81,7 +81,7 @@ export default function Web() {
             <HowToPlay />
           </div>
           <div css={styles.section}>
-            <GameCanvas />
+            <MainCanvas />
             <CurrentVotes />
             <Controls />
             <VotesHistory />
@@ -94,7 +94,7 @@ export default function Web() {
         // Mobile
         <div css={styles.sectionsContainer}>
           <div css={styles.section}>
-            <GameCanvas />
+            <MainCanvas />
             <CurrentVotes />
             <Controls />
           </div>
