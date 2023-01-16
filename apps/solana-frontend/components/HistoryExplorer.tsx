@@ -7,13 +7,19 @@ import GameCanvas from "./GameCanvas";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { IconButton } from "@mui/material";
+import HistoryParticipants from "./HistoryParticipants";
 
 const styles = {
-  slider: tw`
+  sliderContainer: tw`
     mt-8
+    flex
+    justify-center
+  `,
+  slider: tw`
+    w-11/12
   `,
   rounds: tw`
-    text-3xl
+    text-4xl
     flex
     gap-3
     justify-center
@@ -50,14 +56,16 @@ export default function HistoryExplorer() {
   return (
     <div>
       <GameCanvas framesImageData={history?.framesImageData} />
-      <AppSlider
-        min={0}
-        max={latestStateIndex}
-        step={1}
-        value={stateIndex}
-        onChange={handleChange}
-        css={styles.slider}
-      />
+      <div css={styles.sliderContainer}>
+        <AppSlider
+          min={0}
+          max={latestStateIndex}
+          step={1}
+          value={stateIndex}
+          onChange={handleChange}
+          css={styles.slider}
+        />
+      </div>
       <div css={styles.rounds}>
         Round:
         <IconButton
@@ -91,6 +99,7 @@ export default function HistoryExplorer() {
           />
         </IconButton>
       </div>
+      <HistoryParticipants history={history} />
     </div>
   );
 }

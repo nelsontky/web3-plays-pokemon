@@ -12,7 +12,7 @@ import { inflate } from "pako";
 import type { Participant } from "../utils/getGameStateParticipants";
 import getGameStateParticipants from "../utils/getGameStateParticipants";
 
-interface History {
+export interface History {
   accountPublicKey: string;
   index: number;
   createdAt: number;
