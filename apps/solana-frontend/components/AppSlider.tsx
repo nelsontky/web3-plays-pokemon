@@ -4,6 +4,7 @@ const AppSlider = styled(Slider)({
   "& .MuiSlider-thumb": {
     background: "#000000",
     boxShadow: "none !important",
+
     "&::before": {
       display: "none",
     },
