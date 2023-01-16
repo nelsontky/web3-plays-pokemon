@@ -16,7 +16,7 @@ export default function useGameHistory(gameStateIndex: number) {
   const fetchState = useCallback(
     debounce((gameStateIndex: number) => {
       dispatch(fetchHistory({ program: program, index: gameStateIndex }));
-    }, 100),
+    }, 500),
     []
   );
 
