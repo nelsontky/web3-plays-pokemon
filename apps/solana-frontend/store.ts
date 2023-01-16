@@ -9,6 +9,10 @@ export const store = configureStore({
     gameStates: gameStatesReducer,
     history: historyReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 });
 
 export type AppDispatch = typeof store.dispatch;

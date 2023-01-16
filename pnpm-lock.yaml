@@ -148,6 +148,7 @@ importers:
       '@solana/wallet-adapter-wallets': ^0.19.9
       '@solana/web3.js': ^1.58.0
       '@tailwindcss/typography': ^0.5.8
+      '@types/lodash': ^4.14.191
       '@types/node': ^17.0.12
       '@types/pako': ^2.0.0
       '@types/react': ^18.0.22
@@ -160,6 +161,7 @@ importers:
       eslint-config-custom: workspace:*
       firebase: ^9.15.0
       firebase-admin: ^11.4.1
+      lodash: ^4.17.21
       next: 13.1.1
       notistack: ^2.0.8
       pako: ^2.1.0
@@ -194,6 +196,7 @@ importers:
       common: link:../../packages/common
       firebase: 9.15.0
       firebase-admin: 11.4.1
+      lodash: 4.17.21
       next: 13.1.1_wvxvo4o63qi3k3k4wbsk7rwchi
       notistack: 2.0.8_je6wcyxzzodpuivmp54wfrprbm
       pako: 2.1.0
@@ -210,6 +213,7 @@ importers:
       '@babel/preset-typescript': 7.18.6_@babel+core@7.20.5
       '@emotion/babel-plugin': 11.10.5_@babel+core@7.20.5
       '@tailwindcss/typography': 0.5.8_tailwindcss@3.2.4
+      '@types/lodash': 4.14.191
       '@types/node': 17.0.45
       '@types/pako': 2.0.0
       '@types/react': 18.0.26
@@ -4222,6 +4226,10 @@ packages:
     resolution: {integrity: sha512-HZQYqbiFVWufzCwexrvh694SOim8z2d+xJl5UNamcvQFejLY/2YUtzXHYi3cHdI7PMlS8ejH2slRAOJQ32aNbA==}
     dev: false
     optional: true
+
+  /@types/lodash/4.14.191:
+    resolution: {integrity: sha512-BdZ5BCCvho3EIXw6wUCXHe7rS53AIDPLE+JzwgT+OsJk53oBfbSmZZ7CX4VaRoN78N+TJpFi9QPlfIVNmJYWxQ==}
+    dev: true
 
   /@types/long/4.0.2:
     resolution: {integrity: sha512-MqTGEo5bj5t157U6fA/BiDynNkn0YknVdh48CMPkTSpFTVmvao5UQmm7uEF6xBEo7qIMAlY/JSleYaE6VOdpaA==}

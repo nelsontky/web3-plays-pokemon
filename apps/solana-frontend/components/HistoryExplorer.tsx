@@ -1,12 +1,23 @@
 import { ChangeEvent, useState } from "react";
 import tw from "twin.macro";
 import { useAppSelector } from "../hooks/redux";
+import useGameHistory from "../hooks/useGameHistory";
 import AppSlider from "./AppSlider";
+import GameCanvas from "./GameCanvas";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
+import { IconButton } from "@mui/material";
 
 const styles = {
+  slider: tw`
+    mt-8
+  `,
   rounds: tw`
-    text-center
     text-3xl
+    flex
+    gap-3
+    justify-center
+    items-center
   `,
   input: tw`
     border-2
@@ -20,7 +31,8 @@ export default function HistoryExplorer() {
   const executedStatesCount = useAppSelector(
     (state) => state.gameData.executedStatesCount
   );
-  const [stateIndex, setStateIndex] = useState(executedStatesCount - 1);
+  const latestStateIndex = executedStatesCount - 1;
+  const [stateIndex, setStateIndex] = useState(latestStateIndex);
 
   const handleChange = (_: Event, newValue: number | number[]) => {
     setStateIndex(newValue as number);
@@ -28,22 +40,36 @@ export default function HistoryExplorer() {
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = +e.target.value;
-    if (!isNaN(value) && value < executedStatesCount && value >= 0) {
+    if (!isNaN(value) && value <= latestStateIndex && value >= 0) {
       setStateIndex(value);
     }
   };
 
+  const history = useGameHistory(stateIndex);
+
   return (
     <div>
+      <GameCanvas framesImageData={history?.framesImageData} />
       <AppSlider
         min={0}
-        max={executedStatesCount - 1}
+        max={latestStateIndex}
         step={1}
         value={stateIndex}
         onChange={handleChange}
+        css={styles.slider}
       />
       <div css={styles.rounds}>
-        Round:{" "}
+        Round:
+        <IconButton
+          disabled={stateIndex === 0}
+          onClick={() => {
+            setStateIndex((stateIndex) => stateIndex - 1);
+          }}
+        >
+          <RemoveIcon
+            css={[tw`text-black`, stateIndex === 0 && tw`opacity-30`]}
+          />
+        </IconButton>
         <input
           inputMode="numeric"
           size={10}
@@ -51,6 +77,19 @@ export default function HistoryExplorer() {
           value={stateIndex}
           onChange={handleInputChange}
         />
+        <IconButton
+          disabled={stateIndex === latestStateIndex}
+          onClick={() => {
+            setStateIndex((stateIndex) => stateIndex + 1);
+          }}
+        >
+          <AddIcon
+            css={[
+              tw`text-black`,
+              stateIndex === latestStateIndex && tw`opacity-30`,
+            ]}
+          />
+        </IconButton>
       </div>
     </div>
   );

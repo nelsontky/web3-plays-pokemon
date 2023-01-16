@@ -19,6 +19,10 @@ export default function GameCanvas({ framesImageData }: GameCanvasProps) {
   useEffect(
     function drawToCanvas() {
       if (framesImageData) {
+        let hasUnmounted = false;
+
+        const framesImageDataCopy = [...framesImageData];
+
         let now;
         let then = Date.now();
         const fps = FRAMES_TO_DRAW_PER_EXECUTION / ANIMATION_DURATION;
@@ -26,7 +30,9 @@ export default function GameCanvas({ framesImageData }: GameCanvasProps) {
         let delta;
 
         const renderLoop = () => {
-          requestAnimationFrame(renderLoop);
+          if (!hasUnmounted) {
+            requestAnimationFrame(renderLoop);
+          }
 
           now = Date.now();
           delta = now - then;
@@ -34,7 +40,7 @@ export default function GameCanvas({ framesImageData }: GameCanvasProps) {
           if (canvasRef.current && delta > interval) {
             then = now - (delta % interval);
 
-            const frameDataArray = framesImageData.shift();
+            const frameDataArray = framesImageDataCopy.shift();
             const ctx = canvasRef.current.getContext("2d");
 
             if (ctx && frameDataArray) {
@@ -44,6 +50,10 @@ export default function GameCanvas({ framesImageData }: GameCanvasProps) {
         };
 
         renderLoop();
+
+        return () => {
+          hasUnmounted = true;
+        };
       }
     },
     [framesImageData]
