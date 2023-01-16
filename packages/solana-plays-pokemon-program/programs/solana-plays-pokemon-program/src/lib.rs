@@ -4,7 +4,13 @@ use crate::utils::*;
 
 use anchor_lang::prelude::*;
 use anchor_spl::associated_token::AssociatedToken;
+use anchor_spl::metadata::CreateMetadataAccountsV3;
+use anchor_spl::metadata::{
+    create_metadata_accounts_v3, verify_sized_collection_item, Metadata, VerifySizedCollectionItem,
+};
 use anchor_spl::token::{mint_to, Mint, MintTo, Token, TokenAccount};
+use mpl_token_metadata::state::DataV2;
+use mpl_token_metadata::state::{Collection, Creator};
 use std::cmp;
 
 pub mod account;
@@ -182,7 +188,13 @@ pub mod solana_plays_pokemon_program {
         Ok(())
     }
 
-    pub fn mint_frames_nft(ctx: Context<MintFramesNft>, _game_state_index: u32) -> Result<()> {
+    pub fn mint_frames_nft(
+        ctx: Context<MintFramesNft>,
+        _game_state_index: u32,
+        name: String,
+        metadata_uri: String,
+    ) -> Result<()> {
+        // create mint and token account before minting 1 token to the user
         mint_to(
             CpiContext::new(
                 ctx.accounts.token_program.to_account_info(),
@@ -193,6 +205,60 @@ pub mod solana_plays_pokemon_program {
                 },
             ),
             1,
+        )?;
+
+        // create metadata account
+        create_metadata_accounts_v3(
+            CpiContext::new(
+                ctx.accounts.token_metadata_program.to_account_info(),
+                CreateMetadataAccountsV3 {
+                    metadata: ctx.accounts.token_metadata_account.to_account_info(),
+                    mint: ctx.accounts.mint.to_account_info(),
+                    mint_authority: ctx.accounts.authority.to_account_info(),
+                    payer: ctx.accounts.user.to_account_info(),
+                    rent: ctx.accounts.rent.to_account_info(),
+                    system_program: ctx.accounts.system_program.to_account_info(),
+                    update_authority: ctx.accounts.authority.to_account_info(),
+                },
+            ),
+            DataV2 {
+                collection: Some(Collection {
+                    verified: false,
+                    key: ctx.accounts.collection_mint.key(),
+                }),
+                creators: Some(vec![Creator {
+                    address: ctx.accounts.authority.key(),
+                    share: 100,
+                    verified: true,
+                }]),
+                name,
+                symbol: "".to_string(),
+                uri: metadata_uri,
+                seller_fee_basis_points: 0,
+                uses: None,
+            },
+            true,
+            true,
+            None,
+        )?;
+
+        // verify collection
+        verify_sized_collection_item(
+            CpiContext::new(
+                ctx.accounts.token_metadata_program.to_account_info(),
+                VerifySizedCollectionItem {
+                    collection_authority: ctx.accounts.authority.to_account_info(),
+                    collection_master_edition: ctx
+                        .accounts
+                        .collection_master_edition
+                        .to_account_info(),
+                    collection_metadata: ctx.accounts.collection_metadata.to_account_info(),
+                    collection_mint: ctx.accounts.collection_mint.to_account_info(),
+                    metadata: ctx.accounts.token_metadata_account.to_account_info(),
+                    payer: ctx.accounts.user.to_account_info(),
+                },
+            ),
+            None,
         )?;
 
         Ok(())
@@ -344,6 +410,7 @@ pub struct MintFramesNft<'info> {
     #[account(
         init,
         seeds = [
+            b"nft_mint",
             game_data.key().as_ref(),
             user.key().as_ref(),
             game_state_index.to_string().as_ref()
@@ -370,6 +437,48 @@ pub struct MintFramesNft<'info> {
     )]
     pub token_account: Account<'info, TokenAccount>,
     pub associated_token_program: Program<'info, AssociatedToken>,
+    pub rent: Sysvar<'info, Rent>,
+
+    #[account(
+        mut,
+        seeds = [
+            b"metadata",
+            token_metadata_program.key().as_ref(),
+            mint.key().as_ref()
+        ],
+        bump,
+        seeds::program = token_metadata_program.key()
+    )]
+    /// CHECK: This is not dangerous because this is a token metadata program pda
+    pub token_metadata_account: UncheckedAccount<'info>,
+    pub token_metadata_program: Program<'info, Metadata>,
+
+    /// CHECK: This is not dangerous because this instruction can only be called with the appropriate signer
+    pub collection_mint: UncheckedAccount<'info>,
+    #[account(
+        mut,
+        seeds = [
+            b"metadata",
+            token_metadata_program.key().as_ref(),
+            collection_mint.key().as_ref(),
+        ],
+        bump,
+        seeds::program = token_metadata_program.key()
+    )]
+    /// CHECK: This is not dangerous because this is a checked pda
+    pub collection_metadata: UncheckedAccount<'info>,
+    #[account(
+        seeds = [
+            b"metadata",
+            token_metadata_program.key().as_ref(),
+            collection_mint.key().as_ref(),
+            b"edition",
+        ],
+        bump,
+        seeds::program = token_metadata_program.key()
+    )]
+    /// CHECK: This is not dangerous because this is a checked pda
+    pub collection_master_edition: UncheckedAccount<'info>,
 }
 
 #[event]
