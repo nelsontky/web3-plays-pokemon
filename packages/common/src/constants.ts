@@ -33,6 +33,8 @@ export const BUTTON_ID_TO_ENUM = [
 export const PROGRAM_ID = "pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg";
 export const GAME_DATA_ACCOUNT_ID =
   "redHPYj5C9X7TyEqQPHMTsfevKZ9eHCTQ8BJVee9JWC";
+export const GAME_DATA_AUTHORITY =
+  "ash1JcmhS3mNXm7gowst3pfSCsr3Sg33bQZ555vsw1i";
 
 // Devnet
 // export const PROGRAM_ID = "pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK";
