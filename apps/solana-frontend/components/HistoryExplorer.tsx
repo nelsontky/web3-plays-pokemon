@@ -12,6 +12,7 @@ import HistoryParticipants from "./HistoryParticipants";
 const styles = {
   sliderContainer: tw`
     mt-8
+    mb-2
     flex
     justify-center
   `,
