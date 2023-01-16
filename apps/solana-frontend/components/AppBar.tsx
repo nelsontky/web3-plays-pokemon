@@ -1,5 +1,6 @@
 import tw from "twin.macro";
 import AppWalletMultiButton from "./AppWalletMultiButton";
+import Link from "next/link";
 
 const styles = {
   root: tw`
@@ -28,7 +29,9 @@ export default function AppBar() {
   return (
     <div css={styles.root}>
       <div css={styles.inner}>
-        <h1 css={styles.header}>Solana Plays Pokemon</h1>
+        <Link href="/" css={styles.header}>
+          Solana Plays Pokemon
+        </Link>
         <div css={tw`flex gap-4 items-center`}>
           <button
             css={tw`xl:hidden underline text-xl cursor-pointer`}
@@ -38,6 +41,9 @@ export default function AppBar() {
           >
             How to play
           </button>
+          <Link css={tw`underline text-xl`} href="/history">
+            History
+          </Link>
           <AppWalletMultiButton />
         </div>
       </div>
