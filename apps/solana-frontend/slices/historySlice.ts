@@ -75,10 +75,7 @@ const gameStatesSlice = createSlice({
   },
 });
 
-export const {
-  selectAll: selectAllGameStates,
-  selectById: selectGameStateById,
-  selectIds: selectGameStateIds,
-} = historyAdapter.getSelectors<RootState>((state) => state.history);
+export const { selectById: selectHistoryById } =
+  historyAdapter.getSelectors<RootState>((state) => state.history);
 
 export default gameStatesSlice.reducer;
