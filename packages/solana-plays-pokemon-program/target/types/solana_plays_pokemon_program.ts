@@ -254,6 +254,11 @@ export type SolanaPlaysPokemonProgram = {
           "name": "collectionMasterEdition",
           "isMut": false,
           "isSigner": false
+        },
+        {
+          "name": "masterEdition",
+          "isMut": true,
+          "isSigner": false
         }
       ],
       "args": [
@@ -809,6 +814,11 @@ export const IDL: SolanaPlaysPokemonProgram = {
         {
           "name": "collectionMasterEdition",
           "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "masterEdition",
+          "isMut": true,
           "isSigner": false
         }
       ],
