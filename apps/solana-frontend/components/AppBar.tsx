@@ -3,7 +3,7 @@ import AppWalletMultiButton from "./AppWalletMultiButton";
 
 const styles = {
   root: tw`
-    h-20
+    min-h-[5rem]
     px-4
     flex
     justify-center

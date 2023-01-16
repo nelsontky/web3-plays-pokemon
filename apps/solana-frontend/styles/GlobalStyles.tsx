@@ -5,9 +5,18 @@ import { css } from "@emotion/react";
 import { POKEMON_PIXEL_FONT } from "../constants";
 
 const customStyles = css({
+  html: {
+    height: "100%",
+  },
   body: {
     ...POKEMON_PIXEL_FONT.style,
     background: "#ffffff",
+    height: "100%",
+  },
+  "div#__next": {
+    height: "100%",
+    display: "flex",
+    flexDirection: "column",
   },
   ".custom-snackbar-root": {
     "&& > .SnackbarContent-root": {
