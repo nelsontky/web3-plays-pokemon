@@ -3,6 +3,8 @@ use crate::constants::*;
 use crate::utils::*;
 
 use anchor_lang::prelude::*;
+use anchor_spl::associated_token::AssociatedToken;
+use anchor_spl::token::{mint_to, Mint, MintTo, Token, TokenAccount};
 use std::cmp;
 
 pub mod account;
@@ -27,10 +29,10 @@ pub mod utils;
 // 14 = Turbo B
 
 // Mainnet
-declare_id!("pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg");
+// declare_id!("pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg");
 
 // Devnet
-// declare_id!("pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK");
+declare_id!("pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK");
 
 #[program]
 pub mod solana_plays_pokemon_program {
@@ -179,6 +181,22 @@ pub mod solana_plays_pokemon_program {
 
         Ok(())
     }
+
+    pub fn mint_frames_nft(ctx: Context<MintFramesNft>, _game_state_index: u32) -> Result<()> {
+        mint_to(
+            CpiContext::new(
+                ctx.accounts.token_program.to_account_info(),
+                MintTo {
+                    mint: ctx.accounts.mint.to_account_info(),
+                    to: ctx.accounts.token_account.to_account_info(),
+                    authority: ctx.accounts.authority.to_account_info(),
+                },
+            ),
+            1,
+        )?;
+
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
@@ -316,6 +334,42 @@ pub struct MigrateGameStateToV4<'info> {
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
     pub clock: Sysvar<'info, Clock>,
+}
+
+#[derive(Accounts)]
+#[instruction(
+    game_state_index: u32
+)]
+pub struct MintFramesNft<'info> {
+    #[account(
+        init,
+        seeds = [
+            game_data.key().as_ref(),
+            user.key().as_ref(),
+            game_state_index.to_string().as_ref()
+        ],
+        bump,
+        payer = user,
+        mint::decimals = 0,
+        mint::authority = authority
+    )]
+    pub mint: Account<'info, Mint>,
+    #[account(mut)]
+    pub user: Signer<'info>,
+    pub authority: Signer<'info>,
+    #[account(has_one = authority)]
+    pub game_data: Account<'info, GameData>,
+    pub system_program: Program<'info, System>,
+    pub token_program: Program<'info, Token>,
+
+    #[account(
+        init_if_needed,
+        payer = user,
+        associated_token::mint = mint,
+        associated_token::authority = user
+    )]
+    pub token_account: Account<'info, TokenAccount>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
 }
 
 #[event]
