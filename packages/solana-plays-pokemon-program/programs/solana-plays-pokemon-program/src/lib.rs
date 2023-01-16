@@ -6,7 +6,8 @@ use anchor_lang::prelude::*;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::metadata::CreateMetadataAccountsV3;
 use anchor_spl::metadata::{
-    create_metadata_accounts_v3, verify_sized_collection_item, Metadata, VerifySizedCollectionItem,
+    create_master_edition_v3, create_metadata_accounts_v3, verify_sized_collection_item,
+    CreateMasterEditionV3, Metadata, VerifySizedCollectionItem,
 };
 use anchor_spl::token::{mint_to, Mint, MintTo, Token, TokenAccount};
 use mpl_token_metadata::state::DataV2;
@@ -261,6 +262,25 @@ pub mod solana_plays_pokemon_program {
             None,
         )?;
 
+        // create master edition account (prevents further minting)
+        create_master_edition_v3(
+            CpiContext::new(
+                ctx.accounts.token_metadata_program.to_account_info(),
+                CreateMasterEditionV3 {
+                    edition: ctx.accounts.master_edition.to_account_info(),
+                    metadata: ctx.accounts.token_metadata_account.to_account_info(),
+                    mint: ctx.accounts.mint.to_account_info(),
+                    mint_authority: ctx.accounts.authority.to_account_info(),
+                    payer: ctx.accounts.user.to_account_info(),
+                    rent: ctx.accounts.rent.to_account_info(),
+                    system_program: ctx.accounts.system_program.to_account_info(),
+                    token_program: ctx.accounts.token_program.to_account_info(),
+                    update_authority: ctx.accounts.authority.to_account_info(),
+                },
+            ),
+            None,
+        )?;
+
         Ok(())
     }
 }
@@ -418,7 +438,8 @@ pub struct MintFramesNft<'info> {
         bump,
         payer = user,
         mint::decimals = 0,
-        mint::authority = authority
+        mint::authority = authority,
+        mint::freeze_authority = authority
     )]
     pub mint: Account<'info, Mint>,
     #[account(mut)]
@@ -479,6 +500,20 @@ pub struct MintFramesNft<'info> {
     )]
     /// CHECK: This is not dangerous because this is a checked pda
     pub collection_master_edition: UncheckedAccount<'info>,
+
+    #[account(
+        mut,
+        seeds = [
+            b"metadata",
+            token_metadata_program.key().as_ref(),
+            mint.key().as_ref(),
+            b"edition",
+        ],
+        bump,
+        seeds::program = token_metadata_program.key()
+    )]
+    /// CHECK: This is not dangerous because this is a checked pda
+    pub master_edition: UncheckedAccount<'info>,
 }
 
 #[event]
