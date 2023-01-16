@@ -29,7 +29,7 @@ export default function HistoryParticipants({
 }: HistoryParticipantsProps) {
   const isNarrow = useMediaQuery("(max-width:600px)");
 
-  if (!history) {
+  if (!history || history.participants.length === 0) {
     return null;
   }
 
