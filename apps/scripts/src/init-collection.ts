@@ -18,7 +18,7 @@ try {
     const metaplex = Metaplex.make(connection).use(keypairIdentity(wallet));
     const { nft: collectionNft } = await metaplex.nfts().create({
       name: "Solana Plays Pokemon",
-      uri: "https://bafkreibjyfkoo3mny2rbsfpndkodlgrtwdiu43g54dfgcsnfn5jfcx4n4y.ipfs.nftstorage.link/",
+      uri: "https://bafkreibjyfkoo3mny2rbsfpndkodlgrtwdiu43g54dfgcsnfn5jfcx4n4y.ipfs.nftstorage.link",
       sellerFeeBasisPoints: 0,
       isCollection: true,
       useNewMint: collectionId,
