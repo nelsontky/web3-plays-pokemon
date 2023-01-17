@@ -279,30 +279,6 @@
   ],
   "accounts": [
     {
-      "name": "GameDataV2",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "executedStatesCount",
-            "type": "u32"
-          },
-          {
-            "name": "isExecuting",
-            "type": "bool"
-          },
-          {
-            "name": "authority",
-            "type": "publicKey"
-          },
-          {
-            "name": "numberOfNftsMinted",
-            "type": "u32"
-          }
-        ]
-      }
-    },
-    {
       "name": "GameData",
       "type": {
         "kind": "struct",
@@ -580,5 +556,8 @@
       "name": "InvalidButtonPressCount",
       "msg": "Invalid button press count."
     }
-  ]
+  ],
+  "metadata": {
+    "address": "pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK"
+  }
 }

@@ -51,10 +51,8 @@ pub mod solana_plays_pokemon_program {
         save_state_cid: String,
     ) -> Result<()> {
         let game_data = &mut ctx.accounts.game_data;
-        game_data.version = 2;
         game_data.executed_states_count = 1;
         game_data.authority = *ctx.accounts.authority.key;
-        game_data.number_of_nfts_minted = 0;
         msg!("Game data account initialized");
 
         let game_state = &mut ctx.accounts.game_state;
@@ -191,24 +189,6 @@ pub mod solana_plays_pokemon_program {
         Ok(())
     }
 
-    pub fn close_old_game_data_account(_ctx: Context<CloseOldGameDataAccount>) -> Result<()> {
-        Ok(())
-    }
-
-    pub fn initialize_game_data_v2(
-        ctx: Context<InitializeGameDataV2>,
-        executed_states_count: u32,
-    ) -> Result<()> {
-        let game_data = &mut ctx.accounts.game_data;
-        game_data.version = 2;
-        game_data.executed_states_count = executed_states_count;
-        game_data.authority = *ctx.accounts.authority.key;
-        game_data.number_of_nfts_minted = 0;
-        msg!("Game data account v2 initialized");
-
-        Ok(())
-    }
-
     pub fn mint_frames_nft(
         ctx: Context<MintFramesNft>,
         _game_state_index: u32,
@@ -308,8 +288,8 @@ pub mod solana_plays_pokemon_program {
 #[derive(Accounts)]
 #[instruction(frames_image_cid: String, save_state_cid: String)]
 pub struct Initialize<'info> {
-    #[account(init, payer = authority, space = 8 + GameDataV2::LEN)]
-    pub game_data: Account<'info, GameDataV2>,
+    #[account(init, payer = authority, space = 8 + GameData::LEN)]
+    pub game_data: Account<'info, GameData>,
     #[account(
         init,
         payer = authority,
@@ -440,23 +420,6 @@ pub struct MigrateGameStateToV4<'info> {
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
     pub clock: Sysvar<'info, Clock>,
-}
-
-#[derive(Accounts)]
-pub struct InitializeGameDataV2<'info> {
-    #[account(init, payer = authority, space = 8 + GameDataV2::LEN)]
-    pub game_data: Account<'info, GameDataV2>,
-    #[account(mut)]
-    pub authority: Signer<'info>,
-    pub system_program: Program<'info, System>,
-}
-
-#[derive(Accounts)]
-pub struct CloseOldGameDataAccount<'info> {
-    #[account(mut, has_one = authority, close = authority)]
-    pub game_data: Account<'info, GameData>,
-    #[account(mut)]
-    pub authority: Signer<'info>,
 }
 
 #[derive(Accounts)]
