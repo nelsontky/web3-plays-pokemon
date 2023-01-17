@@ -21,6 +21,11 @@ export type SolanaPlaysPokemonProgram = {
           "isSigner": false
         },
         {
+          "name": "mintedNftsCount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "authority",
           "isMut": true,
           "isSigner": true
@@ -183,6 +188,32 @@ export type SolanaPlaysPokemonProgram = {
       ]
     },
     {
+      "name": "initializeMintedNftsCount",
+      "accounts": [
+        {
+          "name": "mintedNftsCount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "gameData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "mintFramesNft",
       "accounts": [
         {
@@ -213,6 +244,16 @@ export type SolanaPlaysPokemonProgram = {
         {
           "name": "tokenProgram",
           "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "mintedNftsCount",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "mintedNft",
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -278,6 +319,30 @@ export type SolanaPlaysPokemonProgram = {
     }
   ],
   "accounts": [
+    {
+      "name": "mintedNftsCount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "nftsMinted",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mintedNft",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
     {
       "name": "gameData",
       "type": {
@@ -582,6 +647,11 @@ export const IDL: SolanaPlaysPokemonProgram = {
           "isSigner": false
         },
         {
+          "name": "mintedNftsCount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "authority",
           "isMut": true,
           "isSigner": true
@@ -744,6 +814,32 @@ export const IDL: SolanaPlaysPokemonProgram = {
       ]
     },
     {
+      "name": "initializeMintedNftsCount",
+      "accounts": [
+        {
+          "name": "mintedNftsCount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "gameData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "mintFramesNft",
       "accounts": [
         {
@@ -774,6 +870,16 @@ export const IDL: SolanaPlaysPokemonProgram = {
         {
           "name": "tokenProgram",
           "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "mintedNftsCount",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "mintedNft",
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -839,6 +945,30 @@ export const IDL: SolanaPlaysPokemonProgram = {
     }
   ],
   "accounts": [
+    {
+      "name": "mintedNftsCount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "nftsMinted",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mintedNft",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
     {
       "name": "gameData",
       "type": {

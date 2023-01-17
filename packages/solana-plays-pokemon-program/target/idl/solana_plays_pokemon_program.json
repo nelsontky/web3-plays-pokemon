@@ -21,6 +21,11 @@
           "isSigner": false
         },
         {
+          "name": "mintedNftsCount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "authority",
           "isMut": true,
           "isSigner": true
@@ -183,6 +188,32 @@
       ]
     },
     {
+      "name": "initializeMintedNftsCount",
+      "accounts": [
+        {
+          "name": "mintedNftsCount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "gameData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "mintFramesNft",
       "accounts": [
         {
@@ -213,6 +244,16 @@
         {
           "name": "tokenProgram",
           "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "mintedNftsCount",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "mintedNft",
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -278,6 +319,30 @@
     }
   ],
   "accounts": [
+    {
+      "name": "MintedNftsCount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "nftsMinted",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MintedNft",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
     {
       "name": "GameData",
       "type": {
