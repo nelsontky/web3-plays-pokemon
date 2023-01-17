@@ -13,7 +13,9 @@
     "FIREBASE_PRIVATE_KEY",
     "NEXT_PUBLIC_FIREBASE_DATABASE_URL",
     "NODE_ENV",
-    "TEST_USER_WALLET_KEY"
+    "TEST_USER_WALLET_KEY",
+    "WALLET_PRIVATE_KEY",
+    "NFT_STORAGE_TOKEN"
   ],
   "$schema": "https://turbo.build/schema.json",
   "pipeline": {
