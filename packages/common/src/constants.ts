@@ -40,3 +40,4 @@ export const BUTTON_ID_TO_ENUM = [
 export const PROGRAM_ID = "pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK";
 export const GAME_DATA_ACCOUNT_ID =
   "redRuipyQy8cMUuLaGuriaeE3khPNGZpM9PRsq3zFqv";
+export const COLLECTION_ID = "pkmZnQzR1zzWFsNTvQ7G1r2keHrcpkbvprQ4954TzAN";
