@@ -65,7 +65,7 @@ export default async function handler(
       gameState.framesImageCid
     );
 
-    const serializedTransaction = buildMintNftTx(
+    const serializedTransaction = await buildMintNftTx(
       connection,
       keypair,
       program,
@@ -74,7 +74,9 @@ export default async function handler(
       metadataUri
     );
 
-    return res.status(200).json({ result: serializedTransaction });
+    return res
+      .status(200)
+      .json({ result: serializedTransaction.toString("base64") });
   } catch (e) {
     console.log(e);
     return res.status(500).json({
@@ -90,6 +92,18 @@ function initSolana() {
       ? JSON.parse(process.env.NEXT_PUBLIC_RPC_CONFIG)
       : undefined
   );
+
+  const randomKeypair = anchor.web3.Keypair.generate();
+  const provider = new anchor.AnchorProvider(
+    connection,
+    {
+      publicKey: randomKeypair.publicKey,
+      signTransaction: (() => {}) as any,
+      signAllTransactions: (() => {}) as any,
+    },
+    { commitment: "processed" }
+  );
+  anchor.setProvider(provider);
 
   const keypair = anchor.web3.Keypair.fromSecretKey(
     new Uint8Array(JSON.parse(process.env.WALLET_PRIVATE_KEY!))

@@ -35,9 +35,12 @@ export const BUTTON_ID_TO_ENUM = [
 //   "redHPYj5C9X7TyEqQPHMTsfevKZ9eHCTQ8BJVee9JWC";
 // export const GAME_DATA_AUTHORITY =
 //   "ash1JcmhS3mNXm7gowst3pfSCsr3Sg33bQZ555vsw1i";
+// export const COLLECTION_ID = "pkmA56jwkhZWJYXFB8RbKju8kgFhw4fTYahp9VXPQdw";
 
 // Devnet
 export const PROGRAM_ID = "pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK";
 export const GAME_DATA_ACCOUNT_ID =
   "redRuipyQy8cMUuLaGuriaeE3khPNGZpM9PRsq3zFqv";
+export const GAME_DATA_AUTHORITY =
+  "ashAJB3SoHhrX5ppXgDCELsmjyhZiV4GtBtLKB8F8wx";
 export const COLLECTION_ID = "pkmZnQzR1zzWFsNTvQ7G1r2keHrcpkbvprQ4954TzAN";
