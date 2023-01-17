@@ -4,6 +4,7 @@ import {
   GAMEBOY_CAMERA_HEIGHT,
   GAMEBOY_CAMERA_WIDTH,
   GAMEBOY_FPS,
+  GAMEBOY_MEMORY_OFFSET,
   JoypadButton,
   NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS,
 } from "common";
@@ -200,6 +201,11 @@ export class WasmboyService {
       wasmBoy.GAMEBOY_INTERNAL_MEMORY_LOCATION +
         wasmBoy.GAMEBOY_INTERNAL_MEMORY_SIZE,
     );
+    const LETTER_PRINTING_DELAY_FLAGS_LOCATION = 0xd358;
+    // set no text delay
+    gameboyMemory[
+      LETTER_PRINTING_DELAY_FLAGS_LOCATION - GAMEBOY_MEMORY_OFFSET
+    ] = 0;
 
     const paletteMemory = wasmByteMemory.slice(
       wasmBoy.GBC_PALETTE_LOCATION,
