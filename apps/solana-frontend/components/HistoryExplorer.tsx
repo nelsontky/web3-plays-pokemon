@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import tw from "twin.macro";
 import { useAppSelector } from "../hooks/redux";
 import useGameHistory from "../hooks/useGameHistory";
@@ -9,6 +9,7 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import { IconButton } from "@mui/material";
 import HistoryParticipants from "./HistoryParticipants";
 import MintButton from "./MintButton";
+import { useRouter } from "next/router";
 
 const styles = {
   sliderContainer: tw`
@@ -40,57 +41,74 @@ export default function HistoryExplorer() {
     (state) => state.gameData.executedStatesCount
   );
   const latestStateIndex = executedStatesCount - 1;
-  const [stateIndex, setStateIndex] = useState(latestStateIndex);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (router.isReady && router.query.index === undefined) {
+      router.replace(`/history?index=${latestStateIndex}`);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router]);
 
   const handleChange = (_: Event, newValue: number | number[]) => {
-    setStateIndex(newValue as number);
+    router.replace(`/history?index=${newValue}`);
   };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = +e.target.value;
     if (!isNaN(value) && value <= latestStateIndex && value >= 0) {
-      setStateIndex(value);
+      router.replace(`/history?index=${value}`);
     }
   };
 
+  const stateIndex =
+    typeof router.query.index === "string" ? +router.query.index : undefined;
   const history = useGameHistory(stateIndex);
 
   return (
     <div>
       <GameCanvas framesImageData={history?.framesImageData} />
       <div css={styles.sliderContainer}>
-        <AppSlider
-          min={0}
-          max={latestStateIndex}
-          step={1}
-          value={stateIndex}
-          onChange={handleChange}
-          css={styles.slider}
-        />
+        {stateIndex !== undefined && (
+          <AppSlider
+            min={0}
+            max={latestStateIndex}
+            step={1}
+            value={stateIndex}
+            onChange={handleChange}
+            css={styles.slider}
+          />
+        )}
       </div>
       <div css={styles.rounds}>
         Round:
         <IconButton
           disabled={stateIndex === 0}
           onClick={() => {
-            setStateIndex((stateIndex) => stateIndex - 1);
+            if (stateIndex !== undefined) {
+              router.replace(`/history?index=${stateIndex - 1}`);
+            }
           }}
         >
           <RemoveIcon
             css={[tw`text-black`, stateIndex === 0 && tw`opacity-30`]}
           />
         </IconButton>
-        <input
-          inputMode="numeric"
-          size={10}
-          css={styles.input}
-          value={stateIndex}
-          onChange={handleInputChange}
-        />
+        {stateIndex !== undefined && (
+          <input
+            inputMode="numeric"
+            size={10}
+            css={styles.input}
+            value={stateIndex}
+            onChange={handleInputChange}
+          />
+        )}
         <IconButton
           disabled={stateIndex === latestStateIndex}
           onClick={() => {
-            setStateIndex((stateIndex) => stateIndex + 1);
+            if (stateIndex !== undefined) {
+              router.replace(`/history?index=${stateIndex + 1}`);
+            }
           }}
         >
           <AddIcon
@@ -101,7 +119,7 @@ export default function HistoryExplorer() {
           />
         </IconButton>
       </div>
-      <MintButton stateIndex={stateIndex} />
+      {/* <MintButton stateIndex={stateIndex} /> */}
       <HistoryParticipants history={history} />
     </div>
   );
