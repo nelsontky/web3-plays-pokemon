@@ -27,6 +27,54 @@ const fetchTestFrames = async () => {
   }
 };
 
+const generateMetadata = (round: number, imageUrl: string) => ({
+  name: `Solana Plays Pokemon #${round}`,
+  description: `Round #${round} of Solana Plays Pokemon.`,
+  image: imageUrl,
+  animation_url: imageUrl,
+  external_url: "https://solana.playspokemon.xyz",
+  attributes: [
+    {
+      trait_type: "Round",
+      value: round,
+    },
+    {
+      trait_type: "Game",
+      value: "Pokemon Red",
+    },
+    {
+      trait_type: "Version",
+      value: "v1",
+    },
+  ],
+  properties: {
+    files: [
+      {
+        uri: imageUrl,
+        type: "image/gif",
+      },
+    ],
+    category: "image",
+  },
+});
+
+const COLLECTION_METADATA = JSON.stringify({
+  name: "Solana Plays Pokemon",
+  description: "NFTs of people playing Pokemon Red on the Solana blockchain!",
+  image:
+    "https://bafkreifdjdrlq5gpzzx4zqhwzb7uvxar7gv6f725q52s3jr2lctojoy4ci.ipfs.nftstorage.link",
+  external_url: "https://solana.playspokemon.xyz",
+  properties: {
+    files: [
+      {
+        uri: "https://bafkreifdjdrlq5gpzzx4zqhwzb7uvxar7gv6f725q52s3jr2lctojoy4ci.ipfs.nftstorage.link",
+        type: "image/png",
+      },
+    ],
+    category: "image",
+  },
+});
+
 const testCanvas = () => {
   const encoder = new GIFEncoder(
     GAMEBOY_CAMERA_WIDTH * CELL_SIZE,
@@ -76,8 +124,15 @@ const testCanvas = () => {
     const image = new Blob([writableStreamBuffer.getContents() as Buffer], {
       type: "image/gif",
     });
-    const cid = await client.storeBlob(image);
-    console.log(cid);
+    const imageCid = await client.storeBlob(image);
+
+    const metadata = JSON.stringify(
+      generateMetadata(200, `https://${imageCid}.ipfs.nftstorage.link`)
+    );
+    const metadataBlob = new Blob([metadata]);
+    const metadataCid = await client.storeBlob(metadataBlob);
+
+    console.log(metadataCid);
   });
 };
 
