@@ -8,6 +8,7 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { IconButton } from "@mui/material";
 import HistoryParticipants from "./HistoryParticipants";
+import MintButton from "./MintButton";
 
 const styles = {
   sliderContainer: tw`
@@ -100,6 +101,7 @@ export default function HistoryExplorer() {
           />
         </IconButton>
       </div>
+      <MintButton stateIndex={stateIndex} />
       <HistoryParticipants history={history} />
     </div>
   );
