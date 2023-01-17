@@ -279,6 +279,30 @@ export type SolanaPlaysPokemonProgram = {
   ],
   "accounts": [
     {
+      "name": "gameDataV2",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "executedStatesCount",
+            "type": "u32"
+          },
+          {
+            "name": "isExecuting",
+            "type": "bool"
+          },
+          {
+            "name": "authority",
+            "type": "publicKey"
+          },
+          {
+            "name": "numberOfNftsMinted",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
       "name": "gameData",
       "type": {
         "kind": "struct",
@@ -839,6 +863,30 @@ export const IDL: SolanaPlaysPokemonProgram = {
     }
   ],
   "accounts": [
+    {
+      "name": "gameDataV2",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "executedStatesCount",
+            "type": "u32"
+          },
+          {
+            "name": "isExecuting",
+            "type": "bool"
+          },
+          {
+            "name": "authority",
+            "type": "publicKey"
+          },
+          {
+            "name": "numberOfNftsMinted",
+            "type": "u32"
+          }
+        ]
+      }
+    },
     {
       "name": "gameData",
       "type": {
