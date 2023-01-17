@@ -499,6 +499,7 @@ pub struct MintFramesNft<'info> {
     pub token_program: Program<'info, Token>,
 
     #[account(
+        mut,
         seeds = [
             b"minted_nfts_count",
             game_data.key().as_ref(),
@@ -512,10 +513,10 @@ pub struct MintFramesNft<'info> {
         seeds = [
             b"minted_nft",
             game_data.key().as_ref(),
-            (minted_nfts_count.nfts_minted.checked_add(1).unwrap()).to_string().as_ref()
+            minted_nfts_count.nfts_minted.to_string().as_ref()
         ],
         bump,
-        space = 4 + MintedNft::LEN
+        space = 8 + MintedNft::LEN
     )]
     pub minted_nft: Account<'info, MintedNft>,
 
