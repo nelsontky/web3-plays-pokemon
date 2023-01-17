@@ -248,7 +248,7 @@ export type SolanaPlaysPokemonProgram = {
         },
         {
           "name": "mintedNftsCount",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -874,7 +874,7 @@ export const IDL: SolanaPlaysPokemonProgram = {
         },
         {
           "name": "mintedNftsCount",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {

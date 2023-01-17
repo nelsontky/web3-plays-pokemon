@@ -13,7 +13,7 @@ impl MintedNftsCount {
 
 #[account]
 pub struct MintedNft {
-    pub mint: Pubkey
+    pub mint: Pubkey,
 }
 
 impl MintedNft {
