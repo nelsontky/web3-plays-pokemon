@@ -76,6 +76,10 @@ pub mod solana_plays_pokemon_program {
         );
         msg!("Second game state account initialized");
 
+        // init minted nfts count
+        let minted_nfts_count = &mut ctx.accounts.minted_nfts_count;
+        minted_nfts_count.nfts_minted = 0;
+
         Ok(())
     }
 
@@ -189,6 +193,13 @@ pub mod solana_plays_pokemon_program {
         Ok(())
     }
 
+    pub fn initialize_minted_nfts_count(ctx: Context<InitializeMintedNftCounts>) -> Result<()> {
+        let minted_nfts_count = &mut ctx.accounts.minted_nfts_count;
+        minted_nfts_count.nfts_minted = 0;
+
+        Ok(())
+    }
+
     pub fn mint_frames_nft(
         ctx: Context<MintFramesNft>,
         _game_state_index: u32,
@@ -281,6 +292,12 @@ pub mod solana_plays_pokemon_program {
             None,
         )?;
 
+        // add to on chain mint list
+        let minted_nfts_count = &mut ctx.accounts.minted_nfts_count;
+        minted_nfts_count.nfts_minted = minted_nfts_count.nfts_minted.checked_add(1).unwrap();
+        let minted_nft = &mut ctx.accounts.minted_nft;
+        minted_nft.mint = ctx.accounts.mint.key();
+
         Ok(())
     }
 }
@@ -306,6 +323,17 @@ pub struct Initialize<'info> {
         bump
     )]
     pub next_game_state: Account<'info, GameStateV4>,
+    #[account(
+        init,
+        payer = authority,
+        seeds = [
+            b"minted_nfts_count",
+            game_data.key().as_ref(),
+        ],
+        space = 8 + MintedNftsCount::LEN,
+        bump
+    )]
+    pub minted_nfts_count: Account<'info, MintedNftsCount>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
@@ -423,6 +451,26 @@ pub struct MigrateGameStateToV4<'info> {
 }
 
 #[derive(Accounts)]
+pub struct InitializeMintedNftCounts<'info> {
+    #[account(
+        init,
+        payer = authority,
+        seeds = [
+            b"minted_nfts_count",
+            game_data.key().as_ref(),
+        ],
+        space = 8 + MintedNftsCount::LEN,
+        bump
+    )]
+    pub minted_nfts_count: Account<'info, MintedNftsCount>,
+    #[account(mut, has_one = authority)]
+    pub game_data: Account<'info, GameData>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
 #[instruction(
     game_state_index: u32
 )]
@@ -449,6 +497,27 @@ pub struct MintFramesNft<'info> {
     pub game_data: Account<'info, GameData>,
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
+
+    #[account(
+        seeds = [
+            b"minted_nfts_count",
+            game_data.key().as_ref(),
+        ],
+        bump
+    )]
+    pub minted_nfts_count: Account<'info, MintedNftsCount>,
+    #[account(
+        init,
+        payer = user,
+        seeds = [
+            b"minted_nft",
+            game_data.key().as_ref(),
+            (minted_nfts_count.nfts_minted.checked_add(1).unwrap()).to_string().as_ref()
+        ],
+        bump,
+        space = 4 + MintedNft::LEN
+    )]
+    pub minted_nft: Account<'info, MintedNft>,
 
     #[account(
         init_if_needed,

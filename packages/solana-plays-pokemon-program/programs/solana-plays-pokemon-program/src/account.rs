@@ -3,6 +3,24 @@ use anchor_lang::prelude::*;
 use crate::constants::*;
 
 #[account]
+pub struct MintedNftsCount {
+    pub nfts_minted: u32,
+}
+
+impl MintedNftsCount {
+    pub const LEN: usize = 4;
+}
+
+#[account]
+pub struct MintedNft {
+    pub mint: Pubkey
+}
+
+impl MintedNft {
+    pub const LEN: usize = 32;
+}
+
+#[account]
 pub struct GameData {
     pub executed_states_count: u32,
     pub is_executing: bool,
