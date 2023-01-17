@@ -151,7 +151,7 @@ async function getNftMetadataUri(
 
     const isLastFrame = i === framesImageData.length - 1;
     if (isLastFrame) {
-      encoder.setDelay(3000);
+      encoder.setDelay(2000);
     }
 
     renderFrame(frame, ctx as any);

@@ -108,7 +108,7 @@ const testCanvas = () => {
 
     const isLastFrame = i === frames.length - 1;
     if (isLastFrame) {
-      encoder.setDelay(3000);
+      encoder.setDelay(1500);
     }
 
     renderFrame(frame, ctx as any);
