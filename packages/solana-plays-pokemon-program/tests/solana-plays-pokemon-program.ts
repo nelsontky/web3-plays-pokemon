@@ -475,16 +475,16 @@ describe("solana-plays-pokemon-program", () => {
 
     const tokenAccount = await getAssociatedTokenAddress(mint, user.publicKey);
 
-    const NAME = "Test NFT";
+    const NAME = "Solana Plays Pokemon #200";
     const METADATA_URI =
-      "https://arweave.net/4yrRwYcsy8qI8mV71j4VFtGj4ZR21EgsfvkPGpJxqTQ";
+      "https://bafkreiexwahj4iavkybhnscnp6l3cmo6cmy7lifdpaihzltcyx6p4swiea.ipfs.nftstorage.link/";
 
     const metaplex = Metaplex.make(anchor.getProvider().connection).use(
       walletAdapterIdentity(anchor.AnchorProvider.env().wallet)
     );
     const { nft: collectionNft } = await metaplex.nfts().create({
-      name: "Test Collection",
-      uri: "https://arweave.net/qmFuWrUYBkv7cpwMCIUhCMSLH7dE3vj6vp5kXUzB_Nk",
+      name: "Solana Plays Pokemon",
+      uri: "https://bafkreibjyfkoo3mny2rbsfpndkodlgrtwdiu43g54dfgcsnfn5jfcx4n4y.ipfs.nftstorage.link/",
       sellerFeeBasisPoints: 0,
       isCollection: true,
     });
