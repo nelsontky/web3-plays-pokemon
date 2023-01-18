@@ -4,14 +4,13 @@ use crate::utils::*;
 
 use anchor_lang::prelude::*;
 use anchor_spl::associated_token::AssociatedToken;
-use anchor_spl::metadata::CreateMetadataAccountsV3;
 use anchor_spl::metadata::{
     create_master_edition_v3, create_metadata_accounts_v3, verify_sized_collection_item,
-    CreateMasterEditionV3, Metadata, VerifySizedCollectionItem,
+    CreateMasterEditionV3, CreateMetadataAccountsV3, Metadata, MetadataAccount,
+    VerifySizedCollectionItem,
 };
 use anchor_spl::token::{mint_to, Mint, MintTo, Token, TokenAccount};
-use mpl_token_metadata::state::DataV2;
-use mpl_token_metadata::state::{Collection, Creator};
+use mpl_token_metadata::state::{Collection, Creator, DataV2};
 use std::cmp;
 
 pub mod account;
@@ -540,12 +539,10 @@ pub struct MintFramesNft<'info> {
         bump,
         seeds::program = token_metadata_program.key()
     )]
-    /// CHECK: This is not dangerous because this is a token metadata program pda
-    pub token_metadata_account: UncheckedAccount<'info>,
+    pub token_metadata_account: Account<'info, MetadataAccount>,
     pub token_metadata_program: Program<'info, Metadata>,
 
-    /// CHECK: This is not dangerous because this instruction can only be called with the appropriate signer
-    pub collection_mint: UncheckedAccount<'info>,
+    pub collection_mint: Account<'info, Mint>,
     #[account(
         mut,
         seeds = [
@@ -556,8 +553,7 @@ pub struct MintFramesNft<'info> {
         bump,
         seeds::program = token_metadata_program.key()
     )]
-    /// CHECK: This is not dangerous because this is a checked pda
-    pub collection_metadata: UncheckedAccount<'info>,
+    pub collection_metadata: Account<'info, MetadataAccount>,
     #[account(
         seeds = [
             b"metadata",
@@ -568,8 +564,7 @@ pub struct MintFramesNft<'info> {
         bump,
         seeds::program = token_metadata_program.key()
     )]
-    /// CHECK: This is not dangerous because this is a checked pda
-    pub collection_master_edition: UncheckedAccount<'info>,
+    pub collection_master_edition: Account<'info, MetadataAccount>,
 
     #[account(
         mut,
@@ -582,8 +577,7 @@ pub struct MintFramesNft<'info> {
         bump,
         seeds::program = token_metadata_program.key()
     )]
-    /// CHECK: This is not dangerous because this is a checked pda
-    pub master_edition: UncheckedAccount<'info>,
+    pub master_edition: Account<'info, MetadataAccount>,
 }
 
 #[event]
