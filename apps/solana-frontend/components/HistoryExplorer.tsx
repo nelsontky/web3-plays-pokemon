@@ -119,7 +119,7 @@ export default function HistoryExplorer() {
           />
         </IconButton>
       </div>
-      {/* <MintButton stateIndex={stateIndex} /> */}
+      <MintButton stateIndex={stateIndex} history={history} />
       <HistoryParticipants history={history} />
     </div>
   );
