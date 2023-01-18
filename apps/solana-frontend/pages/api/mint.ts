@@ -159,7 +159,6 @@ async function getNftMetadataUri(
   const inflated = inflate(responseData, { to: "string" });
   const framesImageData: number[][] = JSON.parse(inflated);
 
-  // setup gif rendering
   const encoder = new GIFEncoder(
     GAMEBOY_CAMERA_WIDTH * CELL_SIZE,
     GAMEBOY_CAMERA_HEIGHT * CELL_SIZE
@@ -193,7 +192,6 @@ async function getNftMetadataUri(
 
   encoder.finish();
 
-  // upload gif
   const gifBuffer: Buffer = await new Promise((resolve, reject) => {
     writableStreamBuffer.on("close", () => {
       resolve(writableStreamBuffer.getContents() as Buffer);
