@@ -23,6 +23,8 @@ import GIFEncoder from "gifencoder";
 import { createCanvas } from "canvas";
 import * as mplTokenMetadata from "@metaplex-foundation/mpl-token-metadata";
 import { Transaction } from "@solana/web3.js";
+import getGameStateParticipants from "../../utils/getGameStateParticipants";
+import axios from "axios";
 
 export default async function handler(
   req: NextApiRequest,
@@ -39,10 +41,8 @@ export default async function handler(
     }: { publicKey?: string; gameStateIndex?: number } = req.body;
 
     if (publicKey === undefined || gameStateIndex === undefined) {
-      return res.status(400).json({ message: "Bad request" });
+      return res.status(400).json({ result: "Bad request" });
     }
-
-    // TODO: add participation checks
 
     const { connection, keypair, program } = initSolana();
     const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
@@ -53,6 +53,14 @@ export default async function handler(
       ],
       program.programId
     );
+    const isParticipant = await getIsParticipant(gameStatePda, publicKey);
+    if (!isParticipant) {
+      return res.status(403).json({
+        result:
+          "Ineligible for mint as your wallet did not participate in this round :'(",
+      });
+    }
+
     const gameState = await Promise.any([
       program.account.gameStateV4.fetch(gameStatePda),
       program.account.gameStateV3.fetch(gameStatePda),
@@ -78,11 +86,36 @@ export default async function handler(
       .status(200)
       .json({ result: serializedTransaction.toString("base64") });
   } catch (e) {
-    console.log(e);
     return res.status(500).json({
-      result: "An unspecified error has occurred. Please refresh the page and try again.",
+      result:
+        "An unspecified error has occurred. Please refresh the page and try again.",
     });
   }
+}
+
+async function getIsParticipant(
+  gameStatePda: anchor.web3.PublicKey,
+  publicKey: string
+) {
+  const gameStateParticipants = await getGameStateParticipants(gameStatePda);
+  const participant = gameStateParticipants.find(
+    (participant) => participant.signer === publicKey
+  );
+  if (!participant) {
+    return false;
+  }
+
+  const txDetails = await axios.get(
+    `https://public-api.solscan.io/transaction/${participant.txHash}`,
+    {
+      headers: { "Accept-Encoding": "gzip,deflate,compress" },
+    }
+  );
+  const wasPdaWritable = txDetails.data.inputAccount.find(
+    (inputAccount: any) => inputAccount.account === gameStatePda.toBase58()
+  )?.writable;
+
+  return wasPdaWritable;
 }
 
 function initSolana() {
