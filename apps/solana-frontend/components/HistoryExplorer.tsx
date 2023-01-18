@@ -48,7 +48,7 @@ export default function HistoryExplorer() {
       router.replace(`/history?index=${latestStateIndex}`);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router]);
+  }, [router.isReady, router.query]);
 
   const handleChange = (_: Event, newValue: number | number[]) => {
     router.replace(`/history?index=${newValue}`);
