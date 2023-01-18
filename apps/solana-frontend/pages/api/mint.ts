@@ -332,6 +332,7 @@ async function buildMintNftTx(
 
 const generateMetadata = (round: number, imageUrl: string) => ({
   name: `Solana Plays Pokemon #${round}`,
+  symbol: "PKM",
   description: `Round #${round} of Solana Plays Pokemon.`,
   image: imageUrl,
   animation_url: imageUrl,

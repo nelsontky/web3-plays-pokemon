@@ -244,7 +244,7 @@ pub mod solana_plays_pokemon_program {
                     verified: true,
                 }]),
                 name,
-                symbol: "".to_string(),
+                symbol: "PKM".to_string(),
                 uri: metadata_uri,
                 seller_fee_basis_points: 0,
                 uses: None,
