@@ -3,9 +3,12 @@
     "lib": ["ES2015", "DOM"],
     "module": "CommonJS",
     "outDir": "./dist",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
   },
   "exclude": ["node_modules"],
   "extends": "tsconfig/base.json",
-  "include": ["src"]
+  "include": [
+    "src",
+    "../../packages/solana-plays-pokemon-program/dist/target/**/*"
+  ]
 }

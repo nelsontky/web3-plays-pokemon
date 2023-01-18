@@ -144,8 +144,7 @@ function initSolana() {
 
   const program = new anchor.Program(
     idl as anchor.Idl,
-    PROGRAM_ID,
-    undefined
+    PROGRAM_ID
   ) as unknown as anchor.Program<SolanaPlaysPokemonProgram>;
 
   return { connection, keypair, program };

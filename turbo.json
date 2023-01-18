@@ -15,7 +15,9 @@
     "NODE_ENV",
     "TEST_USER_WALLET_KEY",
     "WALLET_PRIVATE_KEY",
-    "NFT_STORAGE_TOKEN"
+    "NFT_STORAGE_TOKEN",
+    "RPC_URL",
+    "RPC_CONFIG"
   ],
   "$schema": "https://turbo.build/schema.json",
   "pipeline": {
