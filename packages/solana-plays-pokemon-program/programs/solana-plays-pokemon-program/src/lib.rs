@@ -115,6 +115,12 @@ pub mod solana_plays_pokemon_program {
             .participants
             .push(ctx.accounts.player.key());
 
+        msg!(
+            "Button: {}. Press count: {}.",
+            BUTTON_MAPPINGS[usize::from(joypad_button)],
+            computed_press_count
+        );
+
         // execute if game state is at least 10 seconds old or we have hit 10 button presses
         let should_execute = game_state.button_presses.len() >= MAX_BUTTONS_PER_ROUND
             || (ctx.accounts.clock.unix_timestamp - game_state.created_at >= VOTE_SECONDS);
@@ -125,10 +131,18 @@ pub mod solana_plays_pokemon_program {
             for i in 0..game_state.button_presses.len() {
                 button_presses[i] = *game_state.button_presses.get(i).unwrap();
             }
+
+            let mut participants: [Pubkey; MAX_BUTTONS_PER_ROUND] =
+                [Pubkey::default(); MAX_BUTTONS_PER_ROUND];
+            for i in 0..current_participants.participants.len() {
+                participants[i] = *current_participants.participants.get(i).unwrap();
+            }
+
             emit!(ExecuteGameState {
                 button_presses,
                 index: game_data.executed_states_count,
-                game_data_id: ctx.accounts.game_data.key()
+                game_data_id: ctx.accounts.game_data.key(),
+                participants
             });
         }
 
@@ -655,6 +669,7 @@ pub struct ExecuteGameState {
     pub button_presses: [u8; MAX_BUTTONS_PER_ROUND],
     pub index: u32,
     pub game_data_id: Pubkey,
+    pub participants: [Pubkey; MAX_BUTTONS_PER_ROUND],
 }
 
 #[error_code]
