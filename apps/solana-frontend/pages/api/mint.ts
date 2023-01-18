@@ -20,7 +20,7 @@ import { inflate } from "pako";
 import streamBuffers from "stream-buffers";
 import { NFTStorage, Blob } from "nft.storage";
 import GIFEncoder from "gifencoder";
-import { createCanvas } from "canvas";
+import { createCanvas } from "@napi-rs/canvas";
 import * as mplTokenMetadata from "@metaplex-foundation/mpl-token-metadata";
 import { Transaction } from "@solana/web3.js";
 import getGameStateParticipants from "../../utils/getGameStateParticipants";
