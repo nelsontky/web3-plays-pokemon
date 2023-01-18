@@ -651,6 +651,16 @@
           "name": "gameDataId",
           "type": "publicKey",
           "index": false
+        },
+        {
+          "name": "participants",
+          "type": {
+            "array": [
+              "publicKey",
+              10
+            ]
+          },
+          "index": false
         }
       ]
     }
@@ -676,8 +686,5 @@
       "name": "InvalidButtonPressCount",
       "msg": "Invalid button press count."
     }
-  ],
-  "metadata": {
-    "address": "pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK"
-  }
+  ]
 }

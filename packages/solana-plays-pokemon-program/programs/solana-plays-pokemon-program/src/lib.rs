@@ -6,8 +6,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::metadata::{
     create_master_edition_v3, create_metadata_accounts_v3, verify_sized_collection_item,
-    CreateMasterEditionV3, CreateMetadataAccountsV3, Metadata, MetadataAccount,
-    VerifySizedCollectionItem,
+    CreateMasterEditionV3, CreateMetadataAccountsV3, Metadata, VerifySizedCollectionItem,
 };
 use anchor_spl::token::{mint_to, Mint, MintTo, Token, TokenAccount};
 use mpl_token_metadata::state::{Collection, Creator, DataV2};
@@ -623,7 +622,8 @@ pub struct MintFramesNft<'info> {
         bump,
         seeds::program = token_metadata_program.key()
     )]
-    pub token_metadata_account: Account<'info, MetadataAccount>,
+    /// CHECK: token metadata pda is checked
+    pub token_metadata_account: UncheckedAccount<'info>,
     pub token_metadata_program: Program<'info, Metadata>,
 
     pub collection_mint: Account<'info, Mint>,
@@ -637,7 +637,8 @@ pub struct MintFramesNft<'info> {
         bump,
         seeds::program = token_metadata_program.key()
     )]
-    pub collection_metadata: Account<'info, MetadataAccount>,
+    /// CHECK: token metadata pda is checked
+    pub collection_metadata: UncheckedAccount<'info>,
     #[account(
         seeds = [
             b"metadata",
@@ -648,7 +649,8 @@ pub struct MintFramesNft<'info> {
         bump,
         seeds::program = token_metadata_program.key()
     )]
-    pub collection_master_edition: Account<'info, MetadataAccount>,
+    /// CHECK: token metadata pda is checked
+    pub collection_master_edition: UncheckedAccount<'info>,
 
     #[account(
         mut,
@@ -661,7 +663,8 @@ pub struct MintFramesNft<'info> {
         bump,
         seeds::program = token_metadata_program.key()
     )]
-    pub master_edition: Account<'info, MetadataAccount>,
+    /// CHECK: token metadata pda is checked
+    pub master_edition: UncheckedAccount<'info>,
 }
 
 #[event]

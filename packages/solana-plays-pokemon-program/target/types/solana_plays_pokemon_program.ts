@@ -651,6 +651,16 @@ export type SolanaPlaysPokemonProgram = {
           "name": "gameDataId",
           "type": "publicKey",
           "index": false
+        },
+        {
+          "name": "participants",
+          "type": {
+            "array": [
+              "publicKey",
+              10
+            ]
+          },
+          "index": false
         }
       ]
     }
@@ -1331,6 +1341,16 @@ export const IDL: SolanaPlaysPokemonProgram = {
         {
           "name": "gameDataId",
           "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "participants",
+          "type": {
+            "array": [
+              "publicKey",
+              10
+            ]
+          },
           "index": false
         }
       ]
