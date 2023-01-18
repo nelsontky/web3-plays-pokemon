@@ -18,6 +18,7 @@ import { Cron } from "@nestjs/schedule";
 
 // nestjs doesn't want to play nice with json imports from workspace package
 import * as idl from "../../../../packages/solana-plays-pokemon-program/target/idl/solana_plays_pokemon_program.json";
+import { RealtimeDatabaseService } from "../realtime-database/realtime-database.service";
 
 @Injectable()
 export class ProgramService implements OnModuleDestroy {
@@ -27,7 +28,10 @@ export class ProgramService implements OnModuleDestroy {
   private wallet: anchor.Wallet;
   private listener: number;
 
-  constructor(private readonly wasmboyService: WasmboyService) {
+  constructor(
+    private readonly wasmboyService: WasmboyService,
+    private readonly realtimeDatabaseService: RealtimeDatabaseService,
+  ) {
     this.connection = new anchor.web3.Connection(
       process.env.RPC_URL,
       process.env.RPC_CONFIG ? JSON.parse(process.env.RPC_CONFIG) : undefined,
@@ -124,7 +128,7 @@ export class ProgramService implements OnModuleDestroy {
     await this.executeGameState(gameData.executedStatesCount);
   }
 
-  // @Cron(`*/20 * * * * *`)
+  @Cron(`*/20 * * * * *`)
   async cronExecute() {
     const gameDataId = new anchor.web3.PublicKey(GAME_DATA_ACCOUNT_ID);
     const gameData = await this.program.account.gameData.fetch(gameDataId);
@@ -201,6 +205,23 @@ export class ProgramService implements OnModuleDestroy {
       prevGameState.saveStateCid,
     );
 
+    // compile participants before they are deleted by the next transaction
+    let participants: string[];
+    if (currentParticipants === undefined) {
+      const currentParticipants =
+        await this.program.account.currentParticipants.fetch(
+          currentParticipantsPda,
+        );
+      participants = currentParticipants.participants
+        .filter(
+          (participant) =>
+            participant.toBase58() !== "11111111111111111111111111111111",
+        )
+        .map((participant) => participant.toBase58());
+    } else {
+      participants = currentParticipants;
+    }
+
     const instruction = await this.program.methods
       .updateGameState(framesImageDataCid, saveStateCid)
       .accounts({
@@ -231,22 +252,12 @@ export class ProgramService implements OnModuleDestroy {
       },
     );
 
-    let participants: string[];
-    if (currentParticipants === undefined) {
-      const currentParticipants =
-        await this.program.account.currentParticipants.fetch(
-          currentParticipantsPda,
-        );
-      participants = currentParticipants.participants
-        .filter(
-          (participant) =>
-            participant.toBase58() !== "11111111111111111111111111111111",
-        )
-        .map((participant) => participant.toBase58());
-    } else {
-      participants = currentParticipants;
+    // save participants to firebase
+    for (const participant of participants) {
+      await this.realtimeDatabaseService.push(
+        `${process.env.PARTICIPANTS_COLLECTION_NAME}/${participant}`,
+        gameStateIndex,
+      );
     }
-
-    console.log(participants);
   }
 }
