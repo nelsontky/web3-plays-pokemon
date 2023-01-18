@@ -26,11 +26,12 @@ export default async function getGameStateParticipants(
   );
 
   const participants: Participant[] = response.data
+    .filter((solscanData) => solscanData.status === "Success")
     .filter((solscanData, i, arr) => {
       const isCreateAccountTx =
         (i === 0 || i === arr.length - 1) &&
         solscanData.signer[0] === GAME_DATA_AUTHORITY;
-      return solscanData.status === "Success" && !isCreateAccountTx;
+      return !isCreateAccountTx;
     })
     .map((solscanData) => ({
       signer: solscanData.signer[0],

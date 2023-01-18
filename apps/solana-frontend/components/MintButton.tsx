@@ -210,11 +210,13 @@ export default function MintButton({ stateIndex, history }: MintButtonProps) {
           onClick={isButtonDisabled ? undefined : onMint}
           css={[styles.button, isButtonDisabled && styles.disabledButton]}
         >
-          MINT
+          MINT NFT
         </button>
         <p css={styles.explainer}>
-          {isParticipant === undefined ||
-          (isParticipant && hasMintedBefore === undefined)
+          {history?.participants.length === 0
+            ? "Refresh the page after 1 minute to check if you can mint this round"
+            : isParticipant === undefined ||
+              (isParticipant && hasMintedBefore === undefined)
             ? "Loading..."
             : isParticipant === false
             ? "Ineligible for mint as your wallet did not participate in this round :'("
@@ -222,7 +224,7 @@ export default function MintButton({ stateIndex, history }: MintButtonProps) {
             ? "Your wallet minted this round before!"
             : loading
             ? "Minting your NFT... This might take up to 1 minute please do not leave the page!"
-            : ""}
+            : "You are eligible for mint :)"}
         </p>
       </div>
     </div>
