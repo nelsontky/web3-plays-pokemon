@@ -35,6 +35,7 @@
     "axios": "^1.2.1",
     "cheerio": "1.0.0-rc.12",
     "common": "workspace:*",
+    "dotenv": "^16.0.3",
     "gifencoder": "^2.0.1",
     "nft.storage": "^7.0.0",
     "pako": "^2.1.0",
