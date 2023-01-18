@@ -1,5 +1,5 @@
 import GIFEncoder from "gifencoder";
-import { createCanvas } from "canvas";
+import { createCanvas } from "@napi-rs/canvas";
 import fs from "fs";
 import axios from "axios";
 import { inflate } from "pako";
