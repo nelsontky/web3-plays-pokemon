@@ -121,6 +121,29 @@ export default function Admin() {
     }
   };
 
+  const initializeCurrentParticipantsAccount = async () => {
+    if (program) {
+      const [currentParticipantsPda] =
+        anchor.web3.PublicKey.findProgramAddressSync(
+          [
+            Buffer.from("current_participants"),
+            GAME_DATA_ACCOUNT_PUBLIC_KEY.toBuffer(),
+          ],
+          program.programId
+        );
+
+      console.log("sending");
+      await program.methods
+        .initializeCurrentParticipants()
+        .accounts({
+          currentParticipants: currentParticipantsPda,
+          gameData: GAME_DATA_ACCOUNT_PUBLIC_KEY,
+        })
+        .rpc();
+      console.log("done");
+    }
+  };
+
   return (
     <div>
       <AppButton
@@ -164,6 +187,9 @@ export default function Admin() {
       <AppButton onClick={migrateGameStates}>Migrate game state</AppButton>
       <AppButton onClick={initializeMintedNftsCountAccount}>
         Initialize minted nfts count
+      </AppButton>
+      <AppButton onClick={initializeCurrentParticipantsAccount}>
+        Initialize current participants
       </AppButton>
     </div>
   );

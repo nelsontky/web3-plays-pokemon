@@ -73,6 +73,14 @@ export default function Controls() {
         ],
         program.programId
       );
+      const [currentParticipantsPda] =
+        anchor.web3.PublicKey.findProgramAddressSync(
+          [
+            Buffer.from("current_participants"),
+            GAME_DATA_ACCOUNT_PUBLIC_KEY.toBuffer(),
+          ],
+          program.programId
+        );
 
       const snackbarId = enqueueSnackbar(
         {
@@ -93,6 +101,7 @@ export default function Controls() {
             player: anchor.getProvider().publicKey,
             systemProgram: anchor.web3.SystemProgram.programId,
             clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+            currentParticipants: currentParticipantsPda,
           })
           .rpc();
 
