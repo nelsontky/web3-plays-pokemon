@@ -22,13 +22,14 @@ export default async function getGameStateParticipants(
   gameStatePda: PublicKey
 ) {
   const response = await axios.get<SolscanData[]>(
-    `https://public-api.solscan.io/account/transactions?account=${gameStatePda.toBase58()}&limit=20`
+    `https://public-api.solscan.io/account/transactions?account=${gameStatePda.toBase58()}&limit=100`
   );
 
   const participants: Participant[] = response.data
-    .filter((solscanData, i) => {
+    .filter((solscanData, i, arr) => {
       const isCreateAccountTx =
-        i === 0 && solscanData.signer[0] === GAME_DATA_AUTHORITY;
+        (i === 0 || i === arr.length - 1) &&
+        solscanData.signer[0] === GAME_DATA_AUTHORITY;
       return solscanData.status === "Success" && !isCreateAccountTx;
     })
     .map((solscanData) => ({
