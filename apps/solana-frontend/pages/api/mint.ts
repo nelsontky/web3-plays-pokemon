@@ -101,6 +101,7 @@ async function getIsParticipant(
   const participant = gameStateParticipants.find(
     (participant) => participant.signer === publicKey
   );
+
   if (!participant) {
     return false;
   }
@@ -114,8 +115,10 @@ async function getIsParticipant(
   const wasPdaWritable = txDetails.data.inputAccount.find(
     (inputAccount: any) => inputAccount.account === gameStatePda.toBase58()
   )?.writable;
+  const isCorrectProgram =
+    txDetails.data.parsedInstruction[0].programId === PROGRAM_ID;
 
-  return wasPdaWritable;
+  return wasPdaWritable && isCorrectProgram;
 }
 
 function initSolana() {

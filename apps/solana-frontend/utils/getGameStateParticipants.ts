@@ -22,7 +22,8 @@ export default async function getGameStateParticipants(
   gameStatePda: PublicKey
 ) {
   const response = await axios.get<SolscanData[]>(
-    `https://public-api.solscan.io/account/transactions?account=${gameStatePda.toBase58()}&limit=100`
+    `https://public-api.solscan.io/account/transactions?account=${gameStatePda.toBase58()}&limit=100`,
+    { headers: { "Accept-Encoding": "gzip,deflate,compress" } }
   );
 
   const participants: Participant[] = response.data
