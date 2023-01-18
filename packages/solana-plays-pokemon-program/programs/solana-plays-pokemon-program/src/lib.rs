@@ -115,7 +115,7 @@ pub mod solana_plays_pokemon_program {
             .push(ctx.accounts.player.key());
 
         msg!(
-            "Button: {}. Press count: {}.",
+            "{{ \"button\": \"{}\", \"pressCount\": {} }}",
             BUTTON_MAPPINGS[usize::from(joypad_button)],
             computed_press_count
         );
