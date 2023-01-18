@@ -26,13 +26,18 @@ export default async function getGameStateParticipants(
   );
 
   const participants: Participant[] = response.data
-    .filter((solscanData) => solscanData.status === "Success")
-    .filter((solscanData, i, arr) => {
-      const isCreateAccountTx =
-        (i === 0 || i === arr.length - 1) &&
-        solscanData.signer[0] === GAME_DATA_AUTHORITY;
-      return !isCreateAccountTx;
-    })
+    .filter((solscanData) => solscanData.status === "Success") // only include successful transactions
+    .filter(
+      (_, i, arr) =>
+        i >
+        arr.findIndex(
+          (solScanData) => solScanData.signer[0] === GAME_DATA_AUTHORITY
+        )
+    ) // only include entries after the latest account creation tx
+    .filter(
+      (solScanData, i, arr) =>
+        !(i === arr.length - 1 && solScanData.signer[0] === GAME_DATA_AUTHORITY)
+    ) // exclude earliest account creation tx
     .map((solscanData) => ({
       signer: solscanData.signer[0],
       txHash: solscanData.txHash,
