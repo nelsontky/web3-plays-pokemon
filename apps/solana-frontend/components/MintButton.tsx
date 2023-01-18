@@ -154,7 +154,15 @@ export default function MintButton({ stateIndex, history }: MintButtonProps) {
       const recoveredTransaction = anchor.web3.Transaction.from(
         Buffer.from(response.data.result, "base64")
       );
+
+      const { blockhash, lastValidBlockHeight } =
+        await connection.getLatestBlockhash();
       const txId = await sendTransaction(recoveredTransaction, connection);
+      await connection.confirmTransaction({
+        blockhash: blockhash,
+        lastValidBlockHeight,
+        signature: txId,
+      });
 
       enqueueSnackbar(
         {
