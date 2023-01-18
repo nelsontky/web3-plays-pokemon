@@ -26,6 +26,11 @@
           "isSigner": false
         },
         {
+          "name": "currentParticipants",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "authority",
           "isMut": true,
           "isSigner": true
@@ -62,6 +67,11 @@
         },
         {
           "name": "gameData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "currentParticipants",
           "isMut": true,
           "isSigner": false
         },
@@ -107,6 +117,11 @@
         },
         {
           "name": "gameData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "currentParticipants",
           "isMut": true,
           "isSigner": false
         },
@@ -192,6 +207,32 @@
       "accounts": [
         {
           "name": "mintedNftsCount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "gameData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initializeCurrentParticipants",
+      "accounts": [
+        {
+          "name": "currentParticipants",
           "isMut": true,
           "isSigner": false
         },
@@ -319,6 +360,20 @@
     }
   ],
   "accounts": [
+    {
+      "name": "CurrentParticipants",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "participants",
+            "type": {
+              "vec": "publicKey"
+            }
+          }
+        ]
+      }
+    },
     {
       "name": "MintedNftsCount",
       "type": {

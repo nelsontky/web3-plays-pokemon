@@ -35,10 +35,10 @@ pub mod utils;
 // 14 = Turbo B
 
 // Mainnet
-declare_id!("pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg");
+// declare_id!("pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg");
 
 // Devnet
-// declare_id!("pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK");
+declare_id!("pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK");
 
 #[program]
 pub mod solana_plays_pokemon_program {
@@ -78,6 +78,10 @@ pub mod solana_plays_pokemon_program {
         // init minted nfts count
         let minted_nfts_count = &mut ctx.accounts.minted_nfts_count;
         minted_nfts_count.nfts_minted = 0;
+
+        // init current_participants
+        let current_participants = &mut ctx.accounts.current_participants;
+        current_participants.participants = Vec::new();
 
         Ok(())
     }
@@ -195,6 +199,13 @@ pub mod solana_plays_pokemon_program {
     pub fn initialize_minted_nfts_count(ctx: Context<InitializeMintedNftCounts>) -> Result<()> {
         let minted_nfts_count = &mut ctx.accounts.minted_nfts_count;
         minted_nfts_count.nfts_minted = 0;
+
+        Ok(())
+    }
+
+    pub fn initialize_current_participants(ctx: Context<InitializeCurrentParticipants>) -> Result<()> {
+        let current_participants = &mut ctx.accounts.current_participants;
+        current_participants.participants = Vec::new();
 
         Ok(())
     }
@@ -333,6 +344,17 @@ pub struct Initialize<'info> {
         bump
     )]
     pub minted_nfts_count: Account<'info, MintedNftsCount>,
+    #[account(
+        init,
+        payer = authority,
+        seeds = [
+            b"current_participants",
+            game_data.key().as_ref(),
+        ],
+        space = 8 + CurrentParticipants::LEN,
+        bump
+    )]
+    pub current_participants: Account<'info, CurrentParticipants>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
@@ -353,6 +375,15 @@ pub struct SendButton<'info> {
     pub game_state: Account<'info, GameStateV4>,
     #[account(mut)]
     pub game_data: Account<'info, GameData>,
+    #[account(
+        mut,
+        seeds = [
+            b"current_participants",
+            game_data.key().as_ref(),
+        ],
+        bump
+    )]
+    pub current_participants: Account<'info, CurrentParticipants>,
     #[account(mut)]
     pub player: Signer<'info>,
     pub system_program: Program<'info, System>,
@@ -392,6 +423,15 @@ pub struct UpdateGameState<'info> {
     pub next_game_state: Account<'info, GameStateV4>,
     #[account(mut, has_one = authority)]
     pub game_data: Account<'info, GameData>,
+    #[account(
+        mut,
+        seeds = [
+            b"current_participants",
+            game_data.key().as_ref(),
+        ],
+        bump
+    )]
+    pub current_participants: Account<'info, CurrentParticipants>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
@@ -462,6 +502,26 @@ pub struct InitializeMintedNftCounts<'info> {
         bump
     )]
     pub minted_nfts_count: Account<'info, MintedNftsCount>,
+    #[account(has_one = authority)]
+    pub game_data: Account<'info, GameData>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct InitializeCurrentParticipants<'info> {
+    #[account(
+        init,
+        payer = authority,
+        seeds = [
+            b"current_participants",
+            game_data.key().as_ref(),
+        ],
+        space = 8 + CurrentParticipants::LEN,
+        bump
+    )]
+    pub current_participants: Account<'info, CurrentParticipants>,
     #[account(mut, has_one = authority)]
     pub game_data: Account<'info, GameData>,
     #[account(mut)]

@@ -44,6 +44,11 @@ describe("solana-plays-pokemon-program", () => {
       [Buffer.from("minted_nfts_count"), gameData.publicKey.toBuffer()],
       program.programId
     );
+    const [currentParticipantsPda] =
+      anchor.web3.PublicKey.findProgramAddressSync(
+        [Buffer.from("current_participants"), gameData.publicKey.toBuffer()],
+        program.programId
+      );
 
     await program.methods
       .initialize(FRAMES_IMAGES_CID, SAVE_STATE_CID)
@@ -54,6 +59,7 @@ describe("solana-plays-pokemon-program", () => {
         nextGameState: nextGameStatePda,
         systemProgram: anchor.web3.SystemProgram.programId,
         mintedNftsCount: mintedNftsCountPda,
+        currentParticipants: currentParticipantsPda,
       })
       .signers([gameData])
       .rpc();
@@ -72,6 +78,12 @@ describe("solana-plays-pokemon-program", () => {
       mintedNftsCountPda
     );
     assert.strictEqual(mintedNftsCountAccount.nftsMinted, 0);
+
+    const currentParticipantsAccount =
+      await program.account.currentParticipants.fetch(currentParticipantsPda);
+    console.log(
+      currentParticipantsAccount.participants.map((p) => p.toBase58())
+    );
 
     const gameStateAccount = await program.account.gameStateV4.fetch(
       gameStatePda
@@ -121,6 +133,14 @@ describe("solana-plays-pokemon-program", () => {
         ],
         program.programId
       );
+    const [invalidCurrentParticipantsPda] =
+      anchor.web3.PublicKey.findProgramAddressSync(
+        [
+          Buffer.from("current_participants"),
+          invalidGameData.publicKey.toBuffer(),
+        ],
+        program.programId
+      );
     // init invalid pdas
     await program.methods
       .initialize("foo", "bar")
@@ -131,6 +151,7 @@ describe("solana-plays-pokemon-program", () => {
         nextGameState: invalidNextGameStatePda,
         systemProgram: anchor.web3.SystemProgram.programId,
         mintedNftsCount: mintedNftsCountPda,
+        currentParticipants: invalidCurrentParticipantsPda,
       })
       .signers([invalidGameData])
       .rpc();
@@ -144,6 +165,7 @@ describe("solana-plays-pokemon-program", () => {
           player: anchor.getProvider().publicKey,
           systemProgram: anchor.web3.SystemProgram.programId,
           clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+          currentParticipants: invalidCurrentParticipantsPda,
         })
         .rpc();
     } catch (e) {
@@ -170,6 +192,11 @@ describe("solana-plays-pokemon-program", () => {
       ],
       program.programId
     );
+    const [currentParticipantsPda] =
+      anchor.web3.PublicKey.findProgramAddressSync(
+        [Buffer.from("current_participants"), gameData.publicKey.toBuffer()],
+        program.programId
+      );
 
     try {
       await program.methods
@@ -180,6 +207,7 @@ describe("solana-plays-pokemon-program", () => {
           player: anchor.getProvider().publicKey,
           systemProgram: anchor.web3.SystemProgram.programId,
           clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+          currentParticipants: currentParticipantsPda,
         })
         .rpc();
     } catch (e) {
@@ -206,6 +234,11 @@ describe("solana-plays-pokemon-program", () => {
       ],
       program.programId
     );
+    const [currentParticipantsPda] =
+      anchor.web3.PublicKey.findProgramAddressSync(
+        [Buffer.from("current_participants"), gameData.publicKey.toBuffer()],
+        program.programId
+      );
 
     try {
       await program.methods
@@ -216,6 +249,7 @@ describe("solana-plays-pokemon-program", () => {
           player: anchor.getProvider().publicKey,
           systemProgram: anchor.web3.SystemProgram.programId,
           clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+          currentParticipants: currentParticipantsPda,
         })
         .rpc();
     } catch (e) {
@@ -242,6 +276,11 @@ describe("solana-plays-pokemon-program", () => {
       ],
       program.programId
     );
+    const [currentParticipantsPda] =
+      anchor.web3.PublicKey.findProgramAddressSync(
+        [Buffer.from("current_participants"), gameData.publicKey.toBuffer()],
+        program.programId
+      );
 
     await program.methods
       .sendButton(9, 1) // A
@@ -251,6 +290,7 @@ describe("solana-plays-pokemon-program", () => {
         player: anchor.getProvider().publicKey,
         systemProgram: anchor.web3.SystemProgram.programId,
         clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+        currentParticipants: currentParticipantsPda,
       })
       .rpc();
 
@@ -262,6 +302,7 @@ describe("solana-plays-pokemon-program", () => {
         player: anchor.getProvider().publicKey,
         systemProgram: anchor.web3.SystemProgram.programId,
         clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+        currentParticipants: currentParticipantsPda,
       })
       .rpc();
 
@@ -302,6 +343,11 @@ describe("solana-plays-pokemon-program", () => {
       ],
       program.programId
     );
+    const [currentParticipantsPda] =
+      anchor.web3.PublicKey.findProgramAddressSync(
+        [Buffer.from("current_participants"), gameData.publicKey.toBuffer()],
+        program.programId
+      );
 
     try {
       await program.methods
@@ -312,6 +358,7 @@ describe("solana-plays-pokemon-program", () => {
           gameState: gameStatePda,
           nextGameState: nextGameStatePda,
           systemProgram: anchor.web3.SystemProgram.programId,
+          currentParticipants: currentParticipantsPda,
         })
         .rpc();
     } catch (e) {
@@ -358,6 +405,11 @@ describe("solana-plays-pokemon-program", () => {
     await anchor
       .getProvider()
       .sendAndConfirm(new anchor.web3.Transaction().add(sendLamportsIx));
+    const [currentParticipantsPda] =
+      anchor.web3.PublicKey.findProgramAddressSync(
+        [Buffer.from("current_participants"), gameData.publicKey.toBuffer()],
+        program.programId
+      );
 
     try {
       await program.methods
@@ -368,6 +420,7 @@ describe("solana-plays-pokemon-program", () => {
           gameState: gameStatePda,
           nextGameState: nextGameStatePda,
           systemProgram: anchor.web3.SystemProgram.programId,
+          currentParticipants: currentParticipantsPda,
         })
         .signers([invalidAuthority])
         .rpc();
@@ -395,6 +448,11 @@ describe("solana-plays-pokemon-program", () => {
       ],
       program.programId
     );
+    const [currentParticipantsPda] =
+      anchor.web3.PublicKey.findProgramAddressSync(
+        [Buffer.from("current_participants"), gameData.publicKey.toBuffer()],
+        program.programId
+      );
 
     try {
       await program.methods
@@ -405,6 +463,7 @@ describe("solana-plays-pokemon-program", () => {
           player: anchor.getProvider().publicKey,
           systemProgram: anchor.web3.SystemProgram.programId,
           clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+          currentParticipants: currentParticipantsPda,
         })
         .rpc();
     } catch (e) {
@@ -431,6 +490,11 @@ describe("solana-plays-pokemon-program", () => {
       ],
       program.programId
     );
+    const [currentParticipantsPda] =
+      anchor.web3.PublicKey.findProgramAddressSync(
+        [Buffer.from("current_participants"), gameData.publicKey.toBuffer()],
+        program.programId
+      );
 
     for (let i = 0; i < 7; i++) {
       // make it such that 9 button presses have been sent (2 were sent in a previous test)
@@ -442,6 +506,7 @@ describe("solana-plays-pokemon-program", () => {
           player: anchor.getProvider().publicKey,
           systemProgram: anchor.web3.SystemProgram.programId,
           clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+          currentParticipants: currentParticipantsPda,
         })
         .rpc();
     }
@@ -455,6 +520,7 @@ describe("solana-plays-pokemon-program", () => {
         player: anchor.getProvider().publicKey,
         systemProgram: anchor.web3.SystemProgram.programId,
         clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+        currentParticipants: currentParticipantsPda,
       })
       .rpc();
 

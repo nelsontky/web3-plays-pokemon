@@ -26,6 +26,11 @@ export type SolanaPlaysPokemonProgram = {
           "isSigner": false
         },
         {
+          "name": "currentParticipants",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "authority",
           "isMut": true,
           "isSigner": true
@@ -62,6 +67,11 @@ export type SolanaPlaysPokemonProgram = {
         },
         {
           "name": "gameData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "currentParticipants",
           "isMut": true,
           "isSigner": false
         },
@@ -107,6 +117,11 @@ export type SolanaPlaysPokemonProgram = {
         },
         {
           "name": "gameData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "currentParticipants",
           "isMut": true,
           "isSigner": false
         },
@@ -192,6 +207,32 @@ export type SolanaPlaysPokemonProgram = {
       "accounts": [
         {
           "name": "mintedNftsCount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "gameData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initializeCurrentParticipants",
+      "accounts": [
+        {
+          "name": "currentParticipants",
           "isMut": true,
           "isSigner": false
         },
@@ -319,6 +360,20 @@ export type SolanaPlaysPokemonProgram = {
     }
   ],
   "accounts": [
+    {
+      "name": "currentParticipants",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "participants",
+            "type": {
+              "vec": "publicKey"
+            }
+          }
+        ]
+      }
+    },
     {
       "name": "mintedNftsCount",
       "type": {
@@ -652,6 +707,11 @@ export const IDL: SolanaPlaysPokemonProgram = {
           "isSigner": false
         },
         {
+          "name": "currentParticipants",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "authority",
           "isMut": true,
           "isSigner": true
@@ -688,6 +748,11 @@ export const IDL: SolanaPlaysPokemonProgram = {
         },
         {
           "name": "gameData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "currentParticipants",
           "isMut": true,
           "isSigner": false
         },
@@ -733,6 +798,11 @@ export const IDL: SolanaPlaysPokemonProgram = {
         },
         {
           "name": "gameData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "currentParticipants",
           "isMut": true,
           "isSigner": false
         },
@@ -818,6 +888,32 @@ export const IDL: SolanaPlaysPokemonProgram = {
       "accounts": [
         {
           "name": "mintedNftsCount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "gameData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initializeCurrentParticipants",
+      "accounts": [
+        {
+          "name": "currentParticipants",
           "isMut": true,
           "isSigner": false
         },
@@ -945,6 +1041,20 @@ export const IDL: SolanaPlaysPokemonProgram = {
     }
   ],
   "accounts": [
+    {
+      "name": "currentParticipants",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "participants",
+            "type": {
+              "vec": "publicKey"
+            }
+          }
+        ]
+      }
+    },
     {
       "name": "mintedNftsCount",
       "type": {
