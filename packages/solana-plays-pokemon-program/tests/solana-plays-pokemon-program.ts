@@ -81,9 +81,7 @@ describe("solana-plays-pokemon-program", () => {
 
     const currentParticipantsAccount =
       await program.account.currentParticipants.fetch(currentParticipantsPda);
-    console.log(
-      currentParticipantsAccount.participants.map((p) => p.toBase58())
-    );
+    assert.deepEqual(currentParticipantsAccount.participants, []);
 
     const gameStateAccount = await program.account.gameStateV4.fetch(
       gameStatePda
@@ -309,8 +307,19 @@ describe("solana-plays-pokemon-program", () => {
     const currentGameState = await program.account.gameStateV4.fetch(
       gameStatePda
     );
-
     assert.deepEqual(Array.from(currentGameState.buttonPresses), [9, 10]);
+
+    const currentParticipantsAccount =
+      await program.account.currentParticipants.fetch(currentParticipantsPda);
+    assert.deepEqual(
+      currentParticipantsAccount.participants.map((publicKey) =>
+        publicKey.toBase58()
+      ),
+      [
+        anchor.getProvider().publicKey.toBase58(),
+        anchor.getProvider().publicKey.toBase58(),
+      ]
+    );
   });
 
   it("Does not allow update of executed game state when not executing", async () => {
@@ -537,6 +546,26 @@ describe("solana-plays-pokemon-program", () => {
       gameData.publicKey
     );
     assert.isTrue(currentGameDataAccount.isExecuting);
+
+    const currentParticipantsAccount =
+      await program.account.currentParticipants.fetch(currentParticipantsPda);
+    assert.deepEqual(
+      currentParticipantsAccount.participants.map((publicKey) =>
+        publicKey.toBase58()
+      ),
+      [
+        anchor.getProvider().publicKey.toBase58(),
+        anchor.getProvider().publicKey.toBase58(),
+        anchor.getProvider().publicKey.toBase58(),
+        anchor.getProvider().publicKey.toBase58(),
+        anchor.getProvider().publicKey.toBase58(),
+        anchor.getProvider().publicKey.toBase58(),
+        anchor.getProvider().publicKey.toBase58(),
+        anchor.getProvider().publicKey.toBase58(),
+        anchor.getProvider().publicKey.toBase58(),
+        anchor.getProvider().publicKey.toBase58(),
+      ]
+    );
   });
 
   // it("Can mint NFT", async () => {

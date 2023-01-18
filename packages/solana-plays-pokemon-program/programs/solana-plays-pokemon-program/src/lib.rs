@@ -110,6 +110,11 @@ pub mod solana_plays_pokemon_program {
             game_state.button_presses.push(joypad_button);
         }
 
+        let current_participants = &mut ctx.accounts.current_participants;
+        current_participants
+            .participants
+            .push(ctx.accounts.player.key());
+
         // execute if game state is at least 10 seconds old or we have hit 10 button presses
         let should_execute = game_state.button_presses.len() >= MAX_BUTTONS_PER_ROUND
             || (ctx.accounts.clock.unix_timestamp - game_state.created_at >= VOTE_SECONDS);
@@ -142,6 +147,9 @@ pub mod solana_plays_pokemon_program {
 
         game_data.is_executing = false;
         game_data.executed_states_count = game_data.executed_states_count.checked_add(1).unwrap();
+
+        let current_participants = &mut ctx.accounts.current_participants;
+        current_participants.participants = Vec::new();
 
         let game_state = &mut ctx.accounts.game_state;
         game_state.frames_image_cid = frames_image_cid;
@@ -203,7 +211,9 @@ pub mod solana_plays_pokemon_program {
         Ok(())
     }
 
-    pub fn initialize_current_participants(ctx: Context<InitializeCurrentParticipants>) -> Result<()> {
+    pub fn initialize_current_participants(
+        ctx: Context<InitializeCurrentParticipants>,
+    ) -> Result<()> {
         let current_participants = &mut ctx.accounts.current_participants;
         current_participants.participants = Vec::new();
 
