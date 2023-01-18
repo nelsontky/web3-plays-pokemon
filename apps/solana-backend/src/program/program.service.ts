@@ -86,7 +86,19 @@ export class ProgramService implements OnModuleDestroy {
           }
           const buttonPresses: number[] = event.buttonPresses;
           const gameStateIndex: number = event.index;
-          await this.executeGameState(gameStateIndex, buttonPresses);
+          const participants: string[] = event.participants
+            .filter(
+              (participant: anchor.web3.PublicKey) =>
+                participant.toBase58() !== "11111111111111111111111111111111",
+            )
+            .map((participant: anchor.web3.PublicKey) =>
+              participant.toBase58(),
+            );
+          await this.executeGameState(
+            gameStateIndex,
+            buttonPresses,
+            participants,
+          );
           this.logger.log("Execution success");
           return;
         } catch (e) {
@@ -112,7 +124,7 @@ export class ProgramService implements OnModuleDestroy {
     await this.executeGameState(gameData.executedStatesCount);
   }
 
-  @Cron(`*/20 * * * * *`)
+  // @Cron(`*/20 * * * * *`)
   async cronExecute() {
     const gameDataId = new anchor.web3.PublicKey(GAME_DATA_ACCOUNT_ID);
     const gameData = await this.program.account.gameData.fetch(gameDataId);
@@ -135,6 +147,7 @@ export class ProgramService implements OnModuleDestroy {
   private async executeGameState(
     gameStateIndex: number,
     eventButtonPresses?: number[],
+    currentParticipants?: string[],
   ) {
     const gameDataId = new anchor.web3.PublicKey(GAME_DATA_ACCOUNT_ID);
     const [prevGameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
@@ -161,13 +174,18 @@ export class ProgramService implements OnModuleDestroy {
       ],
       this.program.programId,
     );
+    const [currentParticipantsPda] =
+      anchor.web3.PublicKey.findProgramAddressSync(
+        [Buffer.from("current_participants"), gameDataId.toBuffer()],
+        this.program.programId,
+      );
 
     const prevGameState = await this.program.account.gameStateV4.fetch(
       prevGameStatePda,
     );
 
     let buttonPresses: JoypadButton[];
-    if (buttonPresses === undefined) {
+    if (eventButtonPresses === undefined) {
       const currentGameState = await this.program.account.gameStateV4.fetch(
         currentGameStatePda,
       );
@@ -192,6 +210,7 @@ export class ProgramService implements OnModuleDestroy {
         nextGameState: nextGameStatePda,
         systemProgram: anchor.web3.SystemProgram.programId,
         clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+        currentParticipants: currentParticipantsPda,
       })
       .signers([this.wallet.payer])
       .instruction();
@@ -211,5 +230,23 @@ export class ProgramService implements OnModuleDestroy {
         commitment: "processed",
       },
     );
+
+    let participants: string[];
+    if (currentParticipants === undefined) {
+      const currentParticipants =
+        await this.program.account.currentParticipants.fetch(
+          currentParticipantsPda,
+        );
+      participants = currentParticipants.participants
+        .filter(
+          (participant) =>
+            participant.toBase58() !== "11111111111111111111111111111111",
+        )
+        .map((participant) => participant.toBase58());
+    } else {
+      participants = currentParticipants;
+    }
+
+    console.log(participants);
   }
 }
