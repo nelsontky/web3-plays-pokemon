@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@types/gifencoder": "^2.0.1",
+    "@types/lodash": "^4.14.191",
     "@types/node": "^18.11.18",
     "@types/pako": "^2.0.0",
     "@types/stream-buffers": "^3.0.4",
