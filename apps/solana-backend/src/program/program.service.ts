@@ -254,7 +254,7 @@ export class ProgramService implements OnModuleDestroy {
 
     // save participants to firebase
     for (const participant of participants) {
-      await this.realtimeDatabaseService.push(
+      await this.realtimeDatabaseService.set(
         `${process.env.PARTICIPANTS_COLLECTION_NAME}/${participant}`,
         gameStateIndex,
       );

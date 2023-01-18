@@ -21,15 +21,15 @@ export class RealtimeDatabaseService {
     this.db = admin.database();
   }
 
-  push(ref: string, value: any) {
+  set(ref: string, gameStateIndex: number) {
     const participantRef = this.db.ref(ref);
 
     return new Promise((resolve, reject) => {
-      participantRef.push(value, (error) => {
+      participantRef.child(gameStateIndex + "").set(true, (error) => {
         if (error) {
           reject(error);
         } else {
-          resolve(value);
+          resolve(gameStateIndex);
         }
       });
     });
