@@ -80,7 +80,7 @@ export default async function handler(
   } catch (e) {
     console.log(e);
     return res.status(500).json({
-      message: "An unspecified error has occurred. Please try again.",
+      result: "An unspecified error has occurred. Please refresh the page and try again.",
     });
   }
 }

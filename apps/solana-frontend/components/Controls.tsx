@@ -80,6 +80,7 @@ export default function Controls() {
         },
         {
           variant: "info",
+          autoHideDuration: null,
         }
       );
 
