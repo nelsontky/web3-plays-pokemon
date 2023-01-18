@@ -686,8 +686,5 @@
       "name": "InvalidButtonPressCount",
       "msg": "Invalid button press count."
     }
-  ],
-  "metadata": {
-    "address": "pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK"
-  }
+  ]
 }
