@@ -6,7 +6,7 @@ import fs from "fs/promises";
 import path from "path";
 
 const CHUNK_SIZE = 5;
-const FINAL_INDEX_TO_FETCH = 21927;
+const FINAL_INDEX_TO_FETCH = 21973;
 
 const GAME_DATA_ACCOUNT_PUBLIC_KEY = new PublicKey(GAME_DATA_ACCOUNT_ID);
 const PROGRAM_PUBLIC_KEY = new PublicKey(PROGRAM_ID);
