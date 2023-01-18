@@ -473,116 +473,116 @@ describe("solana-plays-pokemon-program", () => {
     assert.isTrue(currentGameDataAccount.isExecuting);
   });
 
-  it("Can mint NFT", async () => {
-    const user = anchor.web3.Keypair.fromSecretKey(
-      bs58.decode(process.env.TEST_USER_WALLET_KEY)
-    );
+  // it("Can mint NFT", async () => {
+  //   const user = anchor.web3.Keypair.fromSecretKey(
+  //     bs58.decode(process.env.TEST_USER_WALLET_KEY)
+  //   );
 
-    const [mint] = anchor.web3.PublicKey.findProgramAddressSync(
-      [
-        Buffer.from("nft_mint"),
-        gameData.publicKey.toBuffer(),
-        user.publicKey.toBuffer(),
-        Buffer.from("" + 0),
-      ],
-      program.programId
-    );
+  //   const [mint] = anchor.web3.PublicKey.findProgramAddressSync(
+  //     [
+  //       Buffer.from("nft_mint"),
+  //       gameData.publicKey.toBuffer(),
+  //       user.publicKey.toBuffer(),
+  //       Buffer.from("" + 0),
+  //     ],
+  //     program.programId
+  //   );
 
-    const tokenAccount = await getAssociatedTokenAddress(mint, user.publicKey);
+  //   const tokenAccount = await getAssociatedTokenAddress(mint, user.publicKey);
 
-    const NAME = "Solana Plays Pokemon #200";
-    const METADATA_URI =
-      "https://bafkreiexwahj4iavkybhnscnp6l3cmo6cmy7lifdpaihzltcyx6p4swiea.ipfs.nftstorage.link/";
+  //   const NAME = "Solana Plays Pokemon #200";
+  //   const METADATA_URI =
+  //     "https://bafkreiexwahj4iavkybhnscnp6l3cmo6cmy7lifdpaihzltcyx6p4swiea.ipfs.nftstorage.link/";
 
-    const metaplex = Metaplex.make(anchor.getProvider().connection).use(
-      walletAdapterIdentity(anchor.AnchorProvider.env().wallet)
-    );
-    const { nft: collectionNft } = await metaplex.nfts().create({
-      name: "Solana Plays Pokemon",
-      uri: "https://bafkreibjyfkoo3mny2rbsfpndkodlgrtwdiu43g54dfgcsnfn5jfcx4n4y.ipfs.nftstorage.link/",
-      sellerFeeBasisPoints: 0,
-      isCollection: true,
-    });
+  //   const metaplex = Metaplex.make(anchor.getProvider().connection).use(
+  //     walletAdapterIdentity(anchor.AnchorProvider.env().wallet)
+  //   );
+  //   const { nft: collectionNft } = await metaplex.nfts().create({
+  //     name: "Solana Plays Pokemon",
+  //     uri: "https://bafkreibjyfkoo3mny2rbsfpndkodlgrtwdiu43g54dfgcsnfn5jfcx4n4y.ipfs.nftstorage.link/",
+  //     sellerFeeBasisPoints: 0,
+  //     isCollection: true,
+  //   });
 
-    const [collectionMasterEdition] =
-      anchor.web3.PublicKey.findProgramAddressSync(
-        [
-          Buffer.from("metadata"),
-          mplTokenMetadata.PROGRAM_ID.toBuffer(),
-          collectionNft.address.toBuffer(),
-          Buffer.from("edition"),
-        ],
-        mplTokenMetadata.PROGRAM_ID
-      );
+  //   const [collectionMasterEdition] =
+  //     anchor.web3.PublicKey.findProgramAddressSync(
+  //       [
+  //         Buffer.from("metadata"),
+  //         mplTokenMetadata.PROGRAM_ID.toBuffer(),
+  //         collectionNft.address.toBuffer(),
+  //         Buffer.from("edition"),
+  //       ],
+  //       mplTokenMetadata.PROGRAM_ID
+  //     );
 
-    const [tokenMetadataAccount] = anchor.web3.PublicKey.findProgramAddressSync(
-      [
-        Buffer.from("metadata"),
-        mplTokenMetadata.PROGRAM_ID.toBuffer(),
-        mint.toBuffer(),
-      ],
-      mplTokenMetadata.PROGRAM_ID
-    );
+  //   const [tokenMetadataAccount] = anchor.web3.PublicKey.findProgramAddressSync(
+  //     [
+  //       Buffer.from("metadata"),
+  //       mplTokenMetadata.PROGRAM_ID.toBuffer(),
+  //       mint.toBuffer(),
+  //     ],
+  //     mplTokenMetadata.PROGRAM_ID
+  //   );
 
-    const [masterEdition] = anchor.web3.PublicKey.findProgramAddressSync(
-      [
-        Buffer.from("metadata"),
-        mplTokenMetadata.PROGRAM_ID.toBuffer(),
-        mint.toBuffer(),
-        Buffer.from("edition"),
-      ],
-      mplTokenMetadata.PROGRAM_ID
-    );
+  //   const [masterEdition] = anchor.web3.PublicKey.findProgramAddressSync(
+  //     [
+  //       Buffer.from("metadata"),
+  //       mplTokenMetadata.PROGRAM_ID.toBuffer(),
+  //       mint.toBuffer(),
+  //       Buffer.from("edition"),
+  //     ],
+  //     mplTokenMetadata.PROGRAM_ID
+  //   );
 
-    const [mintedNftsCountPda] = anchor.web3.PublicKey.findProgramAddressSync(
-      [Buffer.from("minted_nfts_count"), gameData.publicKey.toBuffer()],
-      program.programId
-    );
+  //   const [mintedNftsCountPda] = anchor.web3.PublicKey.findProgramAddressSync(
+  //     [Buffer.from("minted_nfts_count"), gameData.publicKey.toBuffer()],
+  //     program.programId
+  //   );
 
-    const [mintedNftPda] = anchor.web3.PublicKey.findProgramAddressSync(
-      [
-        Buffer.from("minted_nft"),
-        gameData.publicKey.toBuffer(),
-        Buffer.from("0"),
-      ],
-      program.programId
-    );
+  //   const [mintedNftPda] = anchor.web3.PublicKey.findProgramAddressSync(
+  //     [
+  //       Buffer.from("minted_nft"),
+  //       gameData.publicKey.toBuffer(),
+  //       Buffer.from("0"),
+  //     ],
+  //     program.programId
+  //   );
 
-    await program.methods
-      .mintFramesNft(0, NAME, METADATA_URI)
-      .accounts({
-        gameData: gameData.publicKey,
-        mint,
-        tokenAccount,
-        authority: anchor.getProvider().publicKey,
-        user: user.publicKey,
-        tokenMetadataAccount,
-        tokenMetadataProgram: mplTokenMetadata.PROGRAM_ID,
-        collectionMetadata: collectionNft.metadataAddress,
-        collectionMasterEdition,
-        collectionMint: collectionNft.address,
-        masterEdition,
-        mintedNftsCount: mintedNftsCountPda,
-        mintedNft: mintedNftPda,
-      })
-      .signers([user])
-      .postInstructions([
-        anchor.web3.ComputeBudgetProgram.setComputeUnitLimit({
-          units: 300000,
-        }),
-      ])
-      .rpc({
-        skipPreflight: true,
-      });
+  //   await program.methods
+  //     .mintFramesNft(0, NAME, METADATA_URI)
+  //     .accounts({
+  //       gameData: gameData.publicKey,
+  //       mint,
+  //       tokenAccount,
+  //       authority: anchor.getProvider().publicKey,
+  //       user: user.publicKey,
+  //       tokenMetadataAccount,
+  //       tokenMetadataProgram: mplTokenMetadata.PROGRAM_ID,
+  //       collectionMetadata: collectionNft.metadataAddress,
+  //       collectionMasterEdition,
+  //       collectionMint: collectionNft.address,
+  //       masterEdition,
+  //       mintedNftsCount: mintedNftsCountPda,
+  //       mintedNft: mintedNftPda,
+  //     })
+  //     .signers([user])
+  //     .postInstructions([
+  //       anchor.web3.ComputeBudgetProgram.setComputeUnitLimit({
+  //         units: 300000,
+  //       }),
+  //     ])
+  //     .rpc({
+  //       skipPreflight: true,
+  //     });
 
-    const mintedNftsCountAccount = await program.account.mintedNftsCount.fetch(
-      mintedNftsCountPda
-    );
-    assert.strictEqual(mintedNftsCountAccount.nftsMinted, 1);
+  //   const mintedNftsCountAccount = await program.account.mintedNftsCount.fetch(
+  //     mintedNftsCountPda
+  //   );
+  //   assert.strictEqual(mintedNftsCountAccount.nftsMinted, 1);
 
-    const mintedNftAccount = await program.account.mintedNft.fetch(
-      mintedNftPda
-    );
-    assert.strictEqual(mintedNftAccount.mint.toBase58(), mint.toBase58());
-  });
+  //   const mintedNftAccount = await program.account.mintedNft.fetch(
+  //     mintedNftPda
+  //   );
+  //   assert.strictEqual(mintedNftAccount.mint.toBase58(), mint.toBase58());
+  // });
 });

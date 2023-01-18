@@ -2,6 +2,17 @@ use anchor_lang::prelude::*;
 
 use crate::constants::*;
 
+// TODO: refactor this field into main game data, couldn't do it now as I lost the game data account private key :'()
+#[account]
+pub struct Participants {
+    pub participants: [Pubkey; MAX_BUTTONS_PER_ROUND],
+}
+
+impl Participants {
+    pub const LEN: usize = 4;
+}
+
+// TODO: refactor this field into main game data, couldn't do it now as I lost the game data account private key :'()
 #[account]
 pub struct MintedNftsCount {
     pub nfts_minted: u32,
