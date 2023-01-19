@@ -11,6 +11,7 @@ import HistoryParticipants from "./HistoryParticipants";
 import MintButton from "./MintButton";
 import { useRouter } from "next/router";
 import ParticipationHistory from "./ParticipationHistory";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 const styles = {
   topContainer: tw`
@@ -42,6 +43,7 @@ const styles = {
 };
 
 export default function HistoryExplorer() {
+  const isWide = useMediaQuery("(min-width:1024px)");
   const executedStatesCount = useAppSelector(
     (state) => state.gameData.executedStatesCount
   );
@@ -73,9 +75,9 @@ export default function HistoryExplorer() {
   return (
     <div>
       <div css={styles.topContainer}>
-        <ParticipationHistory />
+        {isWide && <ParticipationHistory />}
         <GameCanvas framesImageData={history?.framesImageData} />
-        <MintButton stateIndex={stateIndex} history={history} />
+        {isWide && <MintButton stateIndex={stateIndex} history={history} />}
       </div>
       <div css={styles.sliderContainer}>
         {stateIndex !== undefined && (
@@ -128,7 +130,11 @@ export default function HistoryExplorer() {
           />
         </IconButton>
       </div>
+      {!isWide && (
+        <MintButton stateIndex={stateIndex} history={history} />
+      )}
       <HistoryParticipants history={history} />
+      {!isWide && <ParticipationHistory />}
     </div>
   );
 }

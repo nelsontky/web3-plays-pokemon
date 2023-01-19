@@ -9,6 +9,10 @@ import SimpleButton from "./SImpleButton";
 
 const styles = {
   root: tw`
+    mt-8
+    text-center
+    lg:mt-0
+    lg:text-left
     flex-1
   `,
   header: tw`
@@ -25,8 +29,8 @@ const styles = {
     justify-center
   `,
   participationHistoryContainer: tw`
-    max-h-96
-    overflow-y-auto
+    lg:max-h-80
+    lg:overflow-y-auto
   `,
 };
 
@@ -39,10 +43,13 @@ export default function ParticipationHistory() {
   >();
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    setParticipatedRounds(undefined);
-    setWalletSignature(undefined);
-  }, [publicKey]);
+  useEffect(
+    function resetHistory() {
+      setParticipatedRounds(undefined);
+      setWalletSignature(undefined);
+    },
+    [publicKey]
+  );
 
   const fetchParticipationHistory = async () => {
     if (signMessage && publicKey) {
