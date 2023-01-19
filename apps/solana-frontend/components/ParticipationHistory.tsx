@@ -1,7 +1,7 @@
 import { useWallet } from "@solana/wallet-adapter-react";
 import axios, { AxiosError } from "axios";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import tw from "twin.macro";
 import { SIGNATURE_MESSAGE_FOR_ROUNDS } from "../constants";
 import useTxSnackbar from "../hooks/useTxSnackbar";
@@ -38,6 +38,11 @@ export default function ParticipationHistory() {
     number[] | undefined
   >();
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setParticipatedRounds(undefined);
+    setWalletSignature(undefined);
+  }, [publicKey]);
 
   const fetchParticipationHistory = async () => {
     if (signMessage && publicKey) {
