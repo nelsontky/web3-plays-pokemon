@@ -10,6 +10,7 @@ import { IconButton } from "@mui/material";
 import HistoryParticipants from "./HistoryParticipants";
 import MintButton from "./MintButton";
 import { useRouter } from "next/router";
+import ParticipationHistory from "./ParticipationHistory";
 
 const styles = {
   sliderContainer: tw`
@@ -67,6 +68,7 @@ export default function HistoryExplorer() {
 
   return (
     <div>
+      <ParticipationHistory />
       <GameCanvas framesImageData={history?.framesImageData} />
       <div css={styles.sliderContainer}>
         {stateIndex !== undefined && (

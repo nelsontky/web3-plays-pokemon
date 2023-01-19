@@ -9,28 +9,13 @@ import { GAME_DATA_ACCOUNT_PUBLIC_KEY } from "../constants";
 import { useReadonlyProgram } from "../hooks/useProgram";
 import useTxSnackbar from "../hooks/useTxSnackbar";
 import { SnackbarKey } from "notistack";
+import SimpleButton from "./SImpleButton";
 
 const styles = {
   root: tw`
     flex
     justify-center
     mt-8
-  `,
-  button: tw`
-    block
-    cursor-pointer
-    mx-auto
-    border-2
-    border-black
-    text-black
-    text-2xl
-    h-[48px]
-    rounded
-    px-10
-  `,
-  disabledButton: tw`
-    cursor-default
-    opacity-30
   `,
   explainer: tw`
     text-lg
@@ -214,12 +199,9 @@ export default function MintButton({ stateIndex, history }: MintButtonProps) {
   return (
     <div css={styles.root}>
       <div>
-        <button
-          onClick={isButtonDisabled ? undefined : onMint}
-          css={[styles.button, isButtonDisabled && styles.disabledButton]}
-        >
+        <SimpleButton disabled={isButtonDisabled} onClick={onMint}>
           MINT NFT
-        </button>
+        </SimpleButton>
         <p css={styles.explainer}>
           {history?.participants.length === 0
             ? "Refresh the page after 1 minute to check if you can mint this round"
