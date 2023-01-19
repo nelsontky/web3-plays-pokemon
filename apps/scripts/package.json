@@ -19,7 +19,6 @@
   },
   "devDependencies": {
     "@types/gifencoder": "^2.0.1",
-    "@types/lodash": "^4.14.191",
     "@types/node": "^18.11.18",
     "@types/pako": "^2.0.0",
     "@types/stream-buffers": "^3.0.4",
@@ -37,6 +36,7 @@
     "cheerio": "1.0.0-rc.12",
     "common": "workspace:*",
     "dotenv": "^16.0.3",
+    "firebase-admin": "^11.4.1",
     "gifencoder": "^2.0.1",
     "nft.storage": "^7.0.0",
     "pako": "^2.1.0",
