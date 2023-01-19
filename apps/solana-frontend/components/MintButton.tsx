@@ -12,6 +12,8 @@ import SimpleButton from "./SImpleButton";
 
 const styles = {
   root: tw`
+    mt-8
+    lg:mt-0
     flex
     justify-center
     items-center
@@ -26,9 +28,15 @@ const styles = {
 interface MintButtonProps {
   stateIndex: number | undefined;
   history: History | undefined;
+  css?: any;
 }
 
-export default function MintButton({ stateIndex, history }: MintButtonProps) {
+export default function MintButton({
+  stateIndex,
+  history,
+  css,
+  ...rest
+}: MintButtonProps) {
   const { enqueueSnackbar, closeSnackbar } = useTxSnackbar();
   const program = useReadonlyProgram();
   const { publicKey, sendTransaction } = useWallet();
