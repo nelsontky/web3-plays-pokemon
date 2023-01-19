@@ -5,7 +5,6 @@ const styles = {
   button: tw`
     block
     cursor-pointer
-    mx-auto
     border-2
     border-black
     text-black
@@ -24,17 +23,21 @@ interface SimpleButtonProps {
   onClick?: MouseEventHandler<HTMLButtonElement>;
   disabled?: boolean;
   children?: ReactNode;
+  css?: any;
 }
 
 export default function SimpleButton({
   onClick,
   disabled,
   children,
+  css,
+  ...rest
 }: SimpleButtonProps) {
   return (
     <button
-      css={[styles.button, disabled && styles.disabledButton]}
+      css={[styles.button, disabled && styles.disabledButton, css]}
       onClick={disabled ? undefined : onClick}
+      {...rest}
     >
       {children}
     </button>

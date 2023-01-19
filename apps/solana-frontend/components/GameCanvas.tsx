@@ -63,7 +63,7 @@ export default function GameCanvas({ framesImageData }: GameCanvasProps) {
   if (framesImageData === undefined) {
     return (
       <div
-        css={tw`flex justify-center items-center mx-auto max-w-full aspect-[1.1111/1]`}
+        css={tw`flex justify-center items-center mx-auto max-w-full aspect-[1.1111/1] flex-1`}
         style={{
           maxWidth: CELL_SIZE * GAMEBOY_CAMERA_WIDTH,
         }}
