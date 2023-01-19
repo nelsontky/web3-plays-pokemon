@@ -1,10 +1,9 @@
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import axios, { AxiosError } from "axios";
 import tw from "twin.macro";
-import AppWalletMultiButton from "./AppWalletMultiButton";
 import * as anchor from "@project-serum/anchor";
 import type { History } from "../slices/historySlice";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { GAME_DATA_ACCOUNT_PUBLIC_KEY } from "../constants";
 import { useReadonlyProgram } from "../hooks/useProgram";
 import useTxSnackbar from "../hooks/useTxSnackbar";
@@ -15,7 +14,8 @@ const styles = {
   root: tw`
     flex
     justify-center
-    mt-8
+    items-center
+    flex-1
   `,
   explainer: tw`
     text-lg
@@ -84,27 +84,8 @@ export default function MintButton({ stateIndex, history }: MintButtonProps) {
     [connection, publicKey, stateIndex]
   );
 
-  if (stateIndex === undefined || history === undefined) {
-    return null;
-  }
-
   if (!publicKey) {
-    return (
-      <div css={styles.root}>
-        <div>
-          <AppWalletMultiButton
-            style={{
-              marginLeft: "auto",
-              marginRight: "auto",
-            }}
-          />
-          <p css={styles.explainer}>
-            Connect your wallet to check if you are able to mint this round as
-            an NFT!
-          </p>
-        </div>
-      </div>
-    );
+    return <div css={styles.root} />;
   }
 
   const onMint = async () => {
@@ -199,7 +180,11 @@ export default function MintButton({ stateIndex, history }: MintButtonProps) {
   return (
     <div css={styles.root}>
       <div>
-        <SimpleButton disabled={isButtonDisabled} onClick={onMint}>
+        <SimpleButton
+          disabled={isButtonDisabled}
+          onClick={onMint}
+          css={tw`mx-auto`}
+        >
           MINT NFT
         </SimpleButton>
         <p css={styles.explainer}>

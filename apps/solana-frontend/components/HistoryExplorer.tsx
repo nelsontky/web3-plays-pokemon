@@ -13,6 +13,10 @@ import { useRouter } from "next/router";
 import ParticipationHistory from "./ParticipationHistory";
 
 const styles = {
+  topContainer: tw`
+    flex
+    gap-4
+  `,
   sliderContainer: tw`
     mt-8
     mb-2
@@ -68,8 +72,11 @@ export default function HistoryExplorer() {
 
   return (
     <div>
-      <ParticipationHistory />
-      <GameCanvas framesImageData={history?.framesImageData} />
+      <div css={styles.topContainer}>
+        <ParticipationHistory />
+        <GameCanvas framesImageData={history?.framesImageData} />
+        <MintButton stateIndex={stateIndex} history={history} />
+      </div>
       <div css={styles.sliderContainer}>
         {stateIndex !== undefined && (
           <AppSlider
@@ -121,7 +128,6 @@ export default function HistoryExplorer() {
           />
         </IconButton>
       </div>
-      <MintButton stateIndex={stateIndex} history={history} />
       <HistoryParticipants history={history} />
     </div>
   );
