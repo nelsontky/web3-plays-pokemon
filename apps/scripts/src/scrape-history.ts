@@ -4,6 +4,11 @@ import { GAME_DATA_ACCOUNT_ID, GAME_DATA_AUTHORITY, PROGRAM_ID } from "common";
 import * as process from "process";
 import fs from "fs/promises";
 import path from "path";
+import * as admin from "firebase-admin";
+
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 const CHUNK_SIZE = 5;
 const FINAL_INDEX_TO_FETCH = 21973;
@@ -18,7 +23,7 @@ interface SavedData {
   };
 }
 
-(async () => {
+const fetchData = async () => {
   const savedData: SavedData = JSON.parse(
     (await fs.readFile(path.join(process.cwd(), "saved-data.json"))).toString()
   );
@@ -92,7 +97,7 @@ interface SavedData {
       JSON.stringify(savedData)
     );
   }
-})();
+};
 
 interface SolscanData {
   blockTime: number;
@@ -137,3 +142,43 @@ async function getGameStateParticipants(gameStatePda: PublicKey) {
 
   return participants;
 }
+
+const setFirebaseData = async () => {
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+    }),
+    databaseURL: process.env.FIREBASE_DATABASE_URL,
+  });
+  const db = admin.database();
+
+  const savedData: SavedData = JSON.parse(
+    (await fs.readFile(path.join(process.cwd(), "saved-data.json"))).toString()
+  );
+
+  const entries = Object.entries(savedData.data);
+  for (let i = 0; i < entries.length; i++) {
+    console.log(`Processing ${i + 1} / ${entries.length}`);
+    const [publicKey, rounds] = entries[i];
+    const participantRef = db.ref(`participants/${publicKey}`);
+
+    const promises = rounds.map(
+      (round) =>
+        new Promise((resolve, reject) =>
+          participantRef.child(round + "").set(true, (error) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(round);
+            }
+          })
+        )
+    );
+
+    await Promise.all(promises);
+  }
+};
+
+setFirebaseData();
