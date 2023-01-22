@@ -9,6 +9,8 @@ import SocialLinks from "../components/SocialLinks";
 import VotesHistory from "../components/VotesHistory";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import MainCanvas from "../components/MainCanvas";
+import { useState } from "react";
+import GameCanvas from "../components/GameCanvas";
 
 const ChatWidgetDynamic = dynamic(
   async () => await import("../components/ChatWidget"),
@@ -48,6 +50,8 @@ const styles = {
 export default function Web() {
   const isWide = useMediaQuery("(min-width:1280px)");
 
+  const [framesImageData, setFramesImageData] = useState<number[][]>();
+
   return (
     <div css={styles.root}>
       <Head>
@@ -81,9 +85,9 @@ export default function Web() {
             <HowToPlay />
           </div>
           <div css={styles.section}>
-            <MainCanvas />
+            <GameCanvas framesImageData={framesImageData} />
             <CurrentVotes />
-            <Controls />
+            <Controls setFramesImageData={setFramesImageData} />
             <VotesHistory />
           </div>
           <div css={styles.section}>
@@ -94,9 +98,9 @@ export default function Web() {
         // Mobile
         <div css={styles.sectionsContainer}>
           <div css={styles.section}>
-            <MainCanvas />
+            <GameCanvas framesImageData={framesImageData} />
             <CurrentVotes />
-            <Controls />
+            <Controls setFramesImageData={setFramesImageData} />
           </div>
           <div css={styles.section}>
             <GameState />

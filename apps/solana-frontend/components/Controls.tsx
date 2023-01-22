@@ -7,8 +7,9 @@ import * as anchor from "@project-serum/anchor";
 import { GAME_DATA_ACCOUNT_PUBLIC_KEY, POKEMON_PIXEL_FONT } from "../constants";
 import useTxSnackbar from "../hooks/useTxSnackbar";
 import ControlsBackdrop from "./ControlsBackdrop";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import HelpfulCheckbox from "./HelpfulCheckbox";
+import axios from "axios";
 
 const styles = {
   root: tw`
@@ -54,82 +55,20 @@ const styles = {
   ],
 };
 
-export default function Controls() {
+export default function Controls({
+  setFramesImageData,
+}: {
+  setFramesImageData: Dispatch<SetStateAction<number[][] | undefined>>;
+}) {
   const program = useMutableProgram();
   const { enqueueSnackbar, closeSnackbar } = useTxSnackbar();
   const [pressCount, setPressCount] = useState<1 | 2>(1);
 
   const executeGame = async (joypadButton: JoypadButton) => {
-    if (program) {
-      const gameDataAccount = await program.account.gameData.fetch(
-        GAME_DATA_ACCOUNT_PUBLIC_KEY
-      );
-      const executedStatesCount = gameDataAccount.executedStatesCount;
-      const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
-        [
-          GAME_DATA_ACCOUNT_PUBLIC_KEY.toBuffer(),
-          Buffer.from("game_state"),
-          Buffer.from("" + executedStatesCount),
-        ],
-        program.programId
-      );
-      const [currentParticipantsPda] =
-        anchor.web3.PublicKey.findProgramAddressSync(
-          [
-            Buffer.from("current_participants"),
-            GAME_DATA_ACCOUNT_PUBLIC_KEY.toBuffer(),
-          ],
-          program.programId
-        );
-
-      const snackbarId = enqueueSnackbar(
-        {
-          title: "Sending transaction",
-        },
-        {
-          variant: "info",
-          autoHideDuration: null,
-        }
-      );
-
-      try {
-        const txId = await program.methods
-          .sendButton(joypadEnumToButtonId(joypadButton), pressCount)
-          .accounts({
-            gameState: gameStatePda,
-            gameData: GAME_DATA_ACCOUNT_PUBLIC_KEY,
-            player: anchor.getProvider().publicKey,
-            systemProgram: anchor.web3.SystemProgram.programId,
-            clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
-            currentParticipants: currentParticipantsPda,
-          })
-          .rpc();
-
-        enqueueSnackbar(
-          {
-            title: "Success",
-            txId,
-          },
-          {
-            variant: "success",
-          }
-        );
-      } catch (e) {
-        if (e instanceof Error) {
-          enqueueSnackbar(
-            {
-              title: "Error",
-              errorMessage: e.message,
-            },
-            {
-              variant: "error",
-            }
-          );
-        }
-      } finally {
-        closeSnackbar(snackbarId);
-      }
-    }
+    const response = await axios.patch("http://localhost:5000/", {
+      joypadButton,
+    });
+    setFramesImageData(response.data);
   };
 
   return (

@@ -37,6 +37,8 @@ export default function ControlsBackdrop() {
 
   const open = isExecuting || publicKey === null;
 
+  return null;
+
   return (
     <Backdrop open={open} css={styles.root}>
       {publicKey === null ? (

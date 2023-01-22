@@ -31,61 +31,68 @@ export class WasmboyService {
 
   constructor(private readonly ipfsService: IpfsService) {}
 
-  async run(buttonPresses: JoypadButton[], prevSaveStateCid: string) {
+  async run(joypadButton: JoypadButton) {
     const [wasmBoy, wasmByteMemory] = await this.getWasmBoyCore();
     await this.loadRom(wasmBoy, wasmByteMemory);
-    await this.loadState(wasmBoy, wasmByteMemory, prevSaveStateCid);
+    await this.loadState(wasmBoy, wasmByteMemory);
 
     const framesImageData = this.executeFrames(
       wasmBoy,
       wasmByteMemory,
       GAMEBOY_FPS * NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS,
-      buttonPresses,
+      joypadButton,
     );
     const saveState = await this.saveState(wasmBoy, wasmByteMemory);
 
-    const compressedFramesImageData = pako.deflate(
-      JSON.stringify(framesImageData),
-    );
-    const compressedSaveState = pako.deflate(JSON.stringify(saveState));
+    await fs.writeFile("./save-state-1.json", JSON.stringify(saveState));
 
-    const [framesImageDataCid, saveStateCid] = await Promise.all([
-      this.ipfsService.upload(compressedFramesImageData),
-      this.ipfsService.upload(compressedSaveState),
-    ]);
+    return framesImageData;
 
-    if (framesImageDataCid.toString().length <= 0) {
-      throw new Error("framesImageDataCid length is 0");
-    }
-    if (saveStateCid.toString().length <= 0) {
-      throw new Error("saveStateCid length is 0");
-    }
+    // const compressedFramesImageData = pako.deflate(
+    //   JSON.stringify(framesImageData),
+    // );
+    // const compressedSaveState = pako.deflate(JSON.stringify(saveState));
 
-    return {
-      framesImageDataCid: framesImageDataCid.toString(),
-      saveStateCid: saveStateCid.toString(),
-    };
+    // const [framesImageDataCid, saveStateCid] = await Promise.all([
+    //   this.ipfsService.upload(compressedFramesImageData),
+    //   this.ipfsService.upload(compressedSaveState),
+    // ]);
+
+    // if (framesImageDataCid.toString().length <= 0) {
+    //   throw new Error("framesImageDataCid length is 0");
+    // }
+    // if (saveStateCid.toString().length <= 0) {
+    //   throw new Error("saveStateCid length is 0");
+    // }
+
+    // return {
+    //   framesImageDataCid: framesImageDataCid.toString(),
+    //   saveStateCid: saveStateCid.toString(),
+    // };
   }
 
   private executeFrames(
     wasmBoy: any,
     wasmByteMemory: Uint8Array,
     frames: number,
-    buttonPresses: JoypadButton[],
+    joypadButton: JoypadButton,
   ) {
+    this.setJoypadState(wasmBoy, joypadButton);
+
     const framesToExecutePerStep = frames / FRAMES_TO_DRAW_PER_EXECUTION;
     const framesImageData: number[][] = [];
     for (let i = 0; i < FRAMES_TO_DRAW_PER_EXECUTION; i++) {
-      if (i % 2 === 0) {
-        this.setJoypadState(wasmBoy, buttonPresses.shift());
-      } else {
-        this.setJoypadState(wasmBoy, null);
-      }
-
       wasmBoy.executeMultipleFrames(framesToExecutePerStep);
       framesImageData.push(
         this.getImageDataFromGraphicsFrameBuffer(wasmBoy, wasmByteMemory),
       );
+
+      this.processJoypadRelease({
+        framesExecuted: (i + 1) * framesToExecutePerStep,
+        totalFramesToExecute: frames,
+        joypadButton,
+        wasmBoy,
+      });
     }
 
     this.setJoypadState(wasmBoy, null);
@@ -97,13 +104,31 @@ export class WasmboyService {
       ) ||
       framesImageData[framesImageData.length - 1].every((value) => value === 0)
     ) {
-      wasmBoy.executeMultipleFrames(framesToExecutePerStep);
+      wasmBoy.executeMultipleFrames(5);
       framesImageData.push(
         this.getImageDataFromGraphicsFrameBuffer(wasmBoy, wasmByteMemory),
       );
     }
 
     return framesImageData;
+  }
+
+  private processJoypadRelease({
+    framesExecuted,
+    totalFramesToExecute,
+    joypadButton,
+    wasmBoy,
+  }: {
+    framesExecuted: number;
+    totalFramesToExecute: number;
+    joypadButton: JoypadButton;
+    wasmBoy: any;
+  }) {
+    const framesToHoldButton = 30;
+    const shouldReleaseJoyPad = framesExecuted >= framesToHoldButton;
+    if (shouldReleaseJoyPad) {
+      this.setJoypadState(wasmBoy, null);
+    }
   }
 
   private async getWasmBoyCore() {
@@ -155,23 +180,18 @@ export class WasmboyService {
     );
   }
 
-  private async loadState(
-    wasmBoy: any,
-    wasmByteMemory: Uint8Array,
-    prevSaveStateCid: string,
-  ) {
-    const data = await this.ipfsService.download(prevSaveStateCid);
-    const inflated = pako.inflate(data, { to: "string" });
-    const saveState = JSON.parse(inflated);
+  private async loadState(wasmBoy: any, wasmByteMemory: Uint8Array) {
+    // const data = await this.ipfsService.download(prevSaveStateCid);
+    // const inflated = pako.inflate(data, { to: "string" });
+    const saveState = JSON.parse(
+      (await fs.readFile("./save-state-1.json")).toString(),
+    );
 
-    if (saveState.cartridgeRam !== undefined) {
-      wasmByteMemory.set(
-        saveState.cartridgeRam,
-        wasmBoy.CARTRIDGE_RAM_LOCATION,
-      );
-    } else {
-      this.logger.warn("loadState: cartridgeRam is undefined");
-    }
+    // if (saveState.cartridgeRam !== undefined) {
+    wasmByteMemory.set(saveState.cartridgeRam, wasmBoy.CARTRIDGE_RAM_LOCATION);
+    // } else {
+    // this.logger.warn("loadState: cartridgeRam is undefined");
+    // }
 
     wasmByteMemory.set(
       new Uint8Array(saveState.gameboyMemory),

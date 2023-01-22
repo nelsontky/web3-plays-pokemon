@@ -19,6 +19,8 @@ export default function useGameStateCidData<T>(ipfsCid: string | undefined) {
 
           const inflated = inflate(responseData, { to: "string" });
           const data: T = JSON.parse(inflated);
+
+          console.log(data);
           setData(data);
         })();
 
