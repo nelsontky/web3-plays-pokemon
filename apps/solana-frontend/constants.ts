@@ -1,6 +1,5 @@
 import * as anchor from "@project-serum/anchor";
 import { COLLECTION_ID, GAME_DATA_ACCOUNT_ID, PROGRAM_ID } from "common";
-import localFont from "@next/font/local";
 
 export const GAME_DATA_ACCOUNT_PUBLIC_KEY = new anchor.web3.PublicKey(
   GAME_DATA_ACCOUNT_ID

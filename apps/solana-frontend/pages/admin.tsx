@@ -1,9 +1,9 @@
 import * as anchor from "@project-serum/anchor";
 import { useEffect } from "react";
-import AppButton from "../components/AppButton";
+import AppButton from "ui/components/AppButton";
+import { useAppSelector } from "ui/hooks/redux";
+import { useMutableProgram } from "ui/hooks/useProgram";
 import { GAME_DATA_ACCOUNT_PUBLIC_KEY, PROGRAM_PUBLIC_KEY } from "../constants";
-import { useAppSelector } from "../hooks/redux";
-import { useMutableProgram } from "../hooks/useProgram";
 
 // Initial Game Freak screen
 // const FRAMES_IMAGES_CID =
