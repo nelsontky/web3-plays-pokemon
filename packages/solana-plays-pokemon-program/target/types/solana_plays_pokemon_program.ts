@@ -198,32 +198,6 @@ export type SolanaPlaysPokemonProgram = {
       ]
     },
     {
-      "name": "migrateGameData",
-      "accounts": [
-        {
-          "name": "gameData",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "mintedNftsCount",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "authority",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": []
-    },
-    {
       "name": "initializeCurrentParticipants",
       "accounts": [
         {
@@ -360,18 +334,6 @@ export type SolanaPlaysPokemonProgram = {
             "type": {
               "vec": "publicKey"
             }
-          }
-        ]
-      }
-    },
-    {
-      "name": "mintedNftsCount",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "nftsMinted",
-            "type": "u32"
           }
         ]
       }
@@ -883,32 +845,6 @@ export const IDL: SolanaPlaysPokemonProgram = {
       ]
     },
     {
-      "name": "migrateGameData",
-      "accounts": [
-        {
-          "name": "gameData",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "mintedNftsCount",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "authority",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": []
-    },
-    {
       "name": "initializeCurrentParticipants",
       "accounts": [
         {
@@ -1045,18 +981,6 @@ export const IDL: SolanaPlaysPokemonProgram = {
             "type": {
               "vec": "publicKey"
             }
-          }
-        ]
-      }
-    },
-    {
-      "name": "mintedNftsCount",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "nftsMinted",
-            "type": "u32"
           }
         ]
       }

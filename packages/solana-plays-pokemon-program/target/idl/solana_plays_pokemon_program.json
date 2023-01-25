@@ -198,32 +198,6 @@
       ]
     },
     {
-      "name": "migrateGameData",
-      "accounts": [
-        {
-          "name": "gameData",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "mintedNftsCount",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "authority",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": []
-    },
-    {
       "name": "initializeCurrentParticipants",
       "accounts": [
         {
@@ -360,18 +334,6 @@
             "type": {
               "vec": "publicKey"
             }
-          }
-        ]
-      }
-    },
-    {
-      "name": "MintedNftsCount",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "nftsMinted",
-            "type": "u32"
           }
         ]
       }

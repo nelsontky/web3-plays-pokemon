@@ -11,16 +11,6 @@ impl CurrentParticipants {
     pub const LEN: usize = 4 + (MAX_BUTTONS_PER_ROUND * 32);
 }
 
-// TODO: refactor this field into main game data, couldn't do it now as I lost the game data account private key :'()
-#[account]
-pub struct MintedNftsCount {
-    pub nfts_minted: u32,
-}
-
-impl MintedNftsCount {
-    pub const LEN: usize = 4;
-}
-
 #[account]
 pub struct MintedNft {
     pub mint: Pubkey,
@@ -39,7 +29,7 @@ pub struct GameData {
 }
 
 impl GameData {
-    // allocate twice the space for future upgrades, 
+    // allocate twice the space for future upgrades,
     // space was last allocated to contain "nfts_minted"
     pub const LEN: usize = 2 * (4 + 1 + 32 + 4);
 }
