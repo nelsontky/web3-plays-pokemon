@@ -1,18 +1,5 @@
 {
   "extends": "tsconfig/react-library.json",
-  "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
-    "noUnusedParameters": true,
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "jsx": "preserve",
-    "strict": true,
-    "skipLibCheck": true,
-    // Ensure that Babel can safely transpile files in the TypeScript project
-    "isolatedModules": true,
-    "jsxImportSource": "@emotion/react", // Add the css prop,
-    "outDir": "./dist",
-    "preserveSymlinks": true
-  }
+  "include": ["."],
+  "exclude": ["dist", "build", "node_modules"]
 }

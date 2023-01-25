@@ -1,23 +1,21 @@
 {
   "name": "ui",
   "version": "0.0.0",
-  "module": "dist/components.esm.js",
-  "types": "dist/types/index.d.ts",
   "files": [
     "dist"
   ],
+  "main": "./index.tsx",
+  "types": "./index.tsx",
+  "license": "MIT",
+  "scripts": {
+    "lint": "TIMING=1 eslint \"**/*.ts*\""
+  },
   "type": "module",
   "babelMacros": {
     "twin": {
       "config": "../../tailwind.config.js",
       "preset": "emotion"
     }
-  },
-  "scripts": {
-    "type-check": "tsc --noEmit",
-    "dev": "pnpm type-check --watch",
-    "build:types": "tsc --build tsconfig.json",
-    "build": "rm -rf dist && pnpm run build:types"
   },
   "dependencies": {
     "@chatui/core": "^2.4.2",
