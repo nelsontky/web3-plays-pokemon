@@ -5,6 +5,13 @@ import { css } from "@emotion/react";
 import { POKEMON_PIXEL_FONT } from "../constants";
 
 const customStyles = css({
+  "@font-face": {
+    fontFamily: "Pokemon Pixel",
+    src: "url('../fonts/pokemon_pixel_font.woff') format('woff')",
+  },
+  ".pokemon-pixel-font": {
+    fontFamily: "Pokemon Pixel, Arial",
+  },
   html: {
     height: "100%",
   },

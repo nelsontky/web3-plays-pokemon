@@ -4,12 +4,10 @@ import { CacheProvider } from "@emotion/react";
 import GlobalStyles from "../styles/GlobalStyles";
 import SolanaContext from "./SolanaContext";
 import AnchorSetup from "../components/AnchorSetup";
-import { Provider } from "react-redux";
 import AppSnackBarProvider from "./AppSnackBarProvider";
 import ProgramListenersSetup from "../components/ProgramListenersSetup";
 import AnnouncementBar from "../components/AnnouncementBar";
 import AppBar from "../components/AppBar";
-import { store } from "../store";
 import { PublicKey } from "@solana/web3.js";
 
 interface ConfigContextState {
@@ -35,19 +33,14 @@ export default function ConfigProvider({
         gameDataAccountPublicKey: new PublicKey(gameDataAccountId),
       }}
     >
-      <CacheProvider value={cache}>{children}</CacheProvider>
-      <GlobalStyles />
-      <SolanaContext>
+      <CacheProvider value={cache}>
+        <GlobalStyles />
         <AnchorSetup />
-        <Provider store={store}>
-          <AppSnackBarProvider>
-            <ProgramListenersSetup />
-            <AnnouncementBar />
-            <AppBar />
-            {children}
-          </AppSnackBarProvider>
-        </Provider>
-      </SolanaContext>
+        <ProgramListenersSetup />
+        <AnnouncementBar />
+        <AppBar />
+        {children}
+      </CacheProvider>
     </ConfigContext.Provider>
   );
 }
