@@ -15,10 +15,9 @@
   },
   "scripts": {
     "type-check": "tsc --noEmit",
-    "dev": "yarn type-check -- --watch",
+    "dev": "pnpm type-check --watch",
     "build:types": "tsc",
-    "build:js": "rollup -c",
-    "build": "rm -rf dist && pnpm run build:types && pnpm run build:js"
+    "build": "rm -rf dist && pnpm run build:types"
   },
   "dependencies": {
     "@chatui/core": "^2.4.2",
