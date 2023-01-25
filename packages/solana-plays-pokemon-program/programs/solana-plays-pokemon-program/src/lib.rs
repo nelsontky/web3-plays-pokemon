@@ -215,13 +215,6 @@ pub mod solana_plays_pokemon_program {
         Ok(())
     }
 
-    pub fn migrate_game_data(ctx: Context<MigrateGameData>) -> Result<()> {
-        let game_data =  &mut ctx.accounts.game_data;
-        game_data.nfts_minted = ctx.accounts.minted_nfts_count.nfts_minted;
-
-        Ok(())
-    }
-
     pub fn initialize_current_participants(
         ctx: Context<InitializeCurrentParticipants>,
     ) -> Result<()> {
@@ -497,30 +490,6 @@ pub struct MigrateGameStateToV4<'info> {
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
     pub clock: Sysvar<'info, Clock>,
-}
-
-// Have to realloc more space first if not enough
-#[derive(Accounts)]
-pub struct MigrateGameData<'info> {
-    #[account(
-        mut, 
-        has_one = authority,
-        // realloc = 8 + GameData::LEN,
-        // realloc::payer = authority,
-        // realloc::zero = true,
-    )]
-    pub game_data: Account<'info, GameData>,
-    #[account(
-        seeds = [
-            b"minted_nfts_count",
-            game_data.key().as_ref(),
-        ],
-        bump
-    )]
-    pub minted_nfts_count: Account<'info, MintedNftsCount>,
-    #[account(mut)]
-    pub authority: Signer<'info>,
-    pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
