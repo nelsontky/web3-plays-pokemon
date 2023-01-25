@@ -1,9 +1,7 @@
-const withTwin = require("./withTwin.js");
-
 /**
  * @type {import('next').NextConfig}
  */
-module.exports = withTwin({
+module.exports = {
   reactStrictMode: true,
   transpilePackages: ["ui"],
-});
+};
