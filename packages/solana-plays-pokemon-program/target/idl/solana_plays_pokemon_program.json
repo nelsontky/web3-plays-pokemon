@@ -21,11 +21,6 @@
           "isSigner": false
         },
         {
-          "name": "mintedNftsCount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
           "name": "currentParticipants",
           "isMut": true,
           "isSigner": false
@@ -203,15 +198,15 @@
       ]
     },
     {
-      "name": "initializeMintedNftsCount",
+      "name": "migrateGameData",
       "accounts": [
         {
-          "name": "mintedNftsCount",
+          "name": "gameData",
           "isMut": true,
           "isSigner": false
         },
         {
-          "name": "gameData",
+          "name": "mintedNftsCount",
           "isMut": false,
           "isSigner": false
         },
@@ -274,7 +269,7 @@
         },
         {
           "name": "gameData",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -285,11 +280,6 @@
         {
           "name": "tokenProgram",
           "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "mintedNftsCount",
-          "isMut": true,
           "isSigner": false
         },
         {
@@ -414,6 +404,10 @@
           {
             "name": "authority",
             "type": "publicKey"
+          },
+          {
+            "name": "nftsMinted",
+            "type": "u32"
           }
         ]
       }
@@ -686,5 +680,8 @@
       "name": "InvalidButtonPressCount",
       "msg": "Invalid button press count."
     }
-  ]
+  ],
+  "metadata": {
+    "address": "pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK"
+  }
 }

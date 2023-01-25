@@ -6,12 +6,14 @@ import { GAME_DATA_ACCOUNT_PUBLIC_KEY } from "../constants";
 interface GameDataState {
   executedStatesCount: number;
   isExecuting: boolean;
+  nftsMinted: number;
   status: "idle" | "loading" | "failed" | "succeeded";
 }
 
 const initialState: GameDataState = {
   executedStatesCount: 0,
   isExecuting: false,
+  nftsMinted: 0,
   status: "idle",
 };
 
@@ -25,6 +27,7 @@ export const fetchGameData = createAsyncThunk(
     return {
       executedStatesCount: gameData.executedStatesCount,
       isExecuting: gameData.isExecuting,
+      nftsMinted: gameData.nftsMinted,
     };
   }
 );
@@ -35,7 +38,10 @@ const gameDataSlice = createSlice({
   reducers: {
     setGameData: (
       state,
-      action: PayloadAction<{ executedStatesCount: number; isExecuting: boolean }>
+      action: PayloadAction<{
+        executedStatesCount: number;
+        isExecuting: boolean;
+      }>
     ) => {
       state.executedStatesCount = action.payload.executedStatesCount;
       state.isExecuting = action.payload.isExecuting;
@@ -50,6 +56,7 @@ const gameDataSlice = createSlice({
         state.status = "succeeded";
         state.executedStatesCount = action.payload.executedStatesCount;
         state.isExecuting = action.payload.isExecuting;
+        state.nftsMinted = action.payload.nftsMinted;
       })
       .addCase(fetchGameData.rejected, (state) => {
         state.status = "failed";

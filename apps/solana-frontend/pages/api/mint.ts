@@ -274,18 +274,14 @@ async function buildMintNftTx(
     ],
     mplTokenMetadata.PROGRAM_ID
   );
-  const [mintedNftsCountPda] = anchor.web3.PublicKey.findProgramAddressSync(
-    [Buffer.from("minted_nfts_count"), GAME_DATA_ACCOUNT_PUBLIC_KEY.toBuffer()],
-    program.programId
-  );
-  const mintedNftsCount = await program.account.mintedNftsCount.fetch(
-    mintedNftsCountPda
+  const gameData = await program.account.gameData.fetch(
+    GAME_DATA_ACCOUNT_PUBLIC_KEY
   );
   const [mintedNftPda] = anchor.web3.PublicKey.findProgramAddressSync(
     [
       Buffer.from("minted_nft"),
       GAME_DATA_ACCOUNT_PUBLIC_KEY.toBuffer(),
-      Buffer.from("" + mintedNftsCount.nftsMinted),
+      Buffer.from("" + gameData.nftsMinted),
     ],
     program.programId
   );
@@ -308,7 +304,6 @@ async function buildMintNftTx(
       collectionMasterEdition,
       collectionMint: COLLECTION_PUBLIC_KEY,
       masterEdition,
-      mintedNftsCount: mintedNftsCountPda,
       mintedNft: mintedNftPda,
     })
     .instruction();
