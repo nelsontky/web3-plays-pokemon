@@ -1,31 +1,21 @@
-import { cache } from "@emotion/css";
-import { CacheProvider } from "@emotion/react";
+import { GAME_DATA_ACCOUNT_ID } from "common";
 import type { AppProps } from "next/app";
 import { Provider } from "react-redux";
-import AnchorSetup from "../components/AnchorSetup";
-import AnnouncementBar from "../components/AnnouncementBar";
-import AppBar from "../components/AppBar";
-import ProgramListenersSetup from "../components/ProgramListenersSetup";
-import AppSnackBarProvider from "../contexts/AppSnackBarProvider";
-import SolanaContext from "../contexts/SolanaContext";
-import { store } from "../store";
-import GlobalStyles from "./../styles/GlobalStyles";
+import ConfigProvider from "ui/contexts/ConfigProvider";
+import { store } from "ui";
+import AppSnackBarProvider from "ui/contexts/AppSnackBarProvider";
+import SolanaContext from "ui/contexts/SolanaContext";
 
 const App = ({ Component, pageProps }: AppProps) => (
-  <CacheProvider value={cache}>
-    <GlobalStyles />
+  <Provider store={store}>
     <SolanaContext>
-      <AnchorSetup />
-      <Provider store={store}>
+      <ConfigProvider gameDataAccountId={GAME_DATA_ACCOUNT_ID}>
         <AppSnackBarProvider>
-          <ProgramListenersSetup />
-          <AnnouncementBar />
-          <AppBar />
           <Component {...pageProps} />
         </AppSnackBarProvider>
-      </Provider>
+      </ConfigProvider>
     </SolanaContext>
-  </CacheProvider>
+  </Provider>
 );
 
 export default App;
