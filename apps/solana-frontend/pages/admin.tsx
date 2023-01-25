@@ -99,28 +99,6 @@ export default function Admin() {
     }
   };
 
-  const initializeMintedNftsCountAccount = async () => {
-    if (program) {
-      const [mintedNftsCountPda] = anchor.web3.PublicKey.findProgramAddressSync(
-        [
-          Buffer.from("minted_nfts_count"),
-          GAME_DATA_ACCOUNT_PUBLIC_KEY.toBuffer(),
-        ],
-        program.programId
-      );
-
-      console.log("sending");
-      await program.methods
-        .initializeMintedNftsCount()
-        .accounts({
-          mintedNftsCount: mintedNftsCountPda,
-          gameData: GAME_DATA_ACCOUNT_PUBLIC_KEY,
-        })
-        .rpc();
-      console.log("done");
-    }
-  };
-
   const initializeCurrentParticipantsAccount = async () => {
     if (program) {
       const [currentParticipantsPda] =
@@ -141,6 +119,28 @@ export default function Admin() {
         })
         .rpc();
       console.log("done");
+    }
+  };
+
+  const migrateGameData = async () => {
+    if (program) {
+      const [mintedNftsCountPda] = anchor.web3.PublicKey.findProgramAddressSync(
+        [
+          Buffer.from("minted_nfts_count"),
+          GAME_DATA_ACCOUNT_PUBLIC_KEY.toBuffer(),
+        ],
+        program.programId
+      );
+
+      console.log("sending");
+      await program.methods
+        .migrateGameData()
+        .accounts({
+          gameData: GAME_DATA_ACCOUNT_PUBLIC_KEY,
+          mintedNftsCount: mintedNftsCountPda,
+        })
+        .rpc();
+      console.log("sent");
     }
   };
 
@@ -185,12 +185,10 @@ export default function Admin() {
         Initialize accounts
       </AppButton>
       <AppButton onClick={migrateGameStates}>Migrate game state</AppButton>
-      <AppButton onClick={initializeMintedNftsCountAccount}>
-        Initialize minted nfts count
-      </AppButton>
       <AppButton onClick={initializeCurrentParticipantsAccount}>
         Initialize current participants
       </AppButton>
+      <AppButton onClick={migrateGameData}>Migrate game data</AppButton>
     </div>
   );
 }

@@ -40,12 +40,8 @@ const updateMintedNfts = async () => {
   const GAME_DATA_ACCOUNT_PUBLIC_KEY = new anchor.web3.PublicKey(
     GAME_DATA_ACCOUNT_ID
   );
-  const [mintedNftsCountPda] = anchor.web3.PublicKey.findProgramAddressSync(
-    [Buffer.from("minted_nfts_count"), GAME_DATA_ACCOUNT_PUBLIC_KEY.toBuffer()],
-    program.programId
-  );
-  const { nftsMinted } = await program.account.mintedNftsCount.fetch(
-    mintedNftsCountPda
+  const { nftsMinted } = await program.account.gameData.fetch(
+    GAME_DATA_ACCOUNT_PUBLIC_KEY
   );
 
   for (let i = 0; i < nftsMinted; i++) {

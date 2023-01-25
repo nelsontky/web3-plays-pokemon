@@ -2,7 +2,6 @@ use anchor_lang::prelude::*;
 
 use crate::constants::*;
 
-// TODO: refactor this field into main game data, couldn't do it now as I lost the game data account private key :'()
 #[account]
 pub struct CurrentParticipants {
     pub participants: Vec<Pubkey>,
@@ -36,10 +35,13 @@ pub struct GameData {
     pub executed_states_count: u32,
     pub is_executing: bool,
     pub authority: Pubkey,
+    pub nfts_minted: u32,
 }
 
 impl GameData {
-    pub const LEN: usize = 4 + 1 + 32;
+    // allocate twice the space for future upgrades, 
+    // space was last allocated to contain "nfts_minted"
+    pub const LEN: usize = 2 * (4 + 1 + 32 + 4);
 }
 
 #[account]

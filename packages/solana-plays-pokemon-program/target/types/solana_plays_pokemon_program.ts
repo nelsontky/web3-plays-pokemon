@@ -21,11 +21,6 @@ export type SolanaPlaysPokemonProgram = {
           "isSigner": false
         },
         {
-          "name": "mintedNftsCount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
           "name": "currentParticipants",
           "isMut": true,
           "isSigner": false
@@ -203,15 +198,15 @@ export type SolanaPlaysPokemonProgram = {
       ]
     },
     {
-      "name": "initializeMintedNftsCount",
+      "name": "migrateGameData",
       "accounts": [
         {
-          "name": "mintedNftsCount",
+          "name": "gameData",
           "isMut": true,
           "isSigner": false
         },
         {
-          "name": "gameData",
+          "name": "mintedNftsCount",
           "isMut": false,
           "isSigner": false
         },
@@ -274,7 +269,7 @@ export type SolanaPlaysPokemonProgram = {
         },
         {
           "name": "gameData",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -285,11 +280,6 @@ export type SolanaPlaysPokemonProgram = {
         {
           "name": "tokenProgram",
           "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "mintedNftsCount",
-          "isMut": true,
           "isSigner": false
         },
         {
@@ -414,6 +404,10 @@ export type SolanaPlaysPokemonProgram = {
           {
             "name": "authority",
             "type": "publicKey"
+          },
+          {
+            "name": "nftsMinted",
+            "type": "u32"
           }
         ]
       }
@@ -712,11 +706,6 @@ export const IDL: SolanaPlaysPokemonProgram = {
           "isSigner": false
         },
         {
-          "name": "mintedNftsCount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
           "name": "currentParticipants",
           "isMut": true,
           "isSigner": false
@@ -894,15 +883,15 @@ export const IDL: SolanaPlaysPokemonProgram = {
       ]
     },
     {
-      "name": "initializeMintedNftsCount",
+      "name": "migrateGameData",
       "accounts": [
         {
-          "name": "mintedNftsCount",
+          "name": "gameData",
           "isMut": true,
           "isSigner": false
         },
         {
-          "name": "gameData",
+          "name": "mintedNftsCount",
           "isMut": false,
           "isSigner": false
         },
@@ -965,7 +954,7 @@ export const IDL: SolanaPlaysPokemonProgram = {
         },
         {
           "name": "gameData",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -976,11 +965,6 @@ export const IDL: SolanaPlaysPokemonProgram = {
         {
           "name": "tokenProgram",
           "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "mintedNftsCount",
-          "isMut": true,
           "isSigner": false
         },
         {
@@ -1105,6 +1089,10 @@ export const IDL: SolanaPlaysPokemonProgram = {
           {
             "name": "authority",
             "type": "publicKey"
+          },
+          {
+            "name": "nftsMinted",
+            "type": "u32"
           }
         ]
       }

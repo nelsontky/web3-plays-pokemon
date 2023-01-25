@@ -51,6 +51,8 @@ pub mod solana_plays_pokemon_program {
         let game_data = &mut ctx.accounts.game_data;
         game_data.executed_states_count = 1;
         game_data.authority = *ctx.accounts.authority.key;
+        game_data.nfts_minted = 0;
+
         msg!("Game data account initialized");
 
         let game_state = &mut ctx.accounts.game_state;
@@ -73,10 +75,6 @@ pub mod solana_plays_pokemon_program {
             &String::from(""),
         );
         msg!("Second game state account initialized");
-
-        // init minted nfts count
-        let minted_nfts_count = &mut ctx.accounts.minted_nfts_count;
-        minted_nfts_count.nfts_minted = 0;
 
         // init current_participants
         let current_participants = &mut ctx.accounts.current_participants;
@@ -217,9 +215,9 @@ pub mod solana_plays_pokemon_program {
         Ok(())
     }
 
-    pub fn initialize_minted_nfts_count(ctx: Context<InitializeMintedNftCounts>) -> Result<()> {
-        let minted_nfts_count = &mut ctx.accounts.minted_nfts_count;
-        minted_nfts_count.nfts_minted = 0;
+    pub fn migrate_game_data(ctx: Context<MigrateGameData>) -> Result<()> {
+        let game_data =  &mut ctx.accounts.game_data;
+        game_data.nfts_minted = ctx.accounts.minted_nfts_count.nfts_minted;
 
         Ok(())
     }
@@ -326,8 +324,8 @@ pub mod solana_plays_pokemon_program {
         )?;
 
         // add to on chain mint list
-        let minted_nfts_count = &mut ctx.accounts.minted_nfts_count;
-        minted_nfts_count.nfts_minted = minted_nfts_count.nfts_minted.checked_add(1).unwrap();
+        let game_data = &mut ctx.accounts.game_data;
+        game_data.nfts_minted = game_data.nfts_minted.checked_add(1).unwrap();
         let minted_nft = &mut ctx.accounts.minted_nft;
         minted_nft.mint = ctx.accounts.mint.key();
 
@@ -356,17 +354,6 @@ pub struct Initialize<'info> {
         bump
     )]
     pub next_game_state: Account<'info, GameStateV4>,
-    #[account(
-        init,
-        payer = authority,
-        seeds = [
-            b"minted_nfts_count",
-            game_data.key().as_ref(),
-        ],
-        space = 8 + MintedNftsCount::LEN,
-        bump
-    )]
-    pub minted_nfts_count: Account<'info, MintedNftsCount>,
     #[account(
         init,
         payer = authority,
@@ -512,21 +499,25 @@ pub struct MigrateGameStateToV4<'info> {
     pub clock: Sysvar<'info, Clock>,
 }
 
+// Have to realloc more space first if not enough
 #[derive(Accounts)]
-pub struct InitializeMintedNftCounts<'info> {
+pub struct MigrateGameData<'info> {
     #[account(
-        init,
-        payer = authority,
+        mut, 
+        has_one = authority,
+        // realloc = 8 + GameData::LEN,
+        // realloc::payer = authority,
+        // realloc::zero = true,
+    )]
+    pub game_data: Account<'info, GameData>,
+    #[account(
         seeds = [
             b"minted_nfts_count",
             game_data.key().as_ref(),
         ],
-        space = 8 + MintedNftsCount::LEN,
         bump
     )]
     pub minted_nfts_count: Account<'info, MintedNftsCount>,
-    #[account(has_one = authority)]
-    pub game_data: Account<'info, GameData>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
@@ -575,27 +566,18 @@ pub struct MintFramesNft<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
     pub authority: Signer<'info>,
-    #[account(has_one = authority)]
+    #[account(mut, has_one = authority)]
     pub game_data: Account<'info, GameData>,
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
 
-    #[account(
-        mut,
-        seeds = [
-            b"minted_nfts_count",
-            game_data.key().as_ref(),
-        ],
-        bump
-    )]
-    pub minted_nfts_count: Account<'info, MintedNftsCount>,
     #[account(
         init,
         payer = user,
         seeds = [
             b"minted_nft",
             game_data.key().as_ref(),
-            minted_nfts_count.nfts_minted.to_string().as_ref()
+            game_data.nfts_minted.to_string().as_ref()
         ],
         bump,
         space = 8 + MintedNft::LEN
