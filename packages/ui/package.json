@@ -16,7 +16,7 @@
   "scripts": {
     "type-check": "tsc --noEmit",
     "dev": "pnpm type-check --watch",
-    "build:types": "tsc --noEmit",
+    "build:types": "tsc --build tsconfig.json",
     "build": "rm -rf dist && pnpm run build:types"
   },
   "dependencies": {
