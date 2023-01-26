@@ -1,6 +1,6 @@
 import { GAMEBOY_MEMORY_OFFSET, ITEMS_INDEX, TOTAL_ITEMS_INDEX } from "common";
 import { useMemo } from "react";
-import Item from "../types/item";
+import { Item } from "common";
 
 export default function useItemsData(gameboyMemory?: Uint8Array) {
   const items = useMemo(() => {

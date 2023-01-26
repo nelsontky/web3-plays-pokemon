@@ -1,5 +1,5 @@
 import tw from "twin.macro";
-import Badges from "../types/badges";
+import { Badges } from "common";
 
 const styles = {
   text: tw`

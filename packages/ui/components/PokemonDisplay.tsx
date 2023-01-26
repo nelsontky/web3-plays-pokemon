@@ -1,5 +1,5 @@
 import tw from "twin.macro";
-import Pokemon from "../types/pokemon";
+import { Pokemon } from "common";
 
 const styles = {
   root: tw`

@@ -29,6 +29,13 @@ export const BUTTON_ID_TO_ENUM = [
   JoypadButton.TurboB,
 ];
 
+export const SIGNATURE_MESSAGE = `Verify to chat.\n\nClicking "Sign" or "Approve" only means you have proved this wallet is owned by you.\n\nThis request will not trigger any blockchain transactions or generate a fee.`;
+export const SIGNATURE_MESSAGE_FOR_ROUNDS = `Verify to load data.\n\nClicking "Sign" or "Approve" only means you have proved this wallet is owned by you.\n\nThis request will not trigger any blockchain transactions or generate a fee.`;
+export const POKEMON_PIXEL_FONT = {
+  style: { fontColor: "black" },
+  className: "temp",
+};
+
 // Mainnet
 export const PROGRAM_ID = "pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg";
 export const GAME_DATA_ACCOUNT_ID =

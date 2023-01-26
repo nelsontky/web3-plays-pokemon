@@ -1,8 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import Message from "../../types/message";
+import type { Message } from "common";
 import admin from "../../firebase/nodeApp";
 import nacl from "tweetnacl";
-import { SIGNATURE_MESSAGE } from "../../constants";
+import { SIGNATURE_MESSAGE } from "common";
 import { PublicKey } from "@solana/web3.js";
 import { MAX_MESSAGE_LENGTH } from "common";
 

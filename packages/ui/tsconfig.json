@@ -1,5 +1,5 @@
 {
   "extends": "tsconfig/react-library.json",
-  "include": ["."],
+  "include": [".", "../common/src/types/badges.ts"],
   "exclude": ["dist", "build", "node_modules"]
 }

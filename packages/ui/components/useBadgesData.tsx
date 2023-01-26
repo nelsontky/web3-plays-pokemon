@@ -1,6 +1,6 @@
 import { BADGES_INDEX, BADGE_NAMES, GAMEBOY_MEMORY_OFFSET } from "common";
 import { useMemo } from "react";
-import Badges from "../types/badges";
+import { Badges } from "common";
 
 export default function useBadgesData(gameboyMemory?: Uint8Array) {
   const badges = useMemo(() => {

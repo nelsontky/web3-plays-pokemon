@@ -1,4 +1,4 @@
-export default interface Badges {
+export interface Badges {
   count: string;
   badgesObtained: string[];
 }
