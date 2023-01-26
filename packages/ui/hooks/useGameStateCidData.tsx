@@ -1,6 +1,6 @@
 import { inflate } from "pako";
 import { useEffect, useState } from "react";
-import fetchIpfsCid from "../utils/fetchIpfsCid";
+import { fetchIpfsCid } from "common";
 
 export default function useGameStateCidData<T>(ipfsCid: string | undefined) {
   const [data, setData] = useState<T>();
