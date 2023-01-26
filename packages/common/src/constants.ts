@@ -35,7 +35,9 @@ export const GAME_DATA_ACCOUNT_ID =
   "redHPYj5C9X7TyEqQPHMTsfevKZ9eHCTQ8BJVee9JWC";
 export const GAME_DATA_AUTHORITY =
   "ash1JcmhS3mNXm7gowst3pfSCsr3Sg33bQZ555vsw1i";
-export const COLLECTION_ID = "pkmA56jwkhZWJYXFB8RbKju8kgFhw4fTYahp9VXPQdw";
+export const GAME_DATA_COLLECTION_IDS: Record<string, string> = {
+  [GAME_DATA_ACCOUNT_ID]: "pkmA56jwkhZWJYXFB8RbKju8kgFhw4fTYahp9VXPQdw",
+};
 
 // Devnet
 // export const PROGRAM_ID = "pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK";

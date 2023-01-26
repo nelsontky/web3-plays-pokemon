@@ -1,5 +1,9 @@
-import { GAMEBOY_CAMERA_HEIGHT, GAMEBOY_CAMERA_WIDTH } from "./constants";
-import { JoypadButton } from "./enums";
+import {
+  GAMEBOY_CAMERA_HEIGHT,
+  GAMEBOY_CAMERA_WIDTH,
+  GAME_DATA_ACCOUNT_ID,
+} from "../constants";
+import { JoypadButton } from "../enums";
 
 export const joypadEnumToButtonId = (joypadButton: JoypadButton) =>
   joypadButton === JoypadButton.Up
@@ -39,7 +43,10 @@ const getIndex = (row: number, column: number) => {
   return (row * GAMEBOY_CAMERA_WIDTH + column) * 3;
 };
 
-export function renderFrame(imageDataArray: number[], ctx: CanvasRenderingContext2D) {
+export function renderFrame(
+  imageDataArray: number[],
+  ctx: CanvasRenderingContext2D
+) {
   ctx.beginPath();
 
   for (let row = 0; row < GAMEBOY_CAMERA_HEIGHT; row++) {
@@ -55,4 +62,10 @@ export function renderFrame(imageDataArray: number[], ctx: CanvasRenderingContex
   }
 
   ctx.stroke();
+}
+
+export function getIsValidGameDataAccountId(
+  gameDataAccountId: string | undefined
+) {
+  return gameDataAccountId === GAME_DATA_ACCOUNT_ID;
 }

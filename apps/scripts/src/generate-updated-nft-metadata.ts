@@ -3,7 +3,11 @@ import idl from "../../../packages/solana-plays-pokemon-program/dist/target/idl/
 import { SolanaPlaysPokemonProgram } from "../../../packages/solana-plays-pokemon-program/dist/target/types/solana_plays_pokemon_program";
 import { keypairIdentity, Metaplex } from "@metaplex-foundation/js";
 import * as dotenv from "dotenv";
-import { COLLECTION_ID, GAME_DATA_ACCOUNT_ID, PROGRAM_ID } from "common";
+import {
+  GAME_DATA_COLLECTION_IDS,
+  GAME_DATA_ACCOUNT_ID,
+  PROGRAM_ID,
+} from "common";
 import axios from "axios";
 import { NFTStorage, Blob } from "nft.storage";
 
@@ -85,7 +89,9 @@ const updateMintedNfts = async () => {
 };
 
 const updateCollection = async () => {
-  const collectionId = new anchor.web3.PublicKey(COLLECTION_ID);
+  const collectionId = new anchor.web3.PublicKey(
+    GAME_DATA_COLLECTION_IDS[GAME_DATA_ACCOUNT_ID]
+  );
   const nft = await metaplex.nfts().findByMint({
     mintAddress: collectionId,
   });
