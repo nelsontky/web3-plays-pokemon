@@ -13,6 +13,7 @@ import {
   fetchIpfsCid,
   GAME_DATA_COLLECTION_IDS,
   GAME_DATAS,
+  GAME_DATA_ACCOUNT_ID,
 } from "common";
 import { getAssociatedTokenAddress } from "@solana/spl-token";
 import { inflate } from "pako";
@@ -64,7 +65,10 @@ export default async function handler(
       ],
       program.programId
     );
-    const isParticipant = await getIsParticipant(gameStatePda, publicKey);
+
+    const isDevnet = connection.rpcEndpoint.includes("solana-devnet");
+    const isParticipant =
+      isDevnet || (await getIsParticipant(gameStatePda, publicKey));
     if (!isParticipant) {
       return res.status(403).json({
         result:
@@ -80,6 +84,7 @@ export default async function handler(
     ]);
 
     const metadataUri = await getNftMetadataUri(
+      gameDataAccountId as string,
       gameStateIndex,
       gameState.framesImageCid
     );
@@ -166,6 +171,7 @@ function initSolana() {
 }
 
 async function getNftMetadataUri(
+  gameDataAccountId: string,
   gameStateIndex: number,
   framesImageDataCid: string
 ) {
@@ -223,7 +229,11 @@ async function getNftMetadataUri(
   const imageCid = await client.storeBlob(image);
 
   const metadata = JSON.stringify(
-    generateMetadata(gameStateIndex, `https://${imageCid}.ipfs.nftstorage.link`)
+    generateMetadata(
+      gameDataAccountId,
+      gameStateIndex,
+      `https://${imageCid}.ipfs.nftstorage.link`
+    )
   );
   const metadataBlob = new Blob([metadata]);
   const metadataCid = await client.storeBlob(metadataBlob);
@@ -344,34 +354,49 @@ async function buildMintNftTx(
   return serializedTransaction;
 }
 
-const generateMetadata = (round: number, imageUrl: string) => ({
-  name: `Solana Plays Pokemon #${round}`,
-  symbol: "PKM",
-  description: `Round #${round} of Solana Plays Pokemon.`,
-  image: imageUrl,
-  animation_url: imageUrl,
-  external_url: "https://solana.playspokemon.xyz",
-  attributes: [
-    {
-      trait_type: "Round",
-      value: round,
-    },
-    {
-      trait_type: "Game",
-      value: "Pokemon Red",
-    },
-    {
-      trait_type: "Version",
-      value: "v1",
-    },
-  ],
-  properties: {
-    files: [
+const generateMetadata = (
+  gameDataAccountId: string,
+  round: number,
+  imageUrl: string
+) => {
+  const baseTitle =
+    gameDataAccountId === GAME_DATA_ACCOUNT_ID
+      ? "Solana Plays Pokemon"
+      : "Solana Plays Pokemon Crystal";
+  const game =
+    gameDataAccountId === GAME_DATA_ACCOUNT_ID
+      ? "Pokemon Red"
+      : "Pokemon Crystal";
+  const version = gameDataAccountId === GAME_DATA_ACCOUNT_ID ? "v1" : "v2";
+  return {
+    name: `${baseTitle} #${round}`,
+    symbol: "PKM",
+    description: `Round #${round} of ${baseTitle}.`,
+    image: imageUrl,
+    animation_url: imageUrl,
+    external_url: "https://solana.playspokemon.xyz",
+    attributes: [
       {
-        uri: imageUrl,
-        type: "image/gif",
+        trait_type: "Round",
+        value: round,
+      },
+      {
+        trait_type: "Game",
+        value: game,
+      },
+      {
+        trait_type: "Version",
+        value: version,
       },
     ],
-    category: "image",
-  },
-});
+    properties: {
+      files: [
+        {
+          uri: imageUrl,
+          type: "image/gif",
+        },
+      ],
+      category: "image",
+    },
+  };
+};

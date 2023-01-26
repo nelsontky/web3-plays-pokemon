@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import tw from "twin.macro";
 import { SIGNATURE_MESSAGE_FOR_ROUNDS } from "../constants";
+import { useConfig } from "../contexts/ConfigProvider";
 import useTxSnackbar from "../hooks/useTxSnackbar";
 import SimpleButton from "./SImpleButton";
 
@@ -35,6 +36,7 @@ const styles = {
 };
 
 export default function ParticipationHistory() {
+  const { gameDataAccountPublicKey } = useConfig();
   const { signMessage, publicKey } = useWallet();
   const { enqueueSnackbar } = useTxSnackbar();
   const [walletSignature, setWalletSignature] = useState<string>();
@@ -78,7 +80,7 @@ export default function ParticipationHistory() {
         try {
           setLoading(true);
           const response = await axios.get(
-            `/api/rounds/${publicKey.toBase58()}`,
+            `/api/rounds/${gameDataAccountPublicKey.toBase58()}/${publicKey.toBase58()}`,
             {
               headers: {
                 authorization: signatureToUse,
