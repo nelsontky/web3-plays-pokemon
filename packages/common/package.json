@@ -22,5 +22,8 @@
     "eslint-config-custom": "workspace:*",
     "tsconfig": "workspace:*",
     "typescript": "^4.5.2"
+  },
+  "dependencies": {
+    "axios": "^1.2.1"
   }
 }

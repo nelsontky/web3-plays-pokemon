@@ -33,15 +33,16 @@ export const SIGNATURE_MESSAGE = `Verify to chat.\n\nClicking "Sign" or "Approve
 export const SIGNATURE_MESSAGE_FOR_ROUNDS = `Verify to load data.\n\nClicking "Sign" or "Approve" only means you have proved this wallet is owned by you.\n\nThis request will not trigger any blockchain transactions or generate a fee.`;
 export const POKEMON_PIXEL_FONT = {
   style: { fontColor: "black" },
-  className: "temp",
+  className: "pokemon-pixel-font",
 };
 
 // Mainnet
 export const PROGRAM_ID = "pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg";
-export const GAME_DATA_ACCOUNT_ID =
-  "redHPYj5C9X7TyEqQPHMTsfevKZ9eHCTQ8BJVee9JWC";
 export const GAME_DATA_AUTHORITY =
   "ash1JcmhS3mNXm7gowst3pfSCsr3Sg33bQZ555vsw1i";
+
+export const GAME_DATA_ACCOUNT_ID =
+  "redHPYj5C9X7TyEqQPHMTsfevKZ9eHCTQ8BJVee9JWC";
 export const GAME_DATA_COLLECTION_IDS: Record<string, string> = {
   [GAME_DATA_ACCOUNT_ID]: "pkmA56jwkhZWJYXFB8RbKju8kgFhw4fTYahp9VXPQdw",
 };

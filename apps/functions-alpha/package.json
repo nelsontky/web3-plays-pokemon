@@ -31,7 +31,10 @@
     "stream-buffers": "^3.0.2"
   },
   "devDependencies": {
+    "@types/gifencoder": "^2.0.1",
     "@types/node-fetch": "^2.6.2",
+    "@types/pako": "^2.0.0",
+    "@types/stream-buffers": "^3.0.4",
     "firebase-functions-test": "^0.2.0",
     "typescript": "^4.5.4"
   },
