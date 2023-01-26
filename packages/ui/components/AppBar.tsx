@@ -17,17 +17,21 @@ const styles = {
     flex
     items-center
     justify-end
-    sm:justify-between
+    md:justify-between
     grow
   `,
   header: tw`
     hidden
     text-4xl
-    sm:block
+    md:block
   `,
 };
 
-export default function AppBar() {
+interface AppBarProps {
+  title: string;
+}
+
+export default function AppBar({ title }: AppBarProps) {
   const router = useRouter();
   const [showHowToPlay, setShowHowToPlay] = useState(false);
 
@@ -46,7 +50,7 @@ export default function AppBar() {
     <div css={styles.root}>
       <div css={styles.inner}>
         <Link href="/" css={styles.header}>
-          Solana Plays Pokemon
+          {title}
         </Link>
         <div css={tw`flex gap-4 items-center`}>
           {showHowToPlay && (
