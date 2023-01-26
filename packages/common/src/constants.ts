@@ -37,45 +37,45 @@ export const POKEMON_PIXEL_FONT = {
 };
 
 // Mainnet
-// export const PROGRAM_ID = "pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg";
-// export const GAME_DATA_AUTHORITY =
-//   "ash1JcmhS3mNXm7gowst3pfSCsr3Sg33bQZ555vsw1i";
-
-// export const GAME_DATA_ACCOUNT_ID =
-//   "redHPYj5C9X7TyEqQPHMTsfevKZ9eHCTQ8BJVee9JWC";
-
-// export const GAME_DATAS: Record<string, true> = {
-//   [GAME_DATA_ACCOUNT_ID]: true,
-// };
-// export const GAME_DATA_COLLECTION_IDS: Record<string, string> = {
-//   [GAME_DATA_ACCOUNT_ID]: "pkmA56jwkhZWJYXFB8RbKju8kgFhw4fTYahp9VXPQdw",
-// };
-// export const GAME_DATA_ROM_NAME: Record<string, string> = {
-//   [GAME_DATA_ACCOUNT_ID]:
-//     "Pokemon - Red Version (USA, Europe) (SGB Enhanced).gb",
-// };
-
-// Devnet
-export const PROGRAM_ID = "pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK";
+export const PROGRAM_ID = "pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg";
 export const GAME_DATA_AUTHORITY =
-  "ashAJB3SoHhrX5ppXgDCELsmjyhZiV4GtBtLKB8F8wx";
+  "ash1JcmhS3mNXm7gowst3pfSCsr3Sg33bQZ555vsw1i";
 
 export const GAME_DATA_ACCOUNT_ID =
-  "redRuipyQy8cMUuLaGuriaeE3khPNGZpM9PRsq3zFqv";
-export const V2_GAME_DATA_ACCOUNT_ID =
-  "CrYst3WnhMxkdR7sJGXuZVMtH2tGhfdtKzisggMYGcJb";
+  "redHPYj5C9X7TyEqQPHMTsfevKZ9eHCTQ8BJVee9JWC";
 
 export const GAME_DATAS: Record<string, true> = {
   [GAME_DATA_ACCOUNT_ID]: true,
-  [V2_GAME_DATA_ACCOUNT_ID]: true,
 };
 export const GAME_DATA_COLLECTION_IDS: Record<string, string> = {
-  [GAME_DATA_ACCOUNT_ID]: "pkmZnQzR1zzWFsNTvQ7G1r2keHrcpkbvprQ4954TzAN",
-  [V2_GAME_DATA_ACCOUNT_ID]: "pkmC9fdyURE4DsCyvfLtAwivTTX1tofr3mGCnkSyfUM",
+  [GAME_DATA_ACCOUNT_ID]: "pkmA56jwkhZWJYXFB8RbKju8kgFhw4fTYahp9VXPQdw",
 };
 export const GAME_DATA_ROM_NAME: Record<string, string> = {
   [GAME_DATA_ACCOUNT_ID]:
     "Pokemon - Red Version (USA, Europe) (SGB Enhanced).gb",
-  [V2_GAME_DATA_ACCOUNT_ID]:
-    "Pokemon - Crystal Version (USA, Europe) (Rev 1).gbc",
 };
+
+// Devnet
+// export const PROGRAM_ID = "pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK";
+// export const GAME_DATA_AUTHORITY =
+//   "ashAJB3SoHhrX5ppXgDCELsmjyhZiV4GtBtLKB8F8wx";
+
+// export const GAME_DATA_ACCOUNT_ID =
+//   "redRuipyQy8cMUuLaGuriaeE3khPNGZpM9PRsq3zFqv";
+// export const V2_GAME_DATA_ACCOUNT_ID =
+//   "CrYst3WnhMxkdR7sJGXuZVMtH2tGhfdtKzisggMYGcJb";
+
+// export const GAME_DATAS: Record<string, true> = {
+//   [GAME_DATA_ACCOUNT_ID]: true,
+//   [V2_GAME_DATA_ACCOUNT_ID]: true,
+// };
+// export const GAME_DATA_COLLECTION_IDS: Record<string, string> = {
+//   [GAME_DATA_ACCOUNT_ID]: "pkmZnQzR1zzWFsNTvQ7G1r2keHrcpkbvprQ4954TzAN",
+//   [V2_GAME_DATA_ACCOUNT_ID]: "pkmC9fdyURE4DsCyvfLtAwivTTX1tofr3mGCnkSyfUM",
+// };
+// export const GAME_DATA_ROM_NAME: Record<string, string> = {
+//   [GAME_DATA_ACCOUNT_ID]:
+//     "Pokemon - Red Version (USA, Europe) (SGB Enhanced).gb",
+//   [V2_GAME_DATA_ACCOUNT_ID]:
+//     "Pokemon - Crystal Version (USA, Europe) (Rev 1).gbc",
+// };
