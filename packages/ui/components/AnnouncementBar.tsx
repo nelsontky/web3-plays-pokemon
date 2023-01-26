@@ -48,7 +48,7 @@ export default function AnnouncementBar({
   return (
     <div css={[styles.root, !open && tw`hidden`]}>
       <div css={styles.spacer} />
-      <div css={styles.content}>{CONTENT}</div>
+      <div css={styles.content}>{children}</div>
       <IconButton
         onClick={() => {
           setOpen(false);
