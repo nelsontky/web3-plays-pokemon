@@ -9,16 +9,23 @@ import { useConfig } from "ui/contexts/ConfigProvider";
 
 const PROGRAM_PUBLIC_KEY = new PublicKey(PROGRAM_ID);
 
-// Initial Game Freak screen
+// Initial Game Freak screen for pokemon red
 // const FRAMES_IMAGES_CID =
 //   "bafkreiajqssnp7kgdly427gkmdkl42zjpjlcbhat33ob2dlu4ngeabkriq";
 // const SAVE_STATE_CID =
 //   "bafkreigta3nr75v35u3vpod5pbye5yslgkafxxamhiaiffd6elfbkdw4by";
 
+// Pokemon Red mid game
+// const FRAMES_IMAGES_CID =
+//   "bafkreiay7vrduzi234zszhpy6cxqooxa7erg4by2j6def4wajuebkbabs4";
+// const SAVE_STATE_CID =
+//   "bafkreic4g747ynwm6vvubrjor6rx7soppnp2dm5muev3ymqfczghipnqem";
+
+// Initial Game Freak screen for pokemon crystal
 const FRAMES_IMAGES_CID =
-  "bafkreiay7vrduzi234zszhpy6cxqooxa7erg4by2j6def4wajuebkbabs4";
+  "bafkreibc3ewvhtvuq32mokrqlkkdaioypl4dxbghyu6s6ebr32z4ec6zgq";
 const SAVE_STATE_CID =
-  "bafkreic4g747ynwm6vvubrjor6rx7soppnp2dm5muev3ymqfczghipnqem";
+  "bafkreibdemmhj5nhmo4ek6o6fu4nn6fo7ygditvty5zwvokn23i77bbsme";
 
 let gameData: anchor.web3.Keypair | null = null;
 try {
@@ -149,6 +156,14 @@ export default function Admin() {
                 ],
                 program.programId
               );
+            const [currentParticipantsPda] =
+              anchor.web3.PublicKey.findProgramAddressSync(
+                [
+                  Buffer.from("current_participants"),
+                  gameData.publicKey.toBuffer(),
+                ],
+                program.programId
+              );
             console.log("sending");
             await program.methods
               .initialize(FRAMES_IMAGES_CID, SAVE_STATE_CID)
@@ -158,6 +173,7 @@ export default function Admin() {
                 nextGameState: nextGameStatePda,
                 systemProgram: anchor.web3.SystemProgram.programId,
                 clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+                currentParticipants: currentParticipantsPda,
               })
               .signers([gameData])
               .rpc();

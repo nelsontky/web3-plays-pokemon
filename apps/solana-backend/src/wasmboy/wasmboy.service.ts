@@ -31,9 +31,43 @@ export class WasmboyService {
 
   constructor(private readonly ipfsService: IpfsService) {}
 
+  async generateInitialCids(romName: string) {
+    const [wasmBoy, wasmByteMemory] = await this.getWasmBoyCore();
+    await this.loadRom(romName, wasmBoy, wasmByteMemory);
+
+    const framesImageData = this.executeFrames(wasmBoy, wasmByteMemory, 60, []);
+    const saveState = await this.saveState(wasmBoy, wasmByteMemory);
+
+    const compressedFramesImageData = pako.deflate(
+      JSON.stringify(framesImageData),
+    );
+    const compressedSaveState = pako.deflate(JSON.stringify(saveState));
+
+    const [framesImageDataCid, saveStateCid] = await Promise.all([
+      this.ipfsService.upload(compressedFramesImageData),
+      this.ipfsService.upload(compressedSaveState),
+    ]);
+
+    if (framesImageDataCid.toString().length <= 0) {
+      throw new Error("framesImageDataCid length is 0");
+    }
+    if (saveStateCid.toString().length <= 0) {
+      throw new Error("saveStateCid length is 0");
+    }
+
+    return {
+      framesImageDataCid: framesImageDataCid.toString(),
+      saveStateCid: saveStateCid.toString(),
+    };
+  }
+
   async run(buttonPresses: JoypadButton[], prevSaveStateCid: string) {
     const [wasmBoy, wasmByteMemory] = await this.getWasmBoyCore();
-    await this.loadRom(wasmBoy, wasmByteMemory);
+    await this.loadRom(
+      "Pokemon - Red Version (USA, Europe) (SGB Enhanced).gb",
+      wasmBoy,
+      wasmByteMemory,
+    );
     await this.loadState(wasmBoy, wasmByteMemory, prevSaveStateCid);
 
     const framesImageData = this.executeFrames(
@@ -128,17 +162,13 @@ export class WasmboyService {
     return [wasmBoy, wasmByteMemory];
   }
 
-  private async loadRom(wasmBoy: any, wasmByteMemory: Uint8Array) {
+  private async loadRom(
+    romName: string,
+    wasmBoy: any,
+    wasmByteMemory: Uint8Array,
+  ) {
     const pokemonRedBuffer = await fs.readFile(
-      path.join(
-        __dirname,
-        "..",
-        "..",
-        "..",
-        "..",
-        "assets",
-        "Pokemon - Red Version (USA, Europe) (SGB Enhanced).gb",
-      ),
+      path.join(__dirname, "..", "..", "..", "..", "assets", romName),
     );
     wasmByteMemory.set(pokemonRedBuffer, wasmBoy.CARTRIDGE_ROM_LOCATION);
 
