@@ -9,6 +9,7 @@ import SocialLinks from "../components/SocialLinks";
 import VotesHistory from "../components/VotesHistory";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import MainCanvas from "../components/MainCanvas";
+import { useConfig } from "../contexts/ConfigProvider";
 
 const ChatWidgetDynamic = dynamic(
   async () => await import("../components/ChatWidget"),
@@ -47,6 +48,7 @@ const styles = {
 
 export default function Home() {
   const isWide = useMediaQuery("(min-width:1280px)");
+  const { hideStats } = useConfig();
 
   return (
     <div css={styles.root}>
@@ -84,10 +86,10 @@ export default function Home() {
             <MainCanvas />
             <CurrentVotes />
             <Controls />
-            <VotesHistory />
+            {!hideStats && <VotesHistory />}
           </div>
           <div css={styles.section}>
-            <GameState />
+            {hideStats ? <VotesHistory /> : <GameState />}
           </div>
         </div>
       ) : (
@@ -99,7 +101,7 @@ export default function Home() {
             <Controls />
           </div>
           <div css={styles.section}>
-            <GameState />
+            {!hideStats && <GameState />}
             <HowToPlay id="how-to-play" />
           </div>
           <div css={styles.section}>
