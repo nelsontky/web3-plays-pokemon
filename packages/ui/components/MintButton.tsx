@@ -46,14 +46,18 @@ export default function MintButton({ stateIndex, history }: MintButtonProps) {
   useEffect(
     function checkIfIsParticipant() {
       setIsParticipant(undefined);
-      if (stateIndex !== undefined && history !== undefined) {
+      const isDevnet = connection.rpcEndpoint.includes("solana-devnet");
+
+      if (isDevnet) {
+        setIsParticipant(true);
+      } else if (stateIndex !== undefined && history !== undefined) {
         const userIsParticipant = history.participants.some(
           (participant) => participant.signer === publicKey?.toBase58()
         );
         setIsParticipant(userIsParticipant);
       }
     },
-    [history, publicKey, stateIndex]
+    [connection.rpcEndpoint, history, publicKey, stateIndex]
   );
 
   useEffect(
@@ -107,11 +111,16 @@ export default function MintButton({ stateIndex, history }: MintButtonProps) {
           autoHideDuration: null,
         }
       );
-      const response = await axios.post("/api/mint", {
-        publicKey: publicKey.toBase58(),
-        gameStateIndex: stateIndex,
-        gameDataAccountId: gameDataAccountPublicKey.toBase58(),
-      });
+      const response = await axios.post(
+        process.env.NODE_ENV === "development"
+          ? "http://localhost:3000/api/mint"
+          : "https://solana.playspokemon.xyz/api/mint",
+        {
+          publicKey: publicKey.toBase58(),
+          gameStateIndex: stateIndex,
+          gameDataAccountId: gameDataAccountPublicKey.toBase58(),
+        }
+      );
       closeSnackbar(snackbarId);
       snackbarId = enqueueSnackbar(
         {

@@ -2,7 +2,7 @@ import { PublicKey } from "@solana/web3.js";
 import { NextApiRequest, NextApiResponse } from "next";
 import nacl from "tweetnacl";
 import { SIGNATURE_MESSAGE_FOR_ROUNDS } from "common";
-import admin from "../../../firebase/nodeApp";
+import admin from "../../../../firebase/nodeApp";
 
 export default async function handler(
   req: NextApiRequest,
@@ -13,7 +13,7 @@ export default async function handler(
       return res.status(404).end();
     }
 
-    const { publicKey } = req.query;
+    const { publicKey, gameDataAccountId } = req.query;
     const signature = req.headers.authorization;
 
     if (typeof signature !== "string" || !signature) {
@@ -30,7 +30,7 @@ export default async function handler(
       return res.status(401).end();
     }
 
-    const result = await get(publicKey as string);
+    const result = await get(gameDataAccountId as string, publicKey as string);
 
     return res.status(200).json(result);
   } catch {
@@ -41,10 +41,10 @@ export default async function handler(
   }
 }
 
-async function get(publicKey: string) {
+async function get(gameDataAccountId: string, publicKey: string) {
   const db = admin.database();
   const participantsRef = db.ref(
-    `${process.env.PARTICIPANTS_COLLECTION_NAME}/${publicKey}`
+    `participants-${gameDataAccountId}/${publicKey}`
   );
 
   return new Promise((resolve, reject) => {
