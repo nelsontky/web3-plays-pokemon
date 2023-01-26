@@ -1,9 +1,4 @@
-import {
-  GAMEBOY_CAMERA_HEIGHT,
-  GAMEBOY_CAMERA_WIDTH,
-  GAME_DATA_ACCOUNT_ID,
-  V2_GAME_DATA_ACCOUNT_ID,
-} from "../constants";
+import { GAMEBOY_CAMERA_HEIGHT, GAMEBOY_CAMERA_WIDTH } from "../constants";
 import { JoypadButton } from "../enums";
 
 export const joypadEnumToButtonId = (joypadButton: JoypadButton) =>
