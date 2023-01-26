@@ -110,6 +110,7 @@ export default function MintButton({ stateIndex, history }: MintButtonProps) {
       const response = await axios.post("/api/mint", {
         publicKey: publicKey.toBase58(),
         gameStateIndex: stateIndex,
+        gameDataAccountId: gameDataAccountPublicKey.toBase58(),
       });
       closeSnackbar(snackbarId);
       snackbarId = enqueueSnackbar(
