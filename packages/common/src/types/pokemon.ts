@@ -1,4 +1,4 @@
-export default interface Pokemon {
+export interface Pokemon {
   name: string;
   nickname: string | null;
   hp: number;

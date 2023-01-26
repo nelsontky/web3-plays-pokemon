@@ -3,7 +3,11 @@ import { useEffect } from "react";
 import AppButton from "ui/components/AppButton";
 import { useAppSelector } from "ui/hooks/redux";
 import { useMutableProgram } from "ui/hooks/useProgram";
-import { GAME_DATA_ACCOUNT_PUBLIC_KEY, PROGRAM_PUBLIC_KEY } from "../constants";
+import { PROGRAM_ID } from "common";
+import { PublicKey } from "@solana/web3.js";
+import { useConfig } from "ui/contexts/ConfigProvider";
+
+const PROGRAM_PUBLIC_KEY = new PublicKey(PROGRAM_ID);
 
 // Initial Game Freak screen
 // const FRAMES_IMAGES_CID =
@@ -24,6 +28,7 @@ try {
 const NUMBER_OF_STATES_TO_LOAD = 2;
 
 export default function Admin() {
+  const { gameDataAccountPublicKey } = useConfig();
   const program = useMutableProgram();
 
   const secondsPlayed = useAppSelector(
@@ -35,7 +40,7 @@ export default function Admin() {
     (_, i) => {
       const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
         [
-          GAME_DATA_ACCOUNT_PUBLIC_KEY.toBuffer(),
+          gameDataAccountPublicKey.toBuffer(),
           Buffer.from("game_state"),
           Buffer.from("" + (secondsPlayed - i)),
         ],
@@ -62,7 +67,7 @@ export default function Admin() {
     if (program) {
       const [nextGameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
         [
-          GAME_DATA_ACCOUNT_PUBLIC_KEY.toBuffer(),
+          gameDataAccountPublicKey.toBuffer(),
           Buffer.from("game_state"),
           Buffer.from("" + (secondsPlayed + 1)),
         ],
@@ -71,7 +76,7 @@ export default function Admin() {
       const [nextNextGameStatePda] =
         anchor.web3.PublicKey.findProgramAddressSync(
           [
-            GAME_DATA_ACCOUNT_PUBLIC_KEY.toBuffer(),
+            gameDataAccountPublicKey.toBuffer(),
             Buffer.from("game_state"),
             Buffer.from("" + (secondsPlayed + 2)),
           ],
@@ -86,7 +91,7 @@ export default function Admin() {
         await program.methods
           .migrateGameStateToV4(FRAMES_IMAGES_CID, SAVE_STATE_CID)
           .accounts({
-            gameData: GAME_DATA_ACCOUNT_PUBLIC_KEY,
+            gameData: gameDataAccountPublicKey,
             gameState: oldGameStatesPdas[0],
             nextGameState: nextGameStatePda,
             nextNextGameState: nextNextGameStatePda,
@@ -105,7 +110,7 @@ export default function Admin() {
         anchor.web3.PublicKey.findProgramAddressSync(
           [
             Buffer.from("current_participants"),
-            GAME_DATA_ACCOUNT_PUBLIC_KEY.toBuffer(),
+            gameDataAccountPublicKey.toBuffer(),
           ],
           program.programId
         );
@@ -115,7 +120,7 @@ export default function Admin() {
         .initializeCurrentParticipants()
         .accounts({
           currentParticipants: currentParticipantsPda,
-          gameData: GAME_DATA_ACCOUNT_PUBLIC_KEY,
+          gameData: gameDataAccountPublicKey,
         })
         .rpc();
       console.log("done");

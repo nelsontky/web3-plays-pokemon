@@ -12,7 +12,7 @@ import {
   POKEMON_SIZE,
 } from "common";
 import { useMemo } from "react";
-import Pokemon from "../types/pokemon";
+import { Pokemon } from "common";
 
 export default function usePartyData(gameboyMemory?: Uint8Array) {
   const pokemons = useMemo(() => {

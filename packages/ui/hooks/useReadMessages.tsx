@@ -10,7 +10,7 @@ import {
   endBefore,
   orderByChild,
 } from "firebase/database";
-import Message from "../types/message";
+import { Message } from "common";
 import { useMessages, MessageProps } from "@chatui/core";
 import { useWallet } from "@solana/wallet-adapter-react";
 

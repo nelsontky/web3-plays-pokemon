@@ -1,5 +1,5 @@
 import tw from "twin.macro";
-import Item from "../types/item";
+import { Item } from "common";
 
 const styles = {
   root: tw`

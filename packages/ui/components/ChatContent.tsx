@@ -4,7 +4,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { Dispatch, SetStateAction, useState } from "react";
 import { SIGNATURE_MESSAGE } from "../constants";
 import useReadMessages from "../hooks/useReadMessages";
-import Message from "../types/message";
+import { Message } from "common";
 import axios, { AxiosError } from "axios";
 import tw from "twin.macro";
 import useTxSnackbar from "../hooks/useTxSnackbar";

@@ -1,7 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
 import { NextApiRequest, NextApiResponse } from "next";
 import nacl from "tweetnacl";
-import { SIGNATURE_MESSAGE_FOR_ROUNDS } from "../../../constants";
+import { SIGNATURE_MESSAGE_FOR_ROUNDS } from "common";
 import admin from "../../../firebase/nodeApp";
 
 export default async function handler(
