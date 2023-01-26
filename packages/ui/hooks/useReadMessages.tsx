@@ -27,7 +27,7 @@ export default function useReadMessages() {
       const db = getDatabase(app);
 
       const newestMessageRef = query(
-        ref(db, "solana"),
+        ref(db, process.env.NEXT_PUBLIC_MESSAGES_COLLECTION),
         orderByChild("timestamp"),
         limitToLast(1)
       );
@@ -75,7 +75,7 @@ export default function useReadMessages() {
 
     if (messagesRef.current[0]) {
       const moreMessagesQuery = query(
-        ref(db, "solana"),
+        ref(db, process.env.NEXT_PUBLIC_MESSAGES_COLLECTION),
         orderByChild("timestamp"),
         endBefore(messagesRef.current[0].content.timestamp),
         limitToLast(LOAD_COUNT)

@@ -11,8 +11,8 @@ import {
   renderFrame,
   fetchIpfsCid,
   getGameStateParticipants,
-  getIsValidGameDataAccountId,
   GAME_DATA_COLLECTION_IDS,
+  GAME_DATAS,
 } from "common";
 import { getAssociatedTokenAddress } from "@solana/spl-token";
 import { inflate } from "pako";
@@ -47,7 +47,7 @@ export default async function mintHandler(
     if (
       publicKey === undefined ||
       gameStateIndex === undefined ||
-      !getIsValidGameDataAccountId(gameDataAccountId)
+      !GAME_DATAS[gameDataAccountId as string]
     ) {
       res.status(400).json({ result: "Bad request" });
       return;
