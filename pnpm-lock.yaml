@@ -331,6 +331,7 @@ importers:
       '@solana/wallet-adapter-wallets': ^0.19.9
       '@solana/web3.js': ^1.58.0
       '@tailwindcss/typography': ^0.5.8
+      '@types/cors': ^2.8.13
       '@types/gifencoder': ^2.0.1
       '@types/lodash': ^4.14.191
       '@types/node': ^17.0.12
@@ -342,6 +343,7 @@ importers:
       babel-loader: ^9.1.0
       babel-plugin-macros: ^3.1.0
       common: workspace:*
+      cors: ^2.8.5
       eslint: 7.32.0
       eslint-config-custom: workspace:*
       firebase: ^9.15.0
@@ -383,6 +385,7 @@ importers:
       '@solana/web3.js': 1.72.0
       axios: 1.2.1
       common: link:../../packages/common
+      cors: 2.8.5
       firebase: 9.15.0
       firebase-admin: 11.4.1
       gifencoder: 2.0.1
@@ -405,6 +408,7 @@ importers:
       '@babel/preset-typescript': 7.18.6_@babel+core@7.20.5
       '@emotion/babel-plugin': 11.10.5_@babel+core@7.20.5
       '@tailwindcss/typography': 0.5.8_tailwindcss@3.2.4
+      '@types/cors': 2.8.13
       '@types/gifencoder': 2.0.1
       '@types/lodash': 4.14.191
       '@types/node': 17.0.45

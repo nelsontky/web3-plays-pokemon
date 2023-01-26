@@ -24,12 +24,20 @@ import { createCanvas } from "@napi-rs/canvas";
 import * as mplTokenMetadata from "@metaplex-foundation/mpl-token-metadata";
 import { PublicKey, Transaction } from "@solana/web3.js";
 import axios from "axios";
+import Cors from "cors";
+
+const cors = Cors({
+  origin:
+    process.env.NODE_ENV === "development" ? true : /\.playspokemon\.xyz$/,
+});
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   try {
+    await runMiddleware(req, res, cors);
+
     if (req.method !== "POST") {
       return res.status(404).end();
     }
@@ -313,10 +321,11 @@ async function buildMintNftTx(
     program.programId
   );
 
+  const baseTitle = getNftBaseTitle(gameDataAccountPublicKey.toBase58());
   const mintIx = await program.methods
     .mintFramesNft(
       gameStateIndex,
-      `Solana Plays Pokemon #${gameStateIndex}`,
+      `${baseTitle} #${gameStateIndex}`,
       metadataUri
     )
     .accounts({
@@ -359,10 +368,7 @@ const generateMetadata = (
   round: number,
   imageUrl: string
 ) => {
-  const baseTitle =
-    gameDataAccountId === GAME_DATA_ACCOUNT_ID
-      ? "Solana Plays Pokemon"
-      : "Solana Plays Pokemon Crystal";
+  const baseTitle = getNftBaseTitle(gameDataAccountId);
   const game =
     gameDataAccountId === GAME_DATA_ACCOUNT_ID
       ? "Pokemon Red"
@@ -400,3 +406,27 @@ const generateMetadata = (
     },
   };
 };
+
+function getNftBaseTitle(gameDataAccountId: string) {
+  return gameDataAccountId === GAME_DATA_ACCOUNT_ID
+    ? "Solana Plays Pokemon"
+    : "Solana Plays Pokemon Crystal";
+}
+
+// Helper method to wait for a middleware to execute before continuing
+// And to throw an error when an error happens in a middleware
+function runMiddleware(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  fn: Function
+) {
+  return new Promise((resolve, reject) => {
+    fn(req, res, (result: any) => {
+      if (result instanceof Error) {
+        return reject(result);
+      }
+
+      return resolve(result);
+    });
+  });
+}
