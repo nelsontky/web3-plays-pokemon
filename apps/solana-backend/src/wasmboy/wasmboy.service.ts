@@ -61,13 +61,13 @@ export class WasmboyService {
     };
   }
 
-  async run(buttonPresses: JoypadButton[], prevSaveStateCid: string) {
+  async run(
+    romName: string,
+    buttonPresses: JoypadButton[],
+    prevSaveStateCid: string,
+  ) {
     const [wasmBoy, wasmByteMemory] = await this.getWasmBoyCore();
-    await this.loadRom(
-      "Pokemon - Red Version (USA, Europe) (SGB Enhanced).gb",
-      wasmBoy,
-      wasmByteMemory,
-    );
+    await this.loadRom(romName, wasmBoy, wasmByteMemory);
     await this.loadState(wasmBoy, wasmByteMemory, prevSaveStateCid);
 
     const framesImageData = this.executeFrames(

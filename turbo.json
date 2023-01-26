@@ -20,7 +20,8 @@
     "RPC_CONFIG",
     "FIREBASE_PROJECT_ID",
     "FIREBASE_DATABASE_URL",
-    "PARTICIPANTS_COLLECTION_NAME"
+    "PARTICIPANTS_COLLECTION_NAME",
+    "NEXT_PUBLIC_MESSAGES_COLLECTION"
   ],
   "$schema": "https://turbo.build/schema.json",
   "pipeline": {

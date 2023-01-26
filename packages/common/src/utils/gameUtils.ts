@@ -2,6 +2,7 @@ import {
   GAMEBOY_CAMERA_HEIGHT,
   GAMEBOY_CAMERA_WIDTH,
   GAME_DATA_ACCOUNT_ID,
+  V2_GAME_DATA_ACCOUNT_ID,
 } from "../constants";
 import { JoypadButton } from "../enums";
 
@@ -62,10 +63,4 @@ export function renderFrame(
   }
 
   ctx.stroke();
-}
-
-export function getIsValidGameDataAccountId(
-  gameDataAccountId: string | undefined
-) {
-  return gameDataAccountId === GAME_DATA_ACCOUNT_ID;
 }

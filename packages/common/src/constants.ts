@@ -61,6 +61,10 @@ export const GAME_DATA_ACCOUNT_ID =
 export const V2_GAME_DATA_ACCOUNT_ID =
   "CrYst3WnhMxkdR7sJGXuZVMtH2tGhfdtKzisggMYGcJb";
 
+export const GAME_DATAS: Record<string, true> = {
+  [GAME_DATA_ACCOUNT_ID]: true,
+  [V2_GAME_DATA_ACCOUNT_ID]: true,
+};
 export const GAME_DATA_COLLECTION_IDS: Record<string, string> = {
   [GAME_DATA_ACCOUNT_ID]: "pkmZnQzR1zzWFsNTvQ7G1r2keHrcpkbvprQ4954TzAN",
   [V2_GAME_DATA_ACCOUNT_ID]: "pkmC9fdyURE4DsCyvfLtAwivTTX1tofr3mGCnkSyfUM",

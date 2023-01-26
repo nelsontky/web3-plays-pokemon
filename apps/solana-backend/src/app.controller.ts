@@ -15,7 +15,7 @@ export class AppController {
   }
 
   @Patch()
-  async update() {
-    return this.programService.executeManually();
+  async update(@Body() body: { gameData: string }) {
+    return this.programService.executeManually(body.gameData);
   }
 }

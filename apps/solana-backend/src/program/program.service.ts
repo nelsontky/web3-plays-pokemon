@@ -7,10 +7,11 @@ import {
 } from "@nestjs/common";
 import * as anchor from "@project-serum/anchor";
 import {
-  GAME_DATA_ACCOUNT_ID,
   PROGRAM_ID,
   BUTTON_ID_TO_ENUM,
   JoypadButton,
+  GAME_DATAS,
+  GAME_DATA_ROM_NAME,
 } from "common";
 import { SolanaPlaysPokemonProgram } from "solana-plays-pokemon-program";
 import { WasmboyService } from "src/wasmboy/wasmboy.service";
@@ -26,7 +27,7 @@ export class ProgramService implements OnModuleDestroy {
   private connection: anchor.web3.Connection;
   private program: anchor.Program<SolanaPlaysPokemonProgram>;
   private wallet: anchor.Wallet;
-  private listener: number;
+  private listeners: number[];
 
   constructor(
     private readonly wasmboyService: WasmboyService,
@@ -64,60 +65,72 @@ export class ProgramService implements OnModuleDestroy {
       PROGRAM_ID,
       provider,
     ) as unknown as anchor.Program<SolanaPlaysPokemonProgram>;
+
+    this.listeners = [];
   }
 
   async onModuleDestroy() {
-    if (typeof this.listener === "number") {
-      await this.program.removeEventListener(this.listener);
-      this.logger.log("Listener removed");
+    for (const listener of this.listeners) {
+      await this.program.removeEventListener(listener);
     }
+
+    this.logger.log("All listeners removed");
   }
 
   listen() {
-    this.listener = this.program.addEventListener(
-      "ExecuteGameState",
-      async (event) => {
-        this.logger.log(
-          "Executing game state with event: " + JSON.stringify(event),
-        );
-        try {
-          const gameDataId: anchor.web3.PublicKey = event.gameDataId;
-          if (gameDataId.toBase58() !== GAME_DATA_ACCOUNT_ID) {
-            this.logger.warn(
-              "Invalid game_data_id passed to ExecuteGameState. Event will be ignored",
-            );
-            return;
-          }
-          const buttonPresses: number[] = event.buttonPresses;
-          const gameStateIndex: number = event.index;
-          const participants: string[] = event.participants
-            .filter(
-              (participant: anchor.web3.PublicKey) =>
-                participant.toBase58() !== "11111111111111111111111111111111",
-            )
-            .map((participant: anchor.web3.PublicKey) =>
-              participant.toBase58(),
-            );
-          await this.executeGameState(
-            gameStateIndex,
-            buttonPresses,
-            participants,
+    const gameDatas = Object.keys(GAME_DATAS);
+    for (const gameData of gameDatas) {
+      const listener = this.program.addEventListener(
+        "ExecuteGameState",
+        async (event) => {
+          this.logger.log(
+            `Executing game state for gameData "${gameData}" with event: ` +
+              JSON.stringify(event),
           );
-          this.logger.log("Execution success");
-          return;
-        } catch (e) {
-          this.logger.error("Listen execution error occurred:", e);
-        }
-      },
-    );
-    this.logger.log("Listener added");
+          try {
+            const gameDataId: anchor.web3.PublicKey = event.gameDataId;
+            if (!GAME_DATAS[gameDataId.toBase58()]) {
+              this.logger.warn(
+                "Invalid game_data_id passed to ExecuteGameState. Event will be ignored",
+              );
+              return;
+            }
+            const buttonPresses: number[] = event.buttonPresses;
+            const gameStateIndex: number = event.index;
+            const participants: string[] = event.participants
+              .filter(
+                (participant: anchor.web3.PublicKey) =>
+                  participant.toBase58() !== "11111111111111111111111111111111",
+              )
+              .map((participant: anchor.web3.PublicKey) =>
+                participant.toBase58(),
+              );
+            await this.executeGameState(
+              gameDataId,
+              gameStateIndex,
+              buttonPresses,
+              participants,
+            );
+            this.logger.log("Execution success");
+            return;
+          } catch (e) {
+            this.logger.error("Listen execution error occurred:", e);
+          }
+        },
+      );
+
+      this.listeners.push(listener);
+      this.logger.log(`Listener added for "${gameData}"`);
+    }
   }
 
-  async executeManually() {
-    const gameDataId = new anchor.web3.PublicKey(GAME_DATA_ACCOUNT_ID);
-    const gameData = await this.program.account.gameData.fetch(gameDataId);
+  async executeManually(gameData: string) {
+    const gameDataId = new anchor.web3.PublicKey(gameData);
+    const gameDataAccount = await this.program.account.gameData.fetch(
+      gameDataId,
+    );
 
-    if (!gameData.isExecuting) {
+    if (!gameDataAccount.isExecuting) {
       this.logger.warn("Game is not executing");
       throw new HttpException(
         "Game is not executing",
@@ -125,35 +138,53 @@ export class ProgramService implements OnModuleDestroy {
       );
     }
 
-    await this.executeGameState(gameData.executedStatesCount);
+    await this.executeGameState(
+      gameDataId,
+      gameDataAccount.executedStatesCount,
+    );
   }
 
   @Cron(`*/20 * * * * *`)
   async cronExecute() {
-    const gameDataId = new anchor.web3.PublicKey(GAME_DATA_ACCOUNT_ID);
-    const gameData = await this.program.account.gameData.fetch(gameDataId);
+    const gameDatas = Object.keys(GAME_DATAS);
+    for (const gameData of gameDatas) {
+      const gameDataId = new anchor.web3.PublicKey(gameData);
+      const gameDataAccount = await this.program.account.gameData.fetch(
+        gameDataId,
+      );
 
-    if (!gameData.isExecuting) {
-      return;
-    }
+      if (!gameDataAccount.isExecuting) {
+        return;
+      }
 
-    this.logger.log(
-      `Cron job executing for index "${gameData.executedStatesCount}"`,
-    );
-    try {
-      await this.executeGameState(gameData.executedStatesCount);
-      this.logger.log("Cron job executed successfully!");
-    } catch (e) {
-      this.logger.warn(`Cron job failed: ${e}`);
+      this.logger.log(
+        `Cron job executing for game data "${gameData}" index "${gameDataAccount.executedStatesCount}"`,
+      );
+      try {
+        await this.executeGameState(
+          gameDataId,
+          gameDataAccount.executedStatesCount,
+        );
+        this.logger.log("Cron job executed successfully!");
+      } catch (e) {
+        this.logger.warn(`Cron job failed: ${e}`);
+      }
     }
   }
 
   private async executeGameState(
+    gameDataId: anchor.web3.PublicKey,
     gameStateIndex: number,
     eventButtonPresses?: number[],
     currentParticipants?: string[],
   ) {
-    const gameDataId = new anchor.web3.PublicKey(GAME_DATA_ACCOUNT_ID);
+    if (!GAME_DATAS[gameDataId.toBase58()]) {
+      this.logger.warn(
+        "Invalid game_data_id passed to executeGameState method. Event will be ignored",
+      );
+      return;
+    }
+
     const [prevGameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
       [
         gameDataId.toBuffer(),
@@ -200,7 +231,9 @@ export class ProgramService implements OnModuleDestroy {
       buttonPresses = eventButtonPresses.map((id) => BUTTON_ID_TO_ENUM[id]);
     }
 
+    const romName = GAME_DATA_ROM_NAME[gameDataId.toBase58()];
     const { framesImageDataCid, saveStateCid } = await this.wasmboyService.run(
+      romName,
       buttonPresses,
       prevGameState.saveStateCid,
     );
