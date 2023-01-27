@@ -154,6 +154,7 @@ export class ProgramService implements OnModuleDestroy {
       );
 
       if (!gameDataAccount.isExecuting) {
+        this.logger.log(`gameData "${gameDataId.toBase58()}" is not executing`);
         return;
       }
 
