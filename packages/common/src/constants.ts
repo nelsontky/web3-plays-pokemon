@@ -43,16 +43,22 @@ export const GAME_DATA_AUTHORITY =
 
 export const GAME_DATA_ACCOUNT_ID =
   "redHPYj5C9X7TyEqQPHMTsfevKZ9eHCTQ8BJVee9JWC";
+export const V2_GAME_DATA_ACCOUNT_ID =
+  "CrYStLQ1Uv1RXhXF7sZ1kTYRBi5NXmcRHQRSVR8wHkNR";
 
 export const GAME_DATAS: Record<string, true> = {
   [GAME_DATA_ACCOUNT_ID]: true,
+  [V2_GAME_DATA_ACCOUNT_ID]: true,
 };
 export const GAME_DATA_COLLECTION_IDS: Record<string, string> = {
   [GAME_DATA_ACCOUNT_ID]: "pkmA56jwkhZWJYXFB8RbKju8kgFhw4fTYahp9VXPQdw",
+  [V2_GAME_DATA_ACCOUNT_ID]: "pkmUxqUBPrCWguhL6f9SwkVEYeJqzPAptFZwBD84LyP",
 };
 export const GAME_DATA_ROM_NAME: Record<string, string> = {
   [GAME_DATA_ACCOUNT_ID]:
     "Pokemon - Red Version (USA, Europe) (SGB Enhanced).gb",
+  [V2_GAME_DATA_ACCOUNT_ID]:
+    "Pokemon - Crystal Version (USA, Europe) (Rev 1).gbc",
 };
 
 // Devnet
