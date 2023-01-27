@@ -114,7 +114,7 @@ export default function MintButton({ stateIndex, history }: MintButtonProps) {
       const response = await axios.post(
         process.env.NODE_ENV === "development"
           ? "http://localhost:3000/api/mint"
-          : "https://solana.playspokemon.xyz/api/mint",
+          : "https://red.playspokemon.xyz/api/mint",
         {
           publicKey: publicKey.toBase58(),
           gameStateIndex: stateIndex,
