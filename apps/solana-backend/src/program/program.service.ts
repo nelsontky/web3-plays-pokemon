@@ -153,22 +153,19 @@ export class ProgramService implements OnModuleDestroy {
         gameDataId,
       );
 
-      if (!gameDataAccount.isExecuting) {
-        this.logger.log(`gameData "${gameDataId.toBase58()}" is not executing`);
-        return;
-      }
-
-      this.logger.log(
-        `Cron job executing for game data "${gameData}" index "${gameDataAccount.executedStatesCount}"`,
-      );
-      try {
-        await this.executeGameState(
-          gameDataId,
-          gameDataAccount.executedStatesCount,
+      if (gameDataAccount.isExecuting) {
+        this.logger.log(
+          `Cron job executing for game data "${gameData}" index "${gameDataAccount.executedStatesCount}"`,
         );
-        this.logger.log("Cron job executed successfully!");
-      } catch (e) {
-        this.logger.warn(`Cron job failed: ${e}`);
+        try {
+          await this.executeGameState(
+            gameDataId,
+            gameDataAccount.executedStatesCount,
+          );
+          this.logger.log("Cron job executed successfully!");
+        } catch (e) {
+          this.logger.warn(`Cron job failed: ${e}`);
+        }
       }
     }
   }
