@@ -3,6 +3,16 @@ use anchor_lang::prelude::*;
 use crate::constants::*;
 
 #[account]
+pub struct SplPrices {
+    pub prices: Vec<f64>,
+}
+
+impl SplPrices {
+    pub const NUMBER_OF_PRICES: usize = 6;
+    pub const LEN: usize = 4 + (8 * SplPrices::NUMBER_OF_PRICES);
+}
+
+#[account]
 pub struct CurrentParticipants {
     pub participants: Vec<Pubkey>,
 }

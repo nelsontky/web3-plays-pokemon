@@ -148,56 +148,6 @@ export type SolanaPlaysPokemonProgram = {
       ]
     },
     {
-      "name": "migrateGameStateToV4",
-      "accounts": [
-        {
-          "name": "gameState",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "nextGameState",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "nextNextGameState",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "gameData",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "authority",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "clock",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "framesImageCid",
-          "type": "string"
-        },
-        {
-          "name": "saveStateCid",
-          "type": "string"
-        }
-      ]
-    },
-    {
       "name": "initializeCurrentParticipants",
       "accounts": [
         {
@@ -321,9 +271,98 @@ export type SolanaPlaysPokemonProgram = {
           "type": "string"
         }
       ]
+    },
+    {
+      "name": "initializeSplPrices",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "splPrices",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "program",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "programData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "gasMint",
+          "type": "publicKey"
+        },
+        {
+          "name": "amountForOneLamport",
+          "type": "f64"
+        }
+      ]
+    },
+    {
+      "name": "updateSplPrices",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "splPrices",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "program",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "programData",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "gasMint",
+          "type": "publicKey"
+        },
+        {
+          "name": "amountForOneLamport",
+          "type": "f64"
+        }
+      ]
     }
   ],
   "accounts": [
+    {
+      "name": "splPrices",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "prices",
+            "type": {
+              "vec": "f64"
+            }
+          }
+        ]
+      }
+    },
     {
       "name": "currentParticipants",
       "type": {
@@ -795,56 +834,6 @@ export const IDL: SolanaPlaysPokemonProgram = {
       ]
     },
     {
-      "name": "migrateGameStateToV4",
-      "accounts": [
-        {
-          "name": "gameState",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "nextGameState",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "nextNextGameState",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "gameData",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "authority",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "clock",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "framesImageCid",
-          "type": "string"
-        },
-        {
-          "name": "saveStateCid",
-          "type": "string"
-        }
-      ]
-    },
-    {
       "name": "initializeCurrentParticipants",
       "accounts": [
         {
@@ -968,9 +957,98 @@ export const IDL: SolanaPlaysPokemonProgram = {
           "type": "string"
         }
       ]
+    },
+    {
+      "name": "initializeSplPrices",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "splPrices",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "program",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "programData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "gasMint",
+          "type": "publicKey"
+        },
+        {
+          "name": "amountForOneLamport",
+          "type": "f64"
+        }
+      ]
+    },
+    {
+      "name": "updateSplPrices",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "splPrices",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "program",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "programData",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "gasMint",
+          "type": "publicKey"
+        },
+        {
+          "name": "amountForOneLamport",
+          "type": "f64"
+        }
+      ]
     }
   ],
   "accounts": [
+    {
+      "name": "splPrices",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "prices",
+            "type": {
+              "vec": "f64"
+            }
+          }
+        ]
+      }
+    },
     {
       "name": "currentParticipants",
       "type": {
