@@ -64,7 +64,7 @@ export const GAME_DATA_ROM_NAME: Record<string, string> = {
 };
 
 // Devnet
-// export const PROGRAM_ID = "pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK";
+// export const PROGRAM_ID = "pkmWfprVCX2o7Kg6vPcvUXd4bgUHJSbs7qzJH9iqY3R";
 // export const GAME_DATA_AUTHORITY =
 //   "ashAJB3SoHhrX5ppXgDCELsmjyhZiV4GtBtLKB8F8wx";
 

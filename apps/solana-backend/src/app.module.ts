@@ -6,6 +6,7 @@ import { ScheduleModule } from "@nestjs/schedule";
 import { ProgramService } from "./program/program.service";
 import { IpfsService } from "./ipfs/ipfs.service";
 import { RealtimeDatabaseService } from "./realtime-database/realtime-database.service";
+import { SplPricesService } from "./spl-prices/spl-prices.service";
 
 @Module({
   imports: [ConfigModule.forRoot(), ScheduleModule.forRoot()],
@@ -15,6 +16,7 @@ import { RealtimeDatabaseService } from "./realtime-database/realtime-database.s
     ProgramService,
     IpfsService,
     RealtimeDatabaseService,
+    SplPricesService,
   ],
 })
 export class AppModule {}

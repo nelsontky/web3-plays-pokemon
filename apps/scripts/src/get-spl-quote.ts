@@ -9,12 +9,6 @@ import {
 
 dotenv.config();
 
-interface Token {
-  address: string; // '8f9s1sUmzUbVZMoMh6bufMueYH1u4BJSM57RCEvuVmFp',
-  symbol: string; // 'TRUE',
-  decimals: number;
-}
-
 const connection = new Connection(
   process.env.RPC_URL!,
   process.env.RPC_CONFIG ? JSON.parse(process.env.RPC_CONFIG) : undefined
