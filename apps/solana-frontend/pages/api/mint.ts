@@ -325,7 +325,7 @@ async function buildMintNftTx(
   const mintIx = await program.methods
     .mintFramesNft(
       gameStateIndex,
-      `${baseTitle} #${gameStateIndex}`,
+      `Solana Plays Pokemon #${gameStateIndex}`,
       metadataUri
     )
     .accounts({
