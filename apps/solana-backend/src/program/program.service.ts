@@ -24,9 +24,9 @@ import { RealtimeDatabaseService } from "../realtime-database/realtime-database.
 @Injectable()
 export class ProgramService implements OnModuleDestroy {
   private readonly logger = new Logger(ProgramService.name);
-  private connection: anchor.web3.Connection;
-  private program: anchor.Program<SolanaPlaysPokemonProgram>;
-  private wallet: anchor.Wallet;
+  private readonly connection: anchor.web3.Connection;
+  private readonly program: anchor.Program<SolanaPlaysPokemonProgram>;
+  private readonly wallet: anchor.Wallet;
   private listeners: number[];
 
   constructor(
