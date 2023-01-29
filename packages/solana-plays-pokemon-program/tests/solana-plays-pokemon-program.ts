@@ -554,6 +554,169 @@ describe("solana-plays-pokemon-program", () => {
     );
   });
 
+  // Devnet tests
+  // const splMint = anchor.web3.Keypair.generate().publicKey;
+  // const otherDeployment = new anchor.web3.PublicKey(
+  //   "pkmQxAXukhPcyEePpHdsYKGtucQuLEhxKP6m9fCgGM9"
+  // );
+  // it("Can initialize spl prices account", async () => {
+  //   const amountForOneLamport = 1000;
+  //   const [splPricesPda] = anchor.web3.PublicKey.findProgramAddressSync(
+  //     [Buffer.from("spl_prices"), splMint.toBuffer()],
+  //     program.programId
+  //   );
+  //   const [programDataAddress] = anchor.web3.PublicKey.findProgramAddressSync(
+  //     [program.programId.toBuffer()],
+  //     new anchor.web3.PublicKey("BPFLoaderUpgradeab1e11111111111111111111111")
+  //   );
+
+  //   await program.methods
+  //     .initializeSplPrices(splMint, amountForOneLamport)
+  //     .accounts({
+  //       splPrices: splPricesPda,
+  //       program: program.programId,
+  //       programData: programDataAddress,
+  //     })
+  //     .rpc();
+
+  //   const splPricesAccount = await program.account.splPrices.fetch(
+  //     splPricesPda
+  //   );
+
+  //   assert.deepEqual(splPricesAccount.prices.length, 1);
+  //   assert.deepEqual(splPricesAccount.prices[0], amountForOneLamport);
+  // });
+
+  // it("Cannot update prices with wrong program data address", async () => {
+  //   const amountForOneLamport = 1000;
+  //   const [splPricesPda] = anchor.web3.PublicKey.findProgramAddressSync(
+  //     [Buffer.from("spl_prices"), splMint.toBuffer()],
+  //     program.programId
+  //   );
+  //   const [programDataAddress] = anchor.web3.PublicKey.findProgramAddressSync(
+  //     [otherDeployment.toBuffer()],
+  //     new anchor.web3.PublicKey("BPFLoaderUpgradeab1e11111111111111111111111")
+  //   );
+
+  //   try {
+  //     await program.methods
+  //       .updateSplPrices(splMint, amountForOneLamport)
+  //       .accounts({
+  //         splPrices: splPricesPda,
+  //         program: program.programId,
+  //         programData: programDataAddress,
+  //       })
+  //       .rpc();
+  //   } catch (e) {
+  //     if (e instanceof AnchorError) {
+  //       // Raw constraint violated
+  //       assert.strictEqual(e.error.errorCode.number, 2003);
+  //       return;
+  //     }
+  //   }
+
+  //   assert.fail();
+  // });
+
+  // it("Cannot update prices with wrong program address", async () => {
+  //   const amountForOneLamport = 1000;
+  //   const [splPricesPda] = anchor.web3.PublicKey.findProgramAddressSync(
+  //     [Buffer.from("spl_prices"), splMint.toBuffer()],
+  //     program.programId
+  //   );
+  //   const [programDataAddress] = anchor.web3.PublicKey.findProgramAddressSync(
+  //     [program.programId.toBuffer()],
+  //     new anchor.web3.PublicKey("BPFLoaderUpgradeab1e11111111111111111111111")
+  //   );
+
+  //   try {
+  //     await program.methods
+  //       .updateSplPrices(splMint, amountForOneLamport)
+  //       .accounts({
+  //         splPrices: splPricesPda,
+  //         program: otherDeployment,
+  //         programData: programDataAddress,
+  //       })
+  //       .rpc();
+  //   } catch (e) {
+  //     if (e instanceof AnchorError) {
+  //       // InvalidProgramId
+  //       assert.strictEqual(e.error.errorCode.number, 3008);
+  //       return;
+  //     }
+  //   }
+
+  //   assert.fail();
+  // });
+
+  // it("Cannot update prices with wrong authority", async () => {
+  //   const amountForOneLamport = 1000;
+  //   const [splPricesPda] = anchor.web3.PublicKey.findProgramAddressSync(
+  //     [Buffer.from("spl_prices"), splMint.toBuffer()],
+  //     program.programId
+  //   );
+  //   const [programDataAddress] = anchor.web3.PublicKey.findProgramAddressSync(
+  //     [program.programId.toBuffer()],
+  //     new anchor.web3.PublicKey("BPFLoaderUpgradeab1e11111111111111111111111")
+  //   );
+
+  //   const user = anchor.web3.Keypair.fromSecretKey(
+  //     bs58.decode(process.env.TEST_USER_WALLET_KEY)
+  //   );
+
+  //   try {
+  //     await program.methods
+  //       .updateSplPrices(splMint, amountForOneLamport)
+  //       .accounts({
+  //         splPrices: splPricesPda,
+  //         program: program.programId,
+  //         programData: programDataAddress,
+  //         authority: user.publicKey,
+  //       })
+  //       .signers([user])
+  //       .rpc();
+  //   } catch (e) {
+  //     if (e instanceof AnchorError) {
+  //       // Raw constraint violated
+  //       assert.strictEqual(e.error.errorCode.number, 2003);
+  //       return;
+  //     }
+  //   }
+
+  //   assert.fail();
+  // });
+
+  // it("Cannot add more than 6 prices to spl prices account", async () => {
+  //   const [splPricesPda] = anchor.web3.PublicKey.findProgramAddressSync(
+  //     [Buffer.from("spl_prices"), splMint.toBuffer()],
+  //     program.programId
+  //   );
+  //   const [programDataAddress] = anchor.web3.PublicKey.findProgramAddressSync(
+  //     [program.programId.toBuffer()],
+  //     new anchor.web3.PublicKey("BPFLoaderUpgradeab1e11111111111111111111111")
+  //   );
+
+  //   for (let i = 2000; i <= 8000; i += 1000) {
+  //     await program.methods
+  //       .updateSplPrices(splMint, i)
+  //       .accounts({
+  //         splPrices: splPricesPda,
+  //         programData: programDataAddress,
+  //         program: program.programId,
+  //       })
+  //       .rpc();
+  //   }
+
+  //   const splPricesAccount = await program.account.splPrices.fetch(
+  //     splPricesPda
+  //   );
+
+  //   assert.deepStrictEqual(
+  //     splPricesAccount.prices,
+  //     [3000, 4000, 5000, 6000, 7000, 8000]
+  //   );
+  // });
+
   // it("Can mint NFT", async () => {
   //   const user = anchor.web3.Keypair.fromSecretKey(
   //     bs58.decode(process.env.TEST_USER_WALLET_KEY)

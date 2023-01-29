@@ -10,6 +10,7 @@ use anchor_spl::metadata::{
 };
 use anchor_spl::token::{mint_to, Mint, MintTo, Token, TokenAccount};
 use mpl_token_metadata::state::{Collection, Creator, DataV2};
+use program::SolanaPlaysPokemonProgram;
 use std::cmp;
 
 pub mod account;
@@ -37,7 +38,7 @@ pub mod utils;
 // declare_id!("pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg");
 
 // Devnet
-declare_id!("pkmJNXmUxFT1bmmCp4DgvCm2LxR3afRtCwV1EzQwEHK");
+declare_id!("pkmWfprVCX2o7Kg6vPcvUXd4bgUHJSbs7qzJH9iqY3R");
 
 #[program]
 pub mod solana_plays_pokemon_program {
@@ -179,42 +180,6 @@ pub mod solana_plays_pokemon_program {
         Ok(())
     }
 
-    pub fn migrate_game_state_to_v4(
-        ctx: Context<MigrateGameStateToV4>,
-        frames_image_cid: String,
-        save_state_cid: String,
-    ) -> Result<()> {
-        let game_data = &mut ctx.accounts.game_data;
-        game_data.is_executing = false;
-        game_data.executed_states_count = game_data.executed_states_count.checked_add(2).unwrap();
-
-        let game_state = &mut ctx.accounts.game_state;
-        game_state.frames_image_cid = frames_image_cid.to_string();
-        game_state.save_state_cid = save_state_cid.to_string();
-        game_state.executed_button = 0;
-
-        let next_game_state = &mut ctx.accounts.next_game_state;
-        init_game_state(
-            next_game_state,
-            game_data.executed_states_count.checked_sub(1).unwrap(),
-            ctx.accounts.clock.unix_timestamp,
-            &frames_image_cid,
-            &save_state_cid,
-        );
-        next_game_state.button_presses = vec![0];
-
-        let next_next_game_state = &mut ctx.accounts.next_next_game_state;
-        init_game_state(
-            next_next_game_state,
-            game_data.executed_states_count,
-            ctx.accounts.clock.unix_timestamp,
-            &String::from(""),
-            &String::from(""),
-        );
-
-        Ok(())
-    }
-
     pub fn initialize_current_participants(
         ctx: Context<InitializeCurrentParticipants>,
     ) -> Result<()> {
@@ -322,6 +287,21 @@ pub mod solana_plays_pokemon_program {
         let minted_nft = &mut ctx.accounts.minted_nft;
         minted_nft.mint = ctx.accounts.mint.key();
 
+        Ok(())
+    }
+
+    pub fn initialize_spl_prices(ctx: Context<InitializePrices>, _gas_mint: Pubkey,  amount_for_one_lamport: f64) -> Result<()> {
+        let spl_prices = &mut ctx.accounts.spl_prices;
+        spl_prices.prices.push(amount_for_one_lamport);
+        Ok(())
+    }
+
+    pub fn update_spl_prices(ctx: Context<UpdatePrices>, _gas_mint: Pubkey, amount_for_one_lamport: f64) -> Result<()> {
+        let spl_prices = &mut ctx.accounts.spl_prices;
+        if spl_prices.prices.len() >= SplPrices::NUMBER_OF_PRICES {
+            spl_prices.prices.remove(0);
+        }
+        spl_prices.prices.push(amount_for_one_lamport);
         Ok(())
     }
 }
@@ -435,57 +415,6 @@ pub struct UpdateGameState<'info> {
         bump
     )]
     pub current_participants: Account<'info, CurrentParticipants>,
-    #[account(mut)]
-    pub authority: Signer<'info>,
-    pub system_program: Program<'info, System>,
-    pub clock: Sysvar<'info, Clock>,
-}
-
-#[derive(Accounts)]
-#[instruction(
-    frames_image_cid: String,
-    save_state_cid: String,
-)]
-pub struct MigrateGameStateToV4<'info> {
-    #[account(
-        mut,
-        seeds = [
-            game_data.key().as_ref(),
-            b"game_state",
-            (game_data.executed_states_count).to_string().as_ref()
-        ],
-        bump,
-        realloc = 8 + GameStateV3::BASE_LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
-        realloc::payer = authority,
-        realloc::zero = true,
-    )]
-    pub game_state: Account<'info, GameStateV3>,
-    #[account(
-        init,
-        payer = authority,
-        space = 8 + GameStateV4::BASE_LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
-        seeds = [
-                game_data.key().as_ref(),
-                b"game_state", 
-                (game_data.executed_states_count.checked_add(1).unwrap()).to_string().as_ref()
-            ],
-        bump
-    )]
-    pub next_game_state: Account<'info, GameStateV4>,
-    #[account(
-        init,
-        payer = authority,
-        space = 8 + GameStateV4::BASE_LEN + 4 + 59 + 4 + 59, // nft.storage cids are 59 characters long by default
-        seeds = [
-                game_data.key().as_ref(),
-                b"game_state", 
-                (game_data.executed_states_count.checked_add(2).unwrap()).to_string().as_ref()
-            ],
-        bump
-    )]
-    pub next_next_game_state: Account<'info, GameStateV4>,
-    #[account(mut, has_one = authority)]
-    pub game_data: Account<'info, GameData>,
     #[account(mut)]
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
@@ -616,6 +545,48 @@ pub struct MintFramesNft<'info> {
     )]
     /// CHECK: token metadata pda is checked
     pub master_edition: UncheckedAccount<'info>,
+}
+
+#[derive(Accounts)]
+#[instruction(gas_mint: Pubkey)]
+pub struct InitializePrices<'info> {
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    #[account(
+        init,
+        seeds = [
+            b"spl_prices",
+            gas_mint.key().as_ref()
+        ], 
+        bump,
+        payer = authority,
+        space = 8 + SplPrices::LEN
+    )]
+    pub spl_prices: Account<'info, SplPrices>,
+    #[account(constraint = program.programdata_address()? == Some(program_data.key()))]
+    pub program: Program<'info, SolanaPlaysPokemonProgram>,
+    #[account(constraint = program_data.upgrade_authority_address == Some(authority.key()))]
+    pub program_data: Account<'info, ProgramData>,
+    pub system_program: Program<'info, System>
+}
+
+#[derive(Accounts)]
+#[instruction(gas_mint: Pubkey)]
+pub struct UpdatePrices<'info> {
+    pub authority: Signer<'info>,
+    #[account(
+        mut,
+        seeds = [
+            b"spl_prices",
+            gas_mint.key().as_ref()
+        ], 
+        bump
+    )]
+    pub spl_prices: Account<'info, SplPrices>,
+    #[account(constraint = program.programdata_address()? == Some(program_data.key()))]
+    pub program: Program<'info, SolanaPlaysPokemonProgram>,
+    #[account(constraint = program_data.upgrade_authority_address == Some(authority.key()))]
+    pub program_data: Account<'info, ProgramData>,
 }
 
 #[event]
