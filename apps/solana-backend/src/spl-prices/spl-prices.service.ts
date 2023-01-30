@@ -52,7 +52,14 @@ export class SplPricesService {
 
   @Cron("0 */10 * * * *	")
   async updateSplPrices() {
+    this.logger.log("Updating SPL prices...");
+
     const maxAmountIn = await this.getMaxAmountIn();
+
+    this.logger.log(
+      `Max amount in (${FRONK_POOL_KEY.baseMint.toBase58()}):`,
+      maxAmountIn,
+    );
 
     const [splPricesPda] = anchor.web3.PublicKey.findProgramAddressSync(
       [Buffer.from("spl_prices"), FRONK_POOL_KEY.baseMint.toBuffer()],
@@ -76,6 +83,8 @@ export class SplPricesService {
       this.logger.error(FRONK_POOL_KEY.baseMint.toBase58(), e);
       console.log(e);
     }
+
+    this.logger.log("Done updating SPL prices!");
   }
 
   async getMaxAmountIn() {
