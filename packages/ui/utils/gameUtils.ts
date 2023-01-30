@@ -1,5 +1,5 @@
-import { GAMEBOY_CAMERA_HEIGHT, GAMEBOY_CAMERA_WIDTH } from "../constants";
-import { JoypadButton } from "../enums";
+import { GAMEBOY_CAMERA_HEIGHT, GAMEBOY_CAMERA_WIDTH } from "common/src/constants";
+import { JoypadButton } from "common/src/enums";
 
 export const joypadEnumToButtonId = (joypadButton: JoypadButton) =>
   joypadButton === JoypadButton.Up

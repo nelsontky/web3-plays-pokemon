@@ -3,12 +3,15 @@ import { NextApiRequest, NextApiResponse } from "next";
 import nacl from "tweetnacl";
 import { SIGNATURE_MESSAGE_FOR_ROUNDS } from "common";
 import admin from "../../../../firebase/nodeApp";
+import runCorsMiddleware from "../../../../utils/cors";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   try {
+    await runCorsMiddleware(req, res);
+
     if (req.method !== "GET") {
       return res.status(404).end();
     }

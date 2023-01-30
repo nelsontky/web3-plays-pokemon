@@ -1,5 +1,5 @@
 import { css } from "@emotion/react";
-import { JoypadButton, joypadEnumToButtonId } from "common";
+import { JoypadButton } from "common";
 import tw from "twin.macro";
 import ControlButton from "./ControlButton";
 import { useMutableProgram } from "../hooks/useProgram";
@@ -10,6 +10,7 @@ import ControlsBackdrop from "./ControlsBackdrop";
 import { useState } from "react";
 import HelpfulCheckbox from "./HelpfulCheckbox";
 import { useConfig } from "../contexts/ConfigProvider";
+import { joypadEnumToButtonId } from "../utils/gameUtils";
 
 const styles = {
   root: tw`
@@ -77,7 +78,10 @@ export default function Controls() {
       );
       const [currentParticipantsPda] =
         anchor.web3.PublicKey.findProgramAddressSync(
-          [Buffer.from("current_participants"), gameDataAccountPublicKey.toBuffer()],
+          [
+            Buffer.from("current_participants"),
+            gameDataAccountPublicKey.toBuffer(),
+          ],
           program.programId
         );
 

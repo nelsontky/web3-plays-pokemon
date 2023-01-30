@@ -1,10 +1,9 @@
 import {
-  CELL_SIZE,
   FRAMES_TO_DRAW_PER_EXECUTION,
   GAMEBOY_CAMERA_HEIGHT,
   GAMEBOY_CAMERA_WIDTH,
-  renderFrame,
 } from "common";
+import { CELL_SIZE, renderFrame } from "../utils/gameUtils";
 import { useEffect, useRef } from "react";
 import tw from "twin.macro";
 

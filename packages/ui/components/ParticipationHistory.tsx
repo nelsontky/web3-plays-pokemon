@@ -79,8 +79,11 @@ export default function ParticipationHistory() {
 
         try {
           setLoading(true);
+          const pathParams = `${gameDataAccountPublicKey.toBase58()}/${publicKey.toBase58()}`;
           const response = await axios.get(
-            `/api/rounds/${gameDataAccountPublicKey.toBase58()}/${publicKey.toBase58()}`,
+            process.env.NODE_ENV === "development"
+              ? `http://localhost:3000/api/rounds/${pathParams}`
+              : `https://red.playspokemon.xyz/api/rounds/${pathParams}`,
             {
               headers: {
                 authorization: signatureToUse,

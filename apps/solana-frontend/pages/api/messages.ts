@@ -1,27 +1,39 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import type { Message } from "common";
+import { Message, REALTIME_DATABASE_MESSAGES_COLLECTIONS } from "common";
 import admin from "../../firebase/nodeApp";
 import nacl from "tweetnacl";
 import { SIGNATURE_MESSAGE } from "common";
 import { PublicKey } from "@solana/web3.js";
 import { MAX_MESSAGE_LENGTH } from "common";
+import runCorsMiddleware from "../../utils/cors";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   try {
+    await runCorsMiddleware(req, res);
+
     if (req.method !== "POST") {
       return res.status(404).end();
     }
 
-    const { publicKey, text }: { publicKey?: string; text?: string } = req.body;
+    const {
+      publicKey,
+      text,
+      collection,
+    }: { publicKey?: string; text?: string; collection?: string } = req.body;
     const signature = req.headers.authorization;
     if (!signature || !publicKey) {
       return res.status(401).end();
     }
 
-    if (text === undefined || text.length > MAX_MESSAGE_LENGTH) {
+    if (
+      text === undefined ||
+      text.length > MAX_MESSAGE_LENGTH ||
+      collection === undefined ||
+      !REALTIME_DATABASE_MESSAGES_COLLECTIONS.includes(collection)
+    ) {
       return res.status(400).end();
     }
 
@@ -40,11 +52,14 @@ export default async function handler(
       return res.status(400).end();
     }
 
-    await create({
-      text: trimmedText,
-      timestamp: Date.now(),
-      walletAddress: publicKey,
-    });
+    await create(
+      {
+        text: trimmedText,
+        timestamp: Date.now(),
+        walletAddress: publicKey,
+      },
+      collection
+    );
 
     return res.status(200).end();
   } catch {
@@ -52,11 +67,9 @@ export default async function handler(
   }
 }
 
-async function create(message: Message) {
+async function create(message: Message, collection: string) {
   const db = admin.database();
-  const solanaMessagesCollection = db.ref(
-    process.env.NEXT_PUBLIC_MESSAGES_COLLECTION!
-  );
+  const solanaMessagesCollection = db.ref(collection);
   return new Promise((resolve, reject) => {
     solanaMessagesCollection.push(message, (error) => {
       if (error !== null) {
