@@ -20,7 +20,7 @@ export class SplPricesService {
     if (process.env.NODE_ENV === "development") {
       const maxAmountIn = await this.getMaxAmountIn();
 
-      this.logger.log("Max amount in: ", maxAmountIn);
+      this.logger.log("Max amount in: " + maxAmountIn);
 
       const [splPricesPda] = anchor.web3.PublicKey.findProgramAddressSync(
         [Buffer.from("spl_prices"), FRONK_POOL_KEY.baseMint.toBuffer()],
@@ -87,7 +87,7 @@ export class SplPricesService {
     this.logger.log("Done updating SPL prices!");
   }
 
-  async getMaxAmountIn() {
+  private async getMaxAmountIn() {
     const poolInfo = await Liquidity.fetchInfo({
       connection: this.anchorService.connection,
       poolKeys: FRONK_POOL_KEY,
