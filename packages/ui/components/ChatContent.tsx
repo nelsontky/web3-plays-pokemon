@@ -10,12 +10,14 @@ import tw from "twin.macro";
 import useTxSnackbar from "../hooks/useTxSnackbar";
 import ChatConnectWallet from "./ChatConnectWallet";
 import { MAX_MESSAGE_LENGTH } from "common";
+import { useConfig } from "../contexts/ConfigProvider";
 
 interface ChatContentProps {
   setOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 const ChatContent = ({ setOpen }: ChatContentProps) => {
+  const { messagesCollection } = useConfig();
   const { messages, loadMore } = useReadMessages();
   const [walletSignature, setWalletSignature] = useState<string>();
   const wallet = useWallet();
@@ -91,7 +93,7 @@ const ChatContent = ({ setOpen }: ChatContentProps) => {
           {
             publicKey: wallet.publicKey.toBase58(),
             text: content,
-            collection: process.env.NEXT_PUBLIC_MESSAGES_COLLECTION!,
+            collection: messagesCollection,
           },
           {
             headers: {
