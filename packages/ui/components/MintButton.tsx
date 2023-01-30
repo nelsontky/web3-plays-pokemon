@@ -138,11 +138,15 @@ export default function MintButton({ stateIndex, history }: MintButtonProps) {
       const { blockhash, lastValidBlockHeight } =
         await connection.getLatestBlockhash();
       const txId = await sendTransaction(recoveredTransaction, connection);
-      await connection.confirmTransaction({
+      const status = await connection.confirmTransaction({
         blockhash: blockhash,
         lastValidBlockHeight,
         signature: txId,
       });
+
+      if (status.value.err) {
+        throw new Error(`Transaction failed: ${JSON.stringify(status.value)}`);
+      }
 
       enqueueSnackbar(
         {
