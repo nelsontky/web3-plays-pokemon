@@ -7,71 +7,32 @@ import {
 } from "@nestjs/common";
 import * as anchor from "@project-serum/anchor";
 import {
-  PROGRAM_ID,
   BUTTON_ID_TO_ENUM,
   JoypadButton,
   GAME_DATAS,
   GAME_DATA_ROM_NAME,
 } from "common";
-import { SolanaPlaysPokemonProgram } from "solana-plays-pokemon-program";
 import { WasmboyService } from "src/wasmboy/wasmboy.service";
 import { Cron } from "@nestjs/schedule";
-
-// nestjs doesn't want to play nice with json imports from workspace package
-import * as idl from "../../../../packages/solana-plays-pokemon-program/target/idl/solana_plays_pokemon_program.json";
 import { RealtimeDatabaseService } from "../realtime-database/realtime-database.service";
+import { AnchorService } from "src/anchor/anchor.service";
 
 @Injectable()
 export class ProgramService implements OnModuleDestroy {
   private readonly logger = new Logger(ProgramService.name);
-  private readonly connection: anchor.web3.Connection;
-  private readonly program: anchor.Program<SolanaPlaysPokemonProgram>;
-  private readonly wallet: anchor.Wallet;
   private listeners: number[];
 
   constructor(
     private readonly wasmboyService: WasmboyService,
+    private readonly anchorService: AnchorService,
     private readonly realtimeDatabaseService: RealtimeDatabaseService,
   ) {
-    this.connection = new anchor.web3.Connection(
-      process.env.RPC_URL,
-      process.env.RPC_CONFIG ? JSON.parse(process.env.RPC_CONFIG) : undefined,
-    );
-
-    const keypair = anchor.web3.Keypair.fromSecretKey(
-      new Uint8Array(JSON.parse(process.env.WALLET_PRIVATE_KEY)),
-    );
-    this.wallet = {
-      publicKey: keypair.publicKey,
-      payer: keypair,
-      signTransaction: (tx: anchor.web3.Transaction) => {
-        tx.sign(keypair);
-        return Promise.resolve(tx);
-      },
-      signAllTransactions: (txs: anchor.web3.Transaction[]) => {
-        txs.forEach((tx) => {
-          tx.sign(keypair);
-        });
-
-        return Promise.resolve(txs);
-      },
-    };
-
-    const provider = new anchor.AnchorProvider(this.connection, this.wallet, {
-      commitment: "processed",
-    });
-    this.program = new anchor.Program(
-      idl as anchor.Idl,
-      PROGRAM_ID,
-      provider,
-    ) as unknown as anchor.Program<SolanaPlaysPokemonProgram>;
-
     this.listeners = [];
   }
 
   async onModuleDestroy() {
     for (const listener of this.listeners) {
-      await this.program.removeEventListener(listener);
+      await this.anchorService.program.removeEventListener(listener);
     }
 
     this.logger.log("All listeners removed");
@@ -80,7 +41,7 @@ export class ProgramService implements OnModuleDestroy {
   listen() {
     const gameDatas = Object.keys(GAME_DATAS);
     for (const gameData of gameDatas) {
-      const listener = this.program.addEventListener(
+      const listener = this.anchorService.program.addEventListener(
         "ExecuteGameState",
         async (event) => {
           this.logger.log(
@@ -126,9 +87,8 @@ export class ProgramService implements OnModuleDestroy {
 
   async executeManually(gameData: string) {
     const gameDataId = new anchor.web3.PublicKey(gameData);
-    const gameDataAccount = await this.program.account.gameData.fetch(
-      gameDataId,
-    );
+    const gameDataAccount =
+      await this.anchorService.program.account.gameData.fetch(gameDataId);
 
     if (!gameDataAccount.isExecuting) {
       this.logger.warn("Game is not executing");
@@ -149,9 +109,8 @@ export class ProgramService implements OnModuleDestroy {
     const gameDatas = Object.keys(GAME_DATAS);
     for (const gameData of gameDatas) {
       const gameDataId = new anchor.web3.PublicKey(gameData);
-      const gameDataAccount = await this.program.account.gameData.fetch(
-        gameDataId,
-      );
+      const gameDataAccount =
+        await this.anchorService.program.account.gameData.fetch(gameDataId);
 
       if (gameDataAccount.isExecuting) {
         this.logger.log(
@@ -189,7 +148,7 @@ export class ProgramService implements OnModuleDestroy {
         Buffer.from("game_state"),
         Buffer.from("" + (gameStateIndex - 1)),
       ],
-      this.program.programId,
+      this.anchorService.program.programId,
     );
     const [currentGameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
       [
@@ -197,7 +156,7 @@ export class ProgramService implements OnModuleDestroy {
         Buffer.from("game_state"),
         Buffer.from("" + gameStateIndex),
       ],
-      this.program.programId,
+      this.anchorService.program.programId,
     );
     const [nextGameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
       [
@@ -205,23 +164,25 @@ export class ProgramService implements OnModuleDestroy {
         Buffer.from("game_state"),
         Buffer.from("" + (gameStateIndex + 1)),
       ],
-      this.program.programId,
+      this.anchorService.program.programId,
     );
     const [currentParticipantsPda] =
       anchor.web3.PublicKey.findProgramAddressSync(
         [Buffer.from("current_participants"), gameDataId.toBuffer()],
-        this.program.programId,
+        this.anchorService.program.programId,
       );
 
-    const prevGameState = await this.program.account.gameStateV4.fetch(
-      prevGameStatePda,
-    );
+    const prevGameState =
+      await this.anchorService.program.account.gameStateV4.fetch(
+        prevGameStatePda,
+      );
 
     let buttonPresses: JoypadButton[];
     if (eventButtonPresses === undefined) {
-      const currentGameState = await this.program.account.gameStateV4.fetch(
-        currentGameStatePda,
-      );
+      const currentGameState =
+        await this.anchorService.program.account.gameStateV4.fetch(
+          currentGameStatePda,
+        );
       buttonPresses = Array.from(currentGameState.buttonPresses).map(
         (id) => BUTTON_ID_TO_ENUM[id],
       );
@@ -240,7 +201,7 @@ export class ProgramService implements OnModuleDestroy {
     let participants: string[];
     if (currentParticipants === undefined) {
       const currentParticipants =
-        await this.program.account.currentParticipants.fetch(
+        await this.anchorService.program.account.currentParticipants.fetch(
           currentParticipantsPda,
         );
       participants = currentParticipants.participants
@@ -253,10 +214,10 @@ export class ProgramService implements OnModuleDestroy {
       participants = currentParticipants;
     }
 
-    const instruction = await this.program.methods
+    const instruction = await this.anchorService.program.methods
       .updateGameState(framesImageDataCid, saveStateCid)
       .accounts({
-        authority: this.wallet.publicKey,
+        authority: this.anchorService.wallet.publicKey,
         gameData: gameDataId,
         gameState: currentGameStatePda,
         nextGameState: nextGameStatePda,
@@ -264,20 +225,20 @@ export class ProgramService implements OnModuleDestroy {
         clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
         currentParticipants: currentParticipantsPda,
       })
-      .signers([this.wallet.payer])
+      .signers([this.anchorService.wallet.payer])
       .instruction();
     const transaction = new anchor.web3.Transaction().add(instruction);
 
     const { blockhash, lastValidBlockHeight } =
-      await this.connection.getLatestBlockhash();
+      await this.anchorService.connection.getLatestBlockhash();
 
     transaction.recentBlockhash = blockhash;
     transaction.lastValidBlockHeight = lastValidBlockHeight;
 
     await anchor.web3.sendAndConfirmTransaction(
-      this.connection,
+      this.anchorService.connection,
       transaction,
-      [this.wallet.payer],
+      [this.anchorService.wallet.payer],
       {
         commitment: "processed",
       },

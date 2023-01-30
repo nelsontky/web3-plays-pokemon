@@ -1,14 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Cron } from "@nestjs/schedule";
-import {
-  Currency,
-  CurrencyAmount,
-  Liquidity,
-  Percent,
-} from "@raydium-io/raydium-sdk";
-import { SolanaPlaysPokemonProgram } from "solana-plays-pokemon-program";
-// nestjs doesn't want to play nice with json imports from workspace package
-import * as idl from "../../../../packages/solana-plays-pokemon-program/target/idl/solana_plays_pokemon_program.json";
+import { Liquidity, Percent } from "@raydium-io/raydium-sdk";
 import * as anchor from "@project-serum/anchor";
 import { PROGRAM_ID } from "common";
 import {
@@ -16,48 +8,13 @@ import {
   FRONK_POOL_KEY,
   ONE_LAMPORT_OF_SOL,
 } from "./constants";
+import { AnchorService } from "../anchor/anchor.service";
 
 @Injectable()
 export class SplPricesService {
   private readonly logger = new Logger(SplPricesService.name);
-  private readonly connection: anchor.web3.Connection;
-  private readonly program: anchor.Program<SolanaPlaysPokemonProgram>;
 
-  constructor() {
-    // TODO: create separate service to combine this init steps with program.service
-    this.connection = new anchor.web3.Connection(
-      process.env.RPC_URL,
-      process.env.RPC_CONFIG ? JSON.parse(process.env.RPC_CONFIG) : undefined,
-    );
-
-    const keypair = anchor.web3.Keypair.fromSecretKey(
-      new Uint8Array(JSON.parse(process.env.WALLET_PRIVATE_KEY)),
-    );
-    const wallet = {
-      publicKey: keypair.publicKey,
-      payer: keypair,
-      signTransaction: (tx: anchor.web3.Transaction) => {
-        tx.sign(keypair);
-        return Promise.resolve(tx);
-      },
-      signAllTransactions: (txs: anchor.web3.Transaction[]) => {
-        txs.forEach((tx) => {
-          tx.sign(keypair);
-        });
-
-        return Promise.resolve(txs);
-      },
-    };
-
-    const provider = new anchor.AnchorProvider(this.connection, wallet, {
-      commitment: "processed",
-    });
-    this.program = new anchor.Program(
-      idl as anchor.Idl,
-      PROGRAM_ID,
-      provider,
-    ) as unknown as anchor.Program<SolanaPlaysPokemonProgram>;
-  }
+  constructor(private readonly anchorService: AnchorService) {}
 
   @Cron("0 */10 * * * *	")
   async updateSplPrices() {
@@ -72,11 +29,11 @@ export class SplPricesService {
       new anchor.web3.PublicKey("BPFLoaderUpgradeab1e11111111111111111111111"),
     );
     try {
-      await this.program.methods
+      await this.anchorService.program.methods
         .updateSplPrices(FRONK_POOL_KEY.baseMint, maxAmountIn)
         .accounts({
           splPrices: splPricesPda,
-          program: this.program.programId,
+          program: this.anchorService.program.programId,
           programData: programDataAddress,
         })
         .rpc();
@@ -88,7 +45,7 @@ export class SplPricesService {
 
   private async getMaxAmountIn() {
     const poolInfo = await Liquidity.fetchInfo({
-      connection: this.connection,
+      connection: this.anchorService.connection,
       poolKeys: FRONK_POOL_KEY,
     });
 
