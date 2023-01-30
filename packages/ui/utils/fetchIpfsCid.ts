@@ -11,10 +11,15 @@ export async function fetchIpfsCid(ipfsCid: string) {
           responseType: "arraybuffer",
           signal: abortControllers[0].signal,
         }),
-        axios.get(`/api/ipfs/${ipfsCid}`, {
-          responseType: "arraybuffer",
-          signal: abortControllers[1].signal,
-        }),
+        axios.get(
+          process.env.NODE_ENV === "development"
+            ? `http://localhost:3000/api/ipfs/${ipfsCid}`
+            : `https://red.playspokemon.xyz/api/ipfs/${ipfsCid}`,
+          {
+            responseType: "arraybuffer",
+            signal: abortControllers[1].signal,
+          }
+        ),
       ]);
       responseData = response.data;
       abortControllers.forEach((controller) => {

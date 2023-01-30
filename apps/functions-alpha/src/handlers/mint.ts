@@ -2,15 +2,11 @@ import * as functions from "firebase-functions";
 import * as anchor from "@project-serum/anchor";
 import { idl, SolanaPlaysPokemonProgram } from "solana-plays-pokemon-program";
 import {
-  CELL_SIZE,
   FRAMES_TO_DRAW_PER_EXECUTION,
   GAMEBOY_CAMERA_HEIGHT,
   GAMEBOY_CAMERA_WIDTH,
   NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS,
   PROGRAM_ID,
-  renderFrame,
-  fetchIpfsCid,
-  getGameStateParticipants,
   GAME_DATA_COLLECTION_IDS,
   GAME_DATAS,
 } from "common";
@@ -23,6 +19,12 @@ import * as mplTokenMetadata from "@metaplex-foundation/mpl-token-metadata";
 import { PublicKey, Transaction } from "@solana/web3.js";
 import axios from "axios";
 import streamBuffers from "stream-buffers";
+import { fetchIpfsCid } from "ui/utils/fetchIpfsCid";
+import { CELL_SIZE, renderFrame } from "ui/utils/gameUtils";
+import {
+  Participant,
+  getGameStateParticipants,
+} from "ui/utils/getGameStateParticipants";
 
 export default async function mintHandler(
   req: functions.https.Request,
@@ -116,7 +118,7 @@ async function getIsParticipant(
 ) {
   const gameStateParticipants = await getGameStateParticipants(gameStatePda);
   const participant = gameStateParticipants.find(
-    (participant) => participant.signer === publicKey
+    (participant: Participant) => participant.signer === publicKey
   );
 
   if (!participant) {

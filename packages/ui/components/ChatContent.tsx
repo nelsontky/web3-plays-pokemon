@@ -85,10 +85,13 @@ const ChatContent = ({ setOpen }: ChatContentProps) => {
 
       try {
         await axios.post(
-          "/api/messages",
+          process.env.NODE_ENV === "development"
+            ? "http://localhost:3000/api/messages"
+            : "https://red.playspokemon.xyz/api/messages",
           {
             publicKey: wallet.publicKey.toBase58(),
             text: content,
+            collection: process.env.NEXT_PUBLIC_MESSAGES_COLLECTION!,
           },
           {
             headers: {

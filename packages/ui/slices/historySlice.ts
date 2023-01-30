@@ -7,9 +7,12 @@ import * as anchor from "@project-serum/anchor";
 import { SolanaPlaysPokemonProgram } from "solana-plays-pokemon-program";
 import { PROGRAM_PUBLIC_KEY } from "../constants";
 import { RootState } from "../store";
-import { fetchIpfsCid, getGameStateParticipants } from "common";
+import { fetchIpfsCid } from "../utils/fetchIpfsCid";
 import { inflate } from "pako";
-import type { Participant } from "common";
+import {
+  Participant,
+  getGameStateParticipants,
+} from "../utils/getGameStateParticipants";
 
 export interface History {
   accountPublicKey: string;

@@ -2,15 +2,11 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import * as anchor from "@project-serum/anchor";
 import { idl, SolanaPlaysPokemonProgram } from "solana-plays-pokemon-program";
 import {
-  CELL_SIZE,
   FRAMES_TO_DRAW_PER_EXECUTION,
   GAMEBOY_CAMERA_HEIGHT,
   GAMEBOY_CAMERA_WIDTH,
-  getGameStateParticipants,
   NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS,
   PROGRAM_ID,
-  renderFrame,
-  fetchIpfsCid,
   GAME_DATA_COLLECTION_IDS,
   GAME_DATAS,
   GAME_DATA_ACCOUNT_ID,
@@ -24,19 +20,17 @@ import { createCanvas } from "@napi-rs/canvas";
 import * as mplTokenMetadata from "@metaplex-foundation/mpl-token-metadata";
 import { PublicKey, Transaction } from "@solana/web3.js";
 import axios from "axios";
-import Cors from "cors";
-
-const cors = Cors({
-  origin:
-    process.env.NODE_ENV === "development" ? true : /\.playspokemon\.xyz$/,
-});
+import runCorsMiddleware from "../../utils/cors";
+import { fetchIpfsCid } from "ui/utils/fetchIpfsCid";
+import { getGameStateParticipants } from "ui/utils/getGameStateParticipants";
+import { CELL_SIZE, renderFrame } from "ui/utils/gameUtils";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   try {
-    await runMiddleware(req, res, cors);
+    await runCorsMiddleware(req, res);
 
     if (req.method !== "POST") {
       return res.status(404).end();
@@ -411,22 +405,4 @@ function getNftBaseTitle(gameDataAccountId: string) {
   return gameDataAccountId === GAME_DATA_ACCOUNT_ID
     ? "Solana Plays Pokemon"
     : "Solana Plays Pokemon Crystal";
-}
-
-// Helper method to wait for a middleware to execute before continuing
-// And to throw an error when an error happens in a middleware
-function runMiddleware(
-  req: NextApiRequest,
-  res: NextApiResponse,
-  fn: Function
-) {
-  return new Promise((resolve, reject) => {
-    fn(req, res, (result: any) => {
-      if (result instanceof Error) {
-        return reject(result);
-      }
-
-      return resolve(result);
-    });
-  });
 }

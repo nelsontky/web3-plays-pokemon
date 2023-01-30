@@ -1,6 +1,6 @@
 import { PublicKey } from "@solana/web3.js";
 import axios from "axios";
-import { GAME_DATA_AUTHORITY } from "../constants";
+import { GAME_DATA_AUTHORITY } from "common/src/constants";
 
 interface SolscanData {
   blockTime: number;

@@ -4,13 +4,12 @@ import fs from "fs";
 import axios from "axios";
 import { inflate } from "pako";
 import {
-  CELL_SIZE,
   FRAMES_TO_DRAW_PER_EXECUTION,
   GAMEBOY_CAMERA_HEIGHT,
   GAMEBOY_CAMERA_WIDTH,
   NUMBER_OF_SECONDS_TO_EXECUTE_PER_BUTTON_PRESS,
-  renderFrame,
 } from "common";
+import { CELL_SIZE, renderFrame } from "ui/utils/gameUtils";
 import streamBuffers from "stream-buffers";
 import { NFTStorage, Blob } from "nft.storage";
 

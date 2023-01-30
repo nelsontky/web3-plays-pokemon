@@ -36,6 +36,8 @@ export const POKEMON_PIXEL_FONT = {
   className: "pokemon-pixel-font",
 };
 
+export const REALTIME_DATABASE_MESSAGES_COLLECTIONS = ["solana", "crystal"];
+
 // Mainnet
 export const PROGRAM_ID = "pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg";
 export const GAME_DATA_AUTHORITY =

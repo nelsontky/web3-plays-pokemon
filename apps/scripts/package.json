@@ -35,6 +35,7 @@
     "axios": "^1.2.1",
     "cheerio": "1.0.0-rc.12",
     "common": "workspace:*",
+    "ui": "workspace:*",
     "dotenv": "^16.0.3",
     "firebase-admin": "^11.4.1",
     "gifencoder": "^2.0.1",

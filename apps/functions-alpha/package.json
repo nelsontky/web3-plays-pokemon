@@ -22,6 +22,7 @@
     "@solana/web3.js": "^1.73.0",
     "axios": "^1.2.1",
     "common": "workspace:*",
+    "ui": "workspace:*",
     "firebase-admin": "^10.0.2",
     "firebase-functions": "^3.18.0",
     "gifencoder": "^2.0.1",
