@@ -7,6 +7,7 @@ import { ProgramService } from "./program/program.service";
 import { IpfsService } from "./ipfs/ipfs.service";
 import { RealtimeDatabaseService } from "./realtime-database/realtime-database.service";
 import { SplPricesService } from "./spl-prices/spl-prices.service";
+import { AnchorService } from "./anchor/anchor.service";
 
 @Module({
   imports: [ConfigModule.forRoot(), ScheduleModule.forRoot()],
@@ -17,6 +18,7 @@ import { SplPricesService } from "./spl-prices/spl-prices.service";
     IpfsService,
     RealtimeDatabaseService,
     SplPricesService,
+    AnchorService,
   ],
 })
 export class AppModule {}
