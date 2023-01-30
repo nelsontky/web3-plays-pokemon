@@ -22,11 +22,18 @@ export class IpfsService {
       return this.uploadToPinningService(data);
     }
 
-    const { cid } = await this.client.add(data, {
-      cidVersion: 1,
-    });
+    try {
+      const { cid } = await this.client.add(data, {
+        cidVersion: 1,
+      });
 
-    return cid.toString();
+      return cid.toString();
+    } catch (e) {
+      this.logger.error(
+        "Something is wrong with ipfs node, please restart ipfs service! Using external pinning service now...",
+      );
+      return this.uploadToPinningService(data);
+    }
   }
 
   async download(cid: string) {
