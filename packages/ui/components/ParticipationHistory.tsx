@@ -135,7 +135,7 @@ export default function ParticipationHistory() {
             <SimpleButton onClick={fetchParticipationHistory}>
               Load History
             </SimpleButton>
-            <p css={tw`text-center text-lg`}>Load participation history</p>
+            <p css={tw`text-center text-lg`}>Load your participation history</p>
           </div>
         </div>
       ) : loading ? (
