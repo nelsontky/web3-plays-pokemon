@@ -70,7 +70,7 @@ export default function CurrentVotes() {
   );
 
   return (
-    <div css={styles.root}>
+    <div css={[!currentState && tw`invisible`, styles.root]}>
       <h2 css={styles.header}>Time left for round {executedStatesCount}</h2>
       <p css={styles.timeLeft}>{secondsLeft}</p>
       <p
