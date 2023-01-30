@@ -35,10 +35,10 @@ pub mod utils;
 // 14 = Turbo B
 
 // Mainnet
-// declare_id!("pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg");
+declare_id!("pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg");
 
 // Devnet
-declare_id!("pkmWfprVCX2o7Kg6vPcvUXd4bgUHJSbs7qzJH9iqY3R");
+// declare_id!("pkmWfprVCX2o7Kg6vPcvUXd4bgUHJSbs7qzJH9iqY3R");
 
 #[program]
 pub mod solana_plays_pokemon_program {

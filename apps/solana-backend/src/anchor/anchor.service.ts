@@ -1,9 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { SolanaPlaysPokemonProgram } from "solana-plays-pokemon-program";
-// nestjs doesn't want to play nice with json imports from workspace package
-import * as idl from "solana-plays-pokemon-program/target/idl/solana_plays_pokemon_program.json";
 import * as anchor from "@project-serum/anchor";
 import { PROGRAM_ID } from "common";
+
+// nestjs doesn't want to play nice with json imports from workspace package
+import * as idl from "../../../../packages/solana-plays-pokemon-program/target/idl/solana_plays_pokemon_program.json";
 
 @Injectable()
 export class AnchorService {

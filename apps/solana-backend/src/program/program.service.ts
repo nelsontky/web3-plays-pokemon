@@ -12,10 +12,10 @@ import {
   GAME_DATAS,
   GAME_DATA_ROM_NAME,
 } from "common";
-import { WasmboyService } from "src/wasmboy/wasmboy.service";
+import { WasmboyService } from "../wasmboy/wasmboy.service";
 import { Cron } from "@nestjs/schedule";
 import { RealtimeDatabaseService } from "../realtime-database/realtime-database.service";
-import { AnchorService } from "src/anchor/anchor.service";
+import { AnchorService } from "../anchor/anchor.service";
 
 @Injectable()
 export class ProgramService implements OnModuleDestroy {
