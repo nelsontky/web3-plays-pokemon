@@ -12,7 +12,10 @@ import tw from "twin.macro";
 const App = ({ Component, pageProps }: AppProps) => (
   <Provider store={store}>
     <SolanaContext>
-      <ConfigProvider gameDataAccountId={GAME_DATA_ACCOUNT_ID}>
+      <ConfigProvider
+        gameDataAccountId={GAME_DATA_ACCOUNT_ID}
+        messagesCollection="solana"
+      >
         <AppSnackBarProvider>
           <AnnouncementBar>
             <span>

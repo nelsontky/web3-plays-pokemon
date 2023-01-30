@@ -13,10 +13,12 @@ import {
 import { Message } from "common";
 import { useMessages, MessageProps } from "@chatui/core";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { useConfig } from "../contexts/ConfigProvider";
 
 const LOAD_COUNT = 5;
 
 export default function useReadMessages() {
+  const { messagesCollection } = useConfig();
   const { messages, appendMsg, resetList, prependMsgs } = useMessages([]);
   const { publicKey } = useWallet();
   const newestTimeStampRef = useRef<number>(0);
@@ -27,7 +29,7 @@ export default function useReadMessages() {
       const db = getDatabase(app);
 
       const newestMessageRef = query(
-        ref(db, process.env.NEXT_PUBLIC_MESSAGES_COLLECTION),
+        ref(db, messagesCollection),
         orderByChild("timestamp"),
         limitToLast(1)
       );
@@ -59,7 +61,7 @@ export default function useReadMessages() {
         resetList();
       };
     },
-    [appendMsg, publicKey, resetList]
+    [appendMsg, publicKey, resetList, messagesCollection]
   );
 
   const messagesRef = useRef<MessageProps[]>([]);
@@ -75,7 +77,7 @@ export default function useReadMessages() {
 
     if (messagesRef.current[0]) {
       const moreMessagesQuery = query(
-        ref(db, process.env.NEXT_PUBLIC_MESSAGES_COLLECTION),
+        ref(db, messagesCollection),
         orderByChild("timestamp"),
         endBefore(messagesRef.current[0].content.timestamp),
         limitToLast(LOAD_COUNT)
