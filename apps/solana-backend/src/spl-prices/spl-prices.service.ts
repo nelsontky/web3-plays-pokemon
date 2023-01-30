@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
 import { Cron } from "@nestjs/schedule";
 import { Liquidity, Percent } from "@raydium-io/raydium-sdk";
 import * as anchor from "@project-serum/anchor";
@@ -16,6 +16,40 @@ export class SplPricesService {
 
   constructor(private readonly anchorService: AnchorService) {}
 
+  async initSplPrices() {
+    if (process.env.NODE_ENV === "development") {
+      const maxAmountIn = await this.getMaxAmountIn();
+
+      this.logger.log("Max amount in: ", maxAmountIn);
+
+      const [splPricesPda] = anchor.web3.PublicKey.findProgramAddressSync(
+        [Buffer.from("spl_prices"), FRONK_POOL_KEY.baseMint.toBuffer()],
+        new anchor.web3.PublicKey(PROGRAM_ID),
+      );
+      const [programDataAddress] = anchor.web3.PublicKey.findProgramAddressSync(
+        [new anchor.web3.PublicKey(PROGRAM_ID).toBuffer()],
+        new anchor.web3.PublicKey(
+          "BPFLoaderUpgradeab1e11111111111111111111111",
+        ),
+      );
+      const txid = await this.anchorService.program.methods
+        .initializeSplPrices(FRONK_POOL_KEY.baseMint, maxAmountIn)
+        .accounts({
+          splPrices: splPricesPda,
+          program: this.anchorService.program.programId,
+          programData: programDataAddress,
+        })
+        .rpc();
+
+      return txid;
+    } else {
+      throw new HttpException(
+        "Endpoint only works in dev environment",
+        HttpStatus.FORBIDDEN,
+      );
+    }
+  }
+
   @Cron("0 */10 * * * *	")
   async updateSplPrices() {
     const maxAmountIn = await this.getMaxAmountIn();
@@ -28,6 +62,7 @@ export class SplPricesService {
       [new anchor.web3.PublicKey(PROGRAM_ID).toBuffer()],
       new anchor.web3.PublicKey("BPFLoaderUpgradeab1e11111111111111111111111"),
     );
+
     try {
       await this.anchorService.program.methods
         .updateSplPrices(FRONK_POOL_KEY.baseMint, maxAmountIn)
@@ -43,7 +78,7 @@ export class SplPricesService {
     }
   }
 
-  private async getMaxAmountIn() {
+  async getMaxAmountIn() {
     const poolInfo = await Liquidity.fetchInfo({
       connection: this.anchorService.connection,
       poolKeys: FRONK_POOL_KEY,
@@ -57,6 +92,6 @@ export class SplPricesService {
       slippage: new Percent(1, 100), // 1%
     }).maxAmountIn;
 
-    return maxAmountIn.raw.toNumber();
+    return +maxAmountIn.toExact();
   }
 }

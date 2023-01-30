@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
 import {
   FRAMES_TO_DRAW_PER_EXECUTION,
   GAMEBOY_CAMERA_HEIGHT,
@@ -32,33 +32,45 @@ export class WasmboyService {
   constructor(private readonly ipfsService: IpfsService) {}
 
   async generateInitialCids(romName: string) {
-    const [wasmBoy, wasmByteMemory] = await this.getWasmBoyCore();
-    await this.loadRom(romName, wasmBoy, wasmByteMemory);
+    if (process.env.NODE_ENV === "development") {
+      const [wasmBoy, wasmByteMemory] = await this.getWasmBoyCore();
+      await this.loadRom(romName, wasmBoy, wasmByteMemory);
 
-    const framesImageData = this.executeFrames(wasmBoy, wasmByteMemory, 60, []);
-    const saveState = await this.saveState(wasmBoy, wasmByteMemory);
+      const framesImageData = this.executeFrames(
+        wasmBoy,
+        wasmByteMemory,
+        60,
+        [],
+      );
+      const saveState = await this.saveState(wasmBoy, wasmByteMemory);
 
-    const compressedFramesImageData = pako.deflate(
-      JSON.stringify(framesImageData),
-    );
-    const compressedSaveState = pako.deflate(JSON.stringify(saveState));
+      const compressedFramesImageData = pako.deflate(
+        JSON.stringify(framesImageData),
+      );
+      const compressedSaveState = pako.deflate(JSON.stringify(saveState));
 
-    const [framesImageDataCid, saveStateCid] = await Promise.all([
-      this.ipfsService.upload(compressedFramesImageData),
-      this.ipfsService.upload(compressedSaveState),
-    ]);
+      const [framesImageDataCid, saveStateCid] = await Promise.all([
+        this.ipfsService.upload(compressedFramesImageData),
+        this.ipfsService.upload(compressedSaveState),
+      ]);
 
-    if (framesImageDataCid.toString().length <= 0) {
-      throw new Error("framesImageDataCid length is 0");
+      if (framesImageDataCid.toString().length <= 0) {
+        throw new Error("framesImageDataCid length is 0");
+      }
+      if (saveStateCid.toString().length <= 0) {
+        throw new Error("saveStateCid length is 0");
+      }
+
+      return {
+        framesImageDataCid: framesImageDataCid.toString(),
+        saveStateCid: saveStateCid.toString(),
+      };
+    } else {
+      throw new HttpException(
+        "Endpoint only works in dev environment",
+        HttpStatus.FORBIDDEN,
+      );
     }
-    if (saveStateCid.toString().length <= 0) {
-      throw new Error("saveStateCid length is 0");
-    }
-
-    return {
-      framesImageDataCid: framesImageDataCid.toString(),
-      saveStateCid: saveStateCid.toString(),
-    };
   }
 
   async run(
