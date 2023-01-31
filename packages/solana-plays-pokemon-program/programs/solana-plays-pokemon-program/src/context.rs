@@ -236,12 +236,12 @@ pub struct MintFramesNft<'info> {
         mint::authority = authority,
         mint::freeze_authority = authority
     )]
-    pub mint: Account<'info, Mint>,
+    pub mint: Box<Account<'info, Mint>>,
     #[account(mut)]
     pub user: Signer<'info>,
     pub authority: Signer<'info>,
     #[account(mut, has_one = authority)]
-    pub game_data: Account<'info, GameData>,
+    pub game_data: Box<Account<'info, GameData>>,
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
 
@@ -256,7 +256,7 @@ pub struct MintFramesNft<'info> {
         bump,
         space = 8 + MintedNft::LEN
     )]
-    pub minted_nft: Account<'info, MintedNft>,
+    pub minted_nft: Box<Account<'info, MintedNft>>,
 
     #[account(
         init_if_needed,
@@ -264,7 +264,7 @@ pub struct MintFramesNft<'info> {
         associated_token::mint = mint,
         associated_token::authority = user
     )]
-    pub token_account: Account<'info, TokenAccount>,
+    pub token_account: Box<Account<'info, TokenAccount>>,
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub rent: Sysvar<'info, Rent>,
 
@@ -282,7 +282,7 @@ pub struct MintFramesNft<'info> {
     pub token_metadata_account: UncheckedAccount<'info>,
     pub token_metadata_program: Program<'info, Metadata>,
 
-    pub collection_mint: Account<'info, Mint>,
+    pub collection_mint: Box<Account<'info, Mint>>,
     #[account(
         mut,
         seeds = [
@@ -342,12 +342,12 @@ pub struct MintFramesNftSplGas<'info> {
         mint::authority = authority,
         mint::freeze_authority = authority
     )]
-    pub mint: Account<'info, Mint>,
+    pub mint: Box<Account<'info, Mint>>,
     pub user: Signer<'info>,
     #[account(mut)]
     pub authority: Signer<'info>,
     #[account(mut, has_one = authority)]
-    pub game_data: Account<'info, GameData>,
+    pub game_data: Box<Account<'info, GameData>>,
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
 
@@ -362,7 +362,7 @@ pub struct MintFramesNftSplGas<'info> {
         bump,
         space = 8 + MintedNft::LEN
     )]
-    pub minted_nft: Account<'info, MintedNft>,
+    pub minted_nft: Box<Account<'info, MintedNft>>,
 
     #[account(
         init_if_needed,
@@ -370,7 +370,7 @@ pub struct MintFramesNftSplGas<'info> {
         associated_token::mint = mint,
         associated_token::authority = user
     )]
-    pub token_account: Account<'info, TokenAccount>,
+    pub token_account: Box<Account<'info, TokenAccount>>,
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub rent: Sysvar<'info, Rent>,
 
@@ -388,7 +388,7 @@ pub struct MintFramesNftSplGas<'info> {
     pub token_metadata_account: UncheckedAccount<'info>,
     pub token_metadata_program: Program<'info, Metadata>,
 
-    pub collection_mint: Account<'info, Mint>,
+    pub collection_mint: Box<Account<'info, Mint>>,
     #[account(
         mut,
         seeds = [
