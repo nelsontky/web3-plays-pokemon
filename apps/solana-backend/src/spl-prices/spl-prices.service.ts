@@ -18,9 +18,10 @@ export class SplPricesService {
 
   async initSplPrices() {
     if (process.env.NODE_ENV === "development") {
-      const maxAmountIn = await this.getMaxAmountIn();
+      const nonHumanReadableMaxAmountIn =
+        await this.getNonHumanReadableMaxAmountIn();
 
-      this.logger.log("Max amount in: " + maxAmountIn);
+      this.logger.log("Max amount in: " + nonHumanReadableMaxAmountIn);
 
       const [splPricesPda] = anchor.web3.PublicKey.findProgramAddressSync(
         [Buffer.from("spl_prices"), FRONK_POOL_KEY.baseMint.toBuffer()],
@@ -33,7 +34,10 @@ export class SplPricesService {
         ),
       );
       const txid = await this.anchorService.program.methods
-        .initializeSplPrices(FRONK_POOL_KEY.baseMint, maxAmountIn)
+        .initializeSplPrices(
+          FRONK_POOL_KEY.baseMint,
+          nonHumanReadableMaxAmountIn,
+        )
         .accounts({
           splPrices: splPricesPda,
           program: this.anchorService.program.programId,
@@ -54,11 +58,11 @@ export class SplPricesService {
   async updateSplPrices() {
     this.logger.log("Updating SPL prices...");
 
-    const maxAmountIn = await this.getMaxAmountIn();
+    const nonHumanReadableMaxAmountIn =
+      await this.getNonHumanReadableMaxAmountIn();
 
     this.logger.log(
-      `Max amount in (${FRONK_POOL_KEY.baseMint.toBase58()}):`,
-      maxAmountIn,
+      `Max amount in (${FRONK_POOL_KEY.baseMint.toBase58()}): ${nonHumanReadableMaxAmountIn}`,
     );
 
     const [splPricesPda] = anchor.web3.PublicKey.findProgramAddressSync(
@@ -72,7 +76,7 @@ export class SplPricesService {
 
     try {
       await this.anchorService.program.methods
-        .updateSplPrices(FRONK_POOL_KEY.baseMint, maxAmountIn)
+        .updateSplPrices(FRONK_POOL_KEY.baseMint, nonHumanReadableMaxAmountIn)
         .accounts({
           splPrices: splPricesPda,
           program: this.anchorService.program.programId,
@@ -87,7 +91,7 @@ export class SplPricesService {
     this.logger.log("Done updating SPL prices!");
   }
 
-  private async getMaxAmountIn() {
+  private async getNonHumanReadableMaxAmountIn() {
     const poolInfo = await Liquidity.fetchInfo({
       connection: this.anchorService.connection,
       poolKeys: FRONK_POOL_KEY,
@@ -101,6 +105,6 @@ export class SplPricesService {
       slippage: new Percent(1, 100), // 1%
     }).maxAmountIn;
 
-    return +maxAmountIn.toExact();
+    return maxAmountIn.raw;
   }
 }

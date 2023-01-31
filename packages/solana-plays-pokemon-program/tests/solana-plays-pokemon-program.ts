@@ -571,7 +571,7 @@ describe("solana-plays-pokemon-program", () => {
   //   );
 
   //   await program.methods
-  //     .initializeSplPrices(splMint, amountForOneLamport)
+  //     .initializeSplPrices(splMint, new anchor.BN(amountForOneLamport))
   //     .accounts({
   //       splPrices: splPricesPda,
   //       program: program.programId,
@@ -583,8 +583,11 @@ describe("solana-plays-pokemon-program", () => {
   //     splPricesPda
   //   );
 
-  //   assert.deepEqual(splPricesAccount.prices.length, 1);
-  //   assert.deepEqual(splPricesAccount.prices[0], amountForOneLamport);
+  //   assert.deepEqual(splPricesAccount.nonHumanReadablePrices.length, 1);
+  //   assert.deepEqual(
+  //     splPricesAccount.nonHumanReadablePrices[0].toNumber(),
+  //     amountForOneLamport
+  //   );
   // });
 
   // it("Cannot update prices with wrong program data address", async () => {
@@ -600,7 +603,7 @@ describe("solana-plays-pokemon-program", () => {
 
   //   try {
   //     await program.methods
-  //       .updateSplPrices(splMint, amountForOneLamport)
+  //       .updateSplPrices(splMint, new anchor.BN(amountForOneLamport))
   //       .accounts({
   //         splPrices: splPricesPda,
   //         program: program.programId,
@@ -631,7 +634,7 @@ describe("solana-plays-pokemon-program", () => {
 
   //   try {
   //     await program.methods
-  //       .updateSplPrices(splMint, amountForOneLamport)
+  //       .updateSplPrices(splMint, new anchor.BN(amountForOneLamport))
   //       .accounts({
   //         splPrices: splPricesPda,
   //         program: otherDeployment,
@@ -666,7 +669,7 @@ describe("solana-plays-pokemon-program", () => {
 
   //   try {
   //     await program.methods
-  //       .updateSplPrices(splMint, amountForOneLamport)
+  //       .updateSplPrices(splMint, new anchor.BN(amountForOneLamport))
   //       .accounts({
   //         splPrices: splPricesPda,
   //         program: program.programId,
@@ -698,7 +701,7 @@ describe("solana-plays-pokemon-program", () => {
 
   //   for (let i = 2000; i <= 8000; i += 1000) {
   //     await program.methods
-  //       .updateSplPrices(splMint, i)
+  //       .updateSplPrices(splMint, new anchor.BN(i))
   //       .accounts({
   //         splPrices: splPricesPda,
   //         programData: programDataAddress,
@@ -712,7 +715,7 @@ describe("solana-plays-pokemon-program", () => {
   //   );
 
   //   assert.deepStrictEqual(
-  //     splPricesAccount.prices,
+  //     splPricesAccount.nonHumanReadablePrices.map((price) => price.toNumber()),
   //     [3000, 4000, 5000, 6000, 7000, 8000]
   //   );
   // });

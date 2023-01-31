@@ -4,7 +4,7 @@ use crate::constants::*;
 
 #[account]
 pub struct SplPrices {
-    pub prices: Vec<f64>,
+    pub non_human_readable_prices: Vec<u64>,
 }
 
 impl SplPrices {

@@ -388,7 +388,7 @@
         },
         {
           "name": "amountForOneLamport",
-          "type": "f64"
+          "type": "u64"
         }
       ]
     },
@@ -423,7 +423,7 @@
         },
         {
           "name": "amountForOneLamport",
-          "type": "f64"
+          "type": "u64"
         }
       ]
     }
@@ -435,9 +435,9 @@
         "kind": "struct",
         "fields": [
           {
-            "name": "prices",
+            "name": "nonHumanReadablePrices",
             "type": {
-              "vec": "f64"
+              "vec": "u64"
             }
           }
         ]
@@ -761,8 +761,5 @@
       "name": "InvalidButtonPressCount",
       "msg": "Invalid button press count."
     }
-  ],
-  "metadata": {
-    "address": "pkmWfprVCX2o7Kg6vPcvUXd4bgUHJSbs7qzJH9iqY3R"
-  }
+  ]
 }
