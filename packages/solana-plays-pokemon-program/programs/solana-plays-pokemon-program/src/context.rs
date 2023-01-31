@@ -111,6 +111,7 @@ pub struct SendButtonSplGas<'info> {
     )]
     pub gas_deposit_token_account: Account<'info, TokenAccount>,
     #[account(
+        mut,
         associated_token::mint = gas_mint,
         associated_token::authority = player,
     )]

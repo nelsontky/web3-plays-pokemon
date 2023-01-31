@@ -284,7 +284,6 @@ async function buildMintNftTx(
     program.programId
   );
 
-  const baseTitle = getNftBaseTitle(gameDataAccountPublicKey.toBase58());
   const mintIx = await program.methods
     .mintFramesNft(
       gameStateIndex,

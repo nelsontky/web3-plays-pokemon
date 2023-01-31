@@ -132,7 +132,7 @@ export type SolanaPlaysPokemonProgram = {
         },
         {
           "name": "gasSourceTokenAccount",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -898,7 +898,7 @@ export const IDL: SolanaPlaysPokemonProgram = {
         },
         {
           "name": "gasSourceTokenAccount",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
