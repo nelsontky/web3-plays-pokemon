@@ -18,9 +18,7 @@ export interface Participant {
   blockTime: number;
 }
 
-export async function getGameStateParticipants(
-  gameStatePda: PublicKey
-) {
+export async function getGameStateParticipants(gameStatePda: PublicKey) {
   const response = await axios.get<SolscanData[]>(
     `https://public-api.solscan.io/account/transactions?account=${gameStatePda.toBase58()}&limit=100`,
     { headers: { "Accept-Encoding": "gzip,deflate,compress" } }
@@ -40,7 +38,7 @@ export async function getGameStateParticipants(
         !(i === arr.length - 1 && solScanData.signer[0] === GAME_DATA_AUTHORITY)
     ) // exclude earliest account creation tx
     .map((solscanData) => ({
-      signer: solscanData.signer[0],
+      signer: solscanData.signer[solscanData.signer.length - 1],
       txHash: solscanData.txHash,
       blockTime: solscanData.blockTime,
     }));
