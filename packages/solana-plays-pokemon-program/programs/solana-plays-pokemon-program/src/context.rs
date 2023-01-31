@@ -45,29 +45,6 @@ use anchor_spl::token::{Mint, Token, TokenAccount};
 // }
 
 // #[derive(Accounts)]
-// #[instruction(gas_mint: Pubkey)]
-// pub struct InitializePrices<'info> {
-//     #[account(mut)]
-//     pub authority: Signer<'info>,
-//     #[account(
-//         init,
-//         seeds = [
-//             b"spl_prices",
-//             gas_mint.key().as_ref()
-//         ], 
-//         bump,
-//         payer = authority,
-//         space = 8 + SplPrices::LEN
-//     )]
-//     pub spl_prices: Account<'info, SplPrices>,
-//     #[account(constraint = program.programdata_address()? == Some(program_data.key()))]
-//     pub program: Program<'info, SolanaPlaysPokemonProgram>,
-//     #[account(constraint = program_data.upgrade_authority_address == Some(authority.key()))]
-//     pub program_data: Account<'info, ProgramData>,
-//     pub system_program: Program<'info, System>
-// }
-
-// #[derive(Accounts)]
 // pub struct InitializeCurrentParticipants<'info> {
 //     #[account(
 //         init,
@@ -86,6 +63,29 @@ use anchor_spl::token::{Mint, Token, TokenAccount};
 //     pub authority: Signer<'info>,
 //     pub system_program: Program<'info, System>,
 // }
+
+#[derive(Accounts)]
+#[instruction(gas_mint: Pubkey)]
+pub struct InitializePrices<'info> {
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    #[account(
+        init,
+        seeds = [
+            b"spl_prices",
+            gas_mint.key().as_ref()
+        ], 
+        bump,
+        payer = authority,
+        space = 8 + SplPrices::LEN
+    )]
+    pub spl_prices: Account<'info, SplPrices>,
+    #[account(constraint = program.programdata_address()? == Some(program_data.key()))]
+    pub program: Program<'info, SolanaPlaysPokemonProgram>,
+    #[account(constraint = program_data.upgrade_authority_address == Some(authority.key()))]
+    pub program_data: Account<'info, ProgramData>,
+    pub system_program: Program<'info, System>
+}
 
 #[derive(Accounts)]
 pub struct SendButton<'info> {

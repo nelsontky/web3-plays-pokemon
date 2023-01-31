@@ -92,17 +92,17 @@ pub mod solana_plays_pokemon_program {
     //     Ok(())
     // }
 
-    // pub fn initialize_spl_prices(
-    //     ctx: Context<InitializePrices>,
-    //     _gas_mint: Pubkey,
-    //     amount_for_one_lamport: u64,
-    // ) -> Result<()> {
-    //     let spl_prices = &mut ctx.accounts.spl_prices;
-    //     spl_prices
-    //         .non_human_readable_prices
-    //         .push(amount_for_one_lamport);
-    //     Ok(())
-    // }
+    pub fn initialize_spl_prices(
+        ctx: Context<InitializePrices>,
+        _gas_mint: Pubkey,
+        amount_for_one_lamport: u64,
+    ) -> Result<()> {
+        let spl_prices = &mut ctx.accounts.spl_prices;
+        spl_prices
+            .non_human_readable_prices
+            .push(amount_for_one_lamport);
+        Ok(())
+    }
 
     pub fn send_button(ctx: Context<SendButton>, joypad_button: u8, press_count: u8) -> Result<()> {
         process_button_send(
