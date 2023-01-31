@@ -3,6 +3,46 @@
   "name": "solana_plays_pokemon_program",
   "instructions": [
     {
+      "name": "initializeSplPrices",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "splPrices",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "program",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "programData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "gasMint",
+          "type": "publicKey"
+        },
+        {
+          "name": "amountForOneLamport",
+          "type": "u64"
+        }
+      ]
+    },
+    {
       "name": "sendButton",
       "accounts": [
         {
@@ -764,8 +804,5 @@
       "name": "InvalidButtonPressCount",
       "msg": "Invalid button press count."
     }
-  ],
-  "metadata": {
-    "address": "pkmWfprVCX2o7Kg6vPcvUXd4bgUHJSbs7qzJH9iqY3R"
-  }
+  ]
 }

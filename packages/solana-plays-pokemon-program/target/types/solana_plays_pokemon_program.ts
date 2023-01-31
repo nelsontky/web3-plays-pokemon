@@ -3,6 +3,46 @@ export type SolanaPlaysPokemonProgram = {
   "name": "solana_plays_pokemon_program",
   "instructions": [
     {
+      "name": "initializeSplPrices",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "splPrices",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "program",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "programData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "gasMint",
+          "type": "publicKey"
+        },
+        {
+          "name": "amountForOneLamport",
+          "type": "u64"
+        }
+      ]
+    },
+    {
       "name": "sendButton",
       "accounts": [
         {
@@ -771,6 +811,46 @@ export const IDL: SolanaPlaysPokemonProgram = {
   "version": "0.1.0",
   "name": "solana_plays_pokemon_program",
   "instructions": [
+    {
+      "name": "initializeSplPrices",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "splPrices",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "program",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "programData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "gasMint",
+          "type": "publicKey"
+        },
+        {
+          "name": "amountForOneLamport",
+          "type": "u64"
+        }
+      ]
+    },
     {
       "name": "sendButton",
       "accounts": [
