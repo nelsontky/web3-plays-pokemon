@@ -25,23 +25,24 @@ export const FRONK_POOL_KEY = {
   marketId: new PublicKey("5xS7fqZUdbSAdzrsbEWS4WJtcAwKJF3J9AtUQQrGJ4GY"),
   marketAuthority: new PublicKey("XG49cbTY5thev3MHv3UYztt65Vrn9HBkPou4DP8MnbQ"),
   marketBaseVault: new PublicKey(
-    "DM45kckXud9abBoDEYNgdTuQYn5gzknxZG19ovT8epfx",
+    "DM45kckXud9abBoDEYNgdTuQYn5gzknxZG19ovT8epfx"
   ),
   marketQuoteVault: new PublicKey(
-    "9zXM3VQn3Dzn7MAs5zRLWyeZDmro3hb9HjmBjsxK4Nb6",
+    "9zXM3VQn3Dzn7MAs5zRLWyeZDmro3hb9HjmBjsxK4Nb6"
   ),
   marketBids: new PublicKey("aKTvmMB8pbLXcR19P3ayMJWBp38bF9kFHgRy9WdjhWi"),
   marketAsks: new PublicKey("Dqv2vuZBtDPECtfTf1iyjCskTRWovcQtngHEe2ndFYNY"),
   marketEventQueue: new PublicKey(
-    "2aNAQ1zMVZqWHiM9uUwwo9JSYZkjCNXVnCzmGSuAhTxZ",
+    "2aNAQ1zMVZqWHiM9uUwwo9JSYZkjCNXVnCzmGSuAhTxZ"
   ),
   lookupTableAccount: new PublicKey(
-    "CLs36tzXZ1HBMN5iBjvk7GmwXsfHLXviLcJPrPBiK4kj",
+    "CLs36tzXZ1HBMN5iBjvk7GmwXsfHLXviLcJPrPBiK4kj"
   ),
 };
 
 export const FRONK_CURRENCY = new Currency(5, "FRONK");
 
 export const SUPPORTED_SPL_TOKENS = {
-  [FRONK_POOL_KEY.baseMint.toBase58()]: true
-}
+  [FRONK_POOL_KEY.baseMint.toBase58()]: "FRONK",
+  So11111111111111111111111111111111111111112: "SOL",
+};

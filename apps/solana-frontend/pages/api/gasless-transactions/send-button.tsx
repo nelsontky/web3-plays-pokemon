@@ -14,6 +14,7 @@ import {
   getAssociatedTokenAddressSync,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
+import getIsValidSplMint from "../../../utils/get-is-valid-spl-mint";
 
 export default async function handler(
   req: NextApiRequest,
@@ -55,6 +56,7 @@ export default async function handler(
       publicKey === undefined ||
       !isValidButton ||
       splMint === undefined ||
+      !getIsValidSplMint(splMint) ||
       !GAME_DATAS[gameDataAccountId as string]
     ) {
       return res.status(400).json({ result: "Bad request" });
