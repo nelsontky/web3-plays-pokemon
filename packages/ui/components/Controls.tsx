@@ -16,7 +16,6 @@ import axios, { AxiosError } from "axios";
 import { useAppSelector } from "../hooks/redux";
 import { PublicKey } from "@solana/web3.js";
 import { SnackbarKey } from "notistack";
-import confirmGaslessTransaction from "../utils/confirmGaslessTransaction";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 import SelectGasCurrency from "./SelectGasCurrency";
 
@@ -95,7 +94,8 @@ export default function Controls() {
           program.programId
         );
 
-      const snackbarId = enqueueSnackbar(
+      let snackbarId: SnackbarKey | undefined = undefined;
+      snackbarId = enqueueSnackbar(
         {
           title: "Sending transaction",
         },
@@ -122,26 +122,24 @@ export default function Controls() {
         } else {
           const response = await axios.post(
             process.env.NODE_ENV === "development"
-              ? "http://localhost:3000/api/gasless-transactions/send-button"
-              : "https://red.playspokemon.xyz/api/gasless-transactions/send-button",
+              ? "http://localhost:3000/api/spl-gas-send-button"
+              : "https://red.playspokemon.xyz/api/spl-gas-send-button",
             {
               publicKey: publicKey.toBase58(),
               gameDataAccountId: gameDataAccountPublicKey.toBase58(),
-              buttonId: joypadEnumToButtonId(joypadButton) /*13*/,
+              buttonId: joypadEnumToButtonId(joypadButton),
               splMint: selectedGasCurrency,
               isTurbo: pressCount === 2,
+              executedStatesCount,
             }
           );
-          const recoveredTransaction = anchor.web3.Transaction.from(
-            Buffer.from(response.data.result, "base64")
-          );
+          const recoveredTransaction =
+            anchor.web3.VersionedTransaction.deserialize(
+              Buffer.from(response.data.result, "base64")
+            );
           const splGasSourceTokenAccount = getAssociatedTokenAddressSync(
             new PublicKey(selectedGasCurrency),
             publicKey
-          );
-          const confirmGaslessTransactionPromise = confirmGaslessTransaction(
-            connection,
-            splGasSourceTokenAccount
           );
           const { blockhash, lastValidBlockHeight } =
             await connection.getLatestBlockhash();
@@ -153,15 +151,13 @@ export default function Controls() {
             lastValidBlockHeight,
             signature: txId,
           });
-          await confirmGaslessTransactionPromise;
 
           if (status.value.err) {
-            throw new Error(
-              `Transaction failed: ${JSON.stringify(status.value)}`
-            );
+            throw new Error(JSON.stringify(status.value.err));
           }
         }
 
+        closeSnackbar(snackbarId);
         enqueueSnackbar(
           {
             title: "Success",
@@ -172,7 +168,17 @@ export default function Controls() {
           }
         );
       } catch (e) {
-        if (e instanceof Error) {
+        if (e instanceof AxiosError && e.response) {
+          enqueueSnackbar(
+            {
+              title: "Error",
+              errorMessage: e.response.data.result,
+            },
+            {
+              variant: "error",
+            }
+          );
+        } else if (e instanceof Error) {
           enqueueSnackbar(
             {
               title: "Error",

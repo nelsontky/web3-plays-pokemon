@@ -32,7 +32,7 @@ const customStyles = css({
       boxShadow: "none",
       border: "2px solid #000000",
       fontSize: "1rem",
-      ...POKEMON_PIXEL_FONT.style,
+      flexWrap: "nowrap",
     },
     "&& .SnackbarItem-message": {
       display: "flex",
