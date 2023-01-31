@@ -74,110 +74,10 @@ export default function Controls() {
     (state) => state.gameData.executedStatesCount
   );
   const { connection } = useConnection();
-
-  const executeGameFronk = async (joypadButton: JoypadButton) => {
-    if (publicKey) {
-      let snackbarId: SnackbarKey | undefined = undefined;
-      try {
-        snackbarId = enqueueSnackbar(
-          {
-            title: "Sending transaction",
-          },
-          {
-            variant: "info",
-            autoHideDuration: null,
-          }
-        );
-
-        const response = await axios.post(
-          process.env.NODE_ENV === "development"
-            ? "http://localhost:3000/api/gasless-transactions/send-button"
-            : "https://red.playspokemon.xyz/api/gasless-transactions/send-button",
-          {
-            publicKey: publicKey.toBase58(),
-            gameDataAccountId: gameDataAccountPublicKey.toBase58(),
-            buttonId: joypadEnumToButtonId(joypadButton) /*13*/,
-            splMint: new PublicKey(
-              "5yxNbU8DgYJZNi3mPD9rs4XLh9ckXrhPjJ5VCujUWg5H"
-            ),
-            isTurbo: pressCount === 2,
-          }
-        );
-        const recoveredTransaction = anchor.web3.Transaction.from(
-          Buffer.from(response.data.result, "base64")
-        );
-
-        const { blockhash, lastValidBlockHeight } =
-          await connection.getLatestBlockhash();
-
-        const splGasSourceTokenAccount = getAssociatedTokenAddressSync(
-          new PublicKey("5yxNbU8DgYJZNi3mPD9rs4XLh9ckXrhPjJ5VCujUWg5H"),
-          publicKey
-        );
-        const confirmGaslessTransactionPromise = confirmGaslessTransaction(
-          connection,
-          splGasSourceTokenAccount
-        );
-
-        const txId = await sendTransaction(recoveredTransaction, connection, {
-          skipPreflight: true,
-        });
-        const status = await connection.confirmTransaction({
-          blockhash: blockhash,
-          lastValidBlockHeight,
-          signature: txId,
-        });
-        await confirmGaslessTransactionPromise;
-
-        if (status.value.err) {
-          throw new Error(
-            `Transaction failed: ${JSON.stringify(status.value)}`
-          );
-        }
-
-        closeSnackbar(snackbarId);
-
-        enqueueSnackbar(
-          {
-            title: "Success",
-            txId,
-          },
-          {
-            variant: "success",
-          }
-        );
-      } catch (e) {
-        if (e instanceof AxiosError && e.response) {
-          enqueueSnackbar(
-            {
-              title: "Error",
-              errorMessage: e.response.data.result,
-            },
-            {
-              variant: "error",
-            }
-          );
-        } else if (e instanceof Error) {
-          enqueueSnackbar(
-            {
-              title: "Error",
-              errorMessage: e.message,
-            },
-            {
-              variant: "error",
-            }
-          );
-        }
-      } finally {
-        if (snackbarId !== undefined) {
-          closeSnackbar(snackbarId);
-        }
-      }
-    }
-  };
+  const selectedGasCurrency = useAppSelector((state) => state.gasCurrency);
 
   const executeGame = async (joypadButton: JoypadButton) => {
-    if (program) {
+    if (program && publicKey) {
       const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
         [
           gameDataAccountPublicKey.toBuffer(),
@@ -206,17 +106,61 @@ export default function Controls() {
       );
 
       try {
-        const txId = await program.methods
-          .sendButton(joypadEnumToButtonId(joypadButton), pressCount)
-          .accounts({
-            gameState: gameStatePda,
-            gameData: gameDataAccountPublicKey,
-            player: anchor.getProvider().publicKey,
-            systemProgram: anchor.web3.SystemProgram.programId,
-            clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
-            currentParticipants: currentParticipantsPda,
-          })
-          .rpc();
+        let txId: string;
+        if (selectedGasCurrency === null) {
+          txId = await program.methods
+            .sendButton(joypadEnumToButtonId(joypadButton), pressCount)
+            .accounts({
+              gameState: gameStatePda,
+              gameData: gameDataAccountPublicKey,
+              player: anchor.getProvider().publicKey,
+              systemProgram: anchor.web3.SystemProgram.programId,
+              clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+              currentParticipants: currentParticipantsPda,
+            })
+            .rpc();
+        } else {
+          const response = await axios.post(
+            process.env.NODE_ENV === "development"
+              ? "http://localhost:3000/api/gasless-transactions/send-button"
+              : "https://red.playspokemon.xyz/api/gasless-transactions/send-button",
+            {
+              publicKey: publicKey.toBase58(),
+              gameDataAccountId: gameDataAccountPublicKey.toBase58(),
+              buttonId: joypadEnumToButtonId(joypadButton) /*13*/,
+              splMint: selectedGasCurrency,
+              isTurbo: pressCount === 2,
+            }
+          );
+          const recoveredTransaction = anchor.web3.Transaction.from(
+            Buffer.from(response.data.result, "base64")
+          );
+          const splGasSourceTokenAccount = getAssociatedTokenAddressSync(
+            new PublicKey(selectedGasCurrency),
+            publicKey
+          );
+          const confirmGaslessTransactionPromise = confirmGaslessTransaction(
+            connection,
+            splGasSourceTokenAccount
+          );
+          const { blockhash, lastValidBlockHeight } =
+            await connection.getLatestBlockhash();
+          txId = await sendTransaction(recoveredTransaction, connection, {
+            skipPreflight: true,
+          });
+          const status = await connection.confirmTransaction({
+            blockhash: blockhash,
+            lastValidBlockHeight,
+            signature: txId,
+          });
+          await confirmGaslessTransactionPromise;
+
+          if (status.value.err) {
+            throw new Error(
+              `Transaction failed: ${JSON.stringify(status.value)}`
+            );
+          }
+        }
 
         enqueueSnackbar(
           {
@@ -275,7 +219,7 @@ export default function Controls() {
               <div css={styles.padUpNeighbor} />
               <ControlButton
                 onClick={() => {
-                  executeGameFronk(JoypadButton.Up);
+                  executeGame(JoypadButton.Up);
                 }}
               >
                 ↑
@@ -285,21 +229,21 @@ export default function Controls() {
             <div css={tw`flex`}>
               <ControlButton
                 onClick={() => {
-                  executeGameFronk(JoypadButton.Left);
+                  executeGame(JoypadButton.Left);
                 }}
               >
                 ←
               </ControlButton>
               <ControlButton
                 onClick={() => {
-                  executeGameFronk(JoypadButton.Down);
+                  executeGame(JoypadButton.Down);
                 }}
               >
                 ↓
               </ControlButton>
               <ControlButton
                 onClick={() => {
-                  executeGameFronk(JoypadButton.Right);
+                  executeGame(JoypadButton.Right);
                 }}
               >
                 →
@@ -309,14 +253,14 @@ export default function Controls() {
           <div css={styles.actionButtons}>
             <ControlButton
               onClick={() => {
-                executeGameFronk(JoypadButton.B);
+                executeGame(JoypadButton.B);
               }}
             >
               B
             </ControlButton>
             <ControlButton
               onClick={() => {
-                executeGameFronk(JoypadButton.A);
+                executeGame(JoypadButton.A);
               }}
             >
               A
@@ -326,21 +270,21 @@ export default function Controls() {
         <div css={styles.menuButtons}>
           <ControlButton
             onClick={() => {
-              executeGameFronk(JoypadButton.Select);
+              executeGame(JoypadButton.Select);
             }}
           >
             SELECT
           </ControlButton>
           <ControlButton
             onClick={() => {
-              executeGameFronk(JoypadButton.Nothing);
+              executeGame(JoypadButton.Nothing);
             }}
           >
             DO NOTHING
           </ControlButton>
           <ControlButton
             onClick={() => {
-              executeGameFronk(JoypadButton.Start);
+              executeGame(JoypadButton.Start);
             }}
           >
             START
