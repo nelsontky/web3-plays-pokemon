@@ -28,34 +28,40 @@ export default async function handler(
 
     const {
       publicKey,
-      executedStatesCount,
       gameDataAccountId,
       buttonId,
       splMint,
       isTurbo,
     }: {
       publicKey?: string;
-      executedStatesCount?: number;
       gameDataAccountId?: string;
       buttonId?: number;
       splMint?: string;
       isTurbo?: boolean;
     } = req.body;
 
+    const { connection, keypair, program } = initSolana();
+
+    const gameDataAccount = new PublicKey(gameDataAccountId as string);
+    const gameData = await program.account.gameData.fetch(gameDataAccount);
+    const executedStatesCount = gameData.executedStatesCount;
+
+    const isValidButton =
+      buttonId === undefined
+        ? false
+        : buttonId < 5 || (buttonId > 8 && buttonId < 13);
+
     if (
       publicKey === undefined ||
-      executedStatesCount === undefined ||
-      buttonId === undefined ||
+      !isValidButton ||
       splMint === undefined ||
       !GAME_DATAS[gameDataAccountId as string]
     ) {
       return res.status(400).json({ result: "Bad request" });
     }
-    const gameDataAccount = new PublicKey(gameDataAccountId as string);
     const gasMint = new PublicKey(splMint);
     const player = new PublicKey(publicKey);
 
-    const { connection, keypair, program } = initSolana();
     const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
       [
         gameDataAccount.toBuffer(),
@@ -83,7 +89,7 @@ export default async function handler(
     );
 
     const ix = await program.methods
-      .sendButtonSplGas(buttonId, isTurbo ? 2 : 1)
+      .sendButtonSplGas(buttonId as number, isTurbo ? 2 : 1)
       .accounts({
         associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
         authority: keypair.publicKey,

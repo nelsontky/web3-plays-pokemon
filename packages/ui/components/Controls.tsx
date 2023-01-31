@@ -94,7 +94,6 @@ export default function Controls() {
             : "https://red.playspokemon.xyz/api/gasless-transactions/send-button",
           {
             publicKey: publicKey.toBase58(),
-            executedStatesCount,
             gameDataAccountId: gameDataAccountPublicKey.toBase58(),
             buttonId: joypadEnumToButtonId(joypadButton) /*13*/,
             splMint: new PublicKey(
