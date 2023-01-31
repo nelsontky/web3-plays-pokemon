@@ -1,20 +1,21 @@
 use crate::account::*;
 use crate::constants::*;
+use crate::context::*;
+use crate::errors::*;
 use crate::utils::*;
 
 use anchor_lang::prelude::*;
-use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::metadata::{
     create_master_edition_v3, create_metadata_accounts_v3, verify_sized_collection_item,
-    CreateMasterEditionV3, CreateMetadataAccountsV3, Metadata, VerifySizedCollectionItem,
+    CreateMasterEditionV3, CreateMetadataAccountsV3, VerifySizedCollectionItem,
 };
-use anchor_spl::token::{mint_to, Mint, MintTo, Token, TokenAccount};
+use anchor_spl::token::{mint_to, MintTo};
 use mpl_token_metadata::state::{Collection, Creator, DataV2};
-use program::SolanaPlaysPokemonProgram;
-use std::cmp;
 
 pub mod account;
 pub mod constants;
+pub mod context;
+pub mod errors;
 pub mod utils;
 
 // Button mappings:
@@ -85,66 +86,7 @@ pub mod solana_plays_pokemon_program {
     }
 
     pub fn send_button(ctx: Context<SendButton>, joypad_button: u8, press_count: u8) -> Result<()> {
-        // disable turbo buttons in anarchy mode
-        let is_valid_button = joypad_button < 5 || (joypad_button > 8 && joypad_button < 13);
-        if !is_valid_button {
-            return err!(ErrorCode::InvalidButton);
-        }
-
-        let is_valid_press_count = press_count > 0 && press_count <= MAX_BUTTON_PRESS_COUNT;
-        if !is_valid_press_count {
-            return err!(ErrorCode::InvalidButtonPressCount);
-        }
-
-        let game_data = &mut ctx.accounts.game_data;
-        if game_data.is_executing {
-            return err!(ErrorCode::GameIsExecuting);
-        }
-
-        let game_state = &mut ctx.accounts.game_state;
-        let max_presses_left = MAX_BUTTONS_PER_ROUND - game_state.button_presses.len();
-        let computed_press_count = cmp::min(max_presses_left, usize::from(press_count));
-        for _ in 0..computed_press_count {
-            game_state.button_presses.push(joypad_button);
-        }
-
-        let current_participants = &mut ctx.accounts.current_participants;
-        current_participants
-            .participants
-            .push(ctx.accounts.player.key());
-
-        msg!(
-            "{{ \"button\": \"{}\", \"pressCount\": {} }}",
-            BUTTON_MAPPINGS[usize::from(joypad_button)],
-            computed_press_count
-        );
-
-        // execute if game state is at least 10 seconds old or we have hit 10 button presses
-        let should_execute = game_state.button_presses.len() >= MAX_BUTTONS_PER_ROUND
-            || (ctx.accounts.clock.unix_timestamp - game_state.created_at >= VOTE_SECONDS);
-        if should_execute {
-            game_data.is_executing = true;
-
-            let mut button_presses: [u8; MAX_BUTTONS_PER_ROUND] = [0; MAX_BUTTONS_PER_ROUND];
-            for i in 0..game_state.button_presses.len() {
-                button_presses[i] = *game_state.button_presses.get(i).unwrap();
-            }
-
-            let mut participants: [Pubkey; MAX_BUTTONS_PER_ROUND] =
-                [Pubkey::default(); MAX_BUTTONS_PER_ROUND];
-            for i in 0..current_participants.participants.len() {
-                participants[i] = *current_participants.participants.get(i).unwrap();
-            }
-
-            emit!(ExecuteGameState {
-                button_presses,
-                index: game_data.executed_states_count,
-                game_data_id: ctx.accounts.game_data.key(),
-                participants
-            });
-        }
-
-        Ok(())
+        process_button_send(ctx, joypad_button, press_count)
     }
 
     pub fn update_game_state(
@@ -154,7 +96,7 @@ pub mod solana_plays_pokemon_program {
     ) -> Result<()> {
         let game_data = &mut ctx.accounts.game_data;
         if !game_data.is_executing {
-            return err!(ErrorCode::NoUpdatesIfNotExecuting);
+            return err!(ProgramErrorCode::NoUpdatesIfNotExecuting);
         }
 
         game_data.is_executing = false;
@@ -290,13 +232,21 @@ pub mod solana_plays_pokemon_program {
         Ok(())
     }
 
-    pub fn initialize_spl_prices(ctx: Context<InitializePrices>, _gas_mint: Pubkey,  amount_for_one_lamport: f64) -> Result<()> {
+    pub fn initialize_spl_prices(
+        ctx: Context<InitializePrices>,
+        _gas_mint: Pubkey,
+        amount_for_one_lamport: f64,
+    ) -> Result<()> {
         let spl_prices = &mut ctx.accounts.spl_prices;
         spl_prices.prices.push(amount_for_one_lamport);
         Ok(())
     }
 
-    pub fn update_spl_prices(ctx: Context<UpdatePrices>, _gas_mint: Pubkey, amount_for_one_lamport: f64) -> Result<()> {
+    pub fn update_spl_prices(
+        ctx: Context<UpdatePrices>,
+        _gas_mint: Pubkey,
+        amount_for_one_lamport: f64,
+    ) -> Result<()> {
         let spl_prices = &mut ctx.accounts.spl_prices;
         if spl_prices.prices.len() >= SplPrices::NUMBER_OF_PRICES {
             spl_prices.prices.remove(0);
@@ -306,305 +256,10 @@ pub mod solana_plays_pokemon_program {
     }
 }
 
-#[derive(Accounts)]
-#[instruction(frames_image_cid: String, save_state_cid: String)]
-pub struct Initialize<'info> {
-    #[account(init, payer = authority, space = 8 + GameData::LEN)]
-    pub game_data: Account<'info, GameData>,
-    #[account(
-        init,
-        payer = authority,
-        space = 8 + GameStateV4::BASE_LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
-        seeds = [game_data.key().as_ref(), b"game_state", b"0"], // seeds comprise of game_data key, a static text, and the index
-        bump
-    )]
-    pub game_state: Account<'info, GameStateV4>,
-    #[account(
-        init,
-        payer = authority,
-        space = 8 + GameStateV4::BASE_LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
-        seeds = [game_data.key().as_ref(), b"game_state", b"1"], // seeds comprise of game_data key, a static text, and the index
-        bump
-    )]
-    pub next_game_state: Account<'info, GameStateV4>,
-    #[account(
-        init,
-        payer = authority,
-        seeds = [
-            b"current_participants",
-            game_data.key().as_ref(),
-        ],
-        space = 8 + CurrentParticipants::LEN,
-        bump
-    )]
-    pub current_participants: Account<'info, CurrentParticipants>,
-    #[account(mut)]
-    pub authority: Signer<'info>,
-    pub system_program: Program<'info, System>,
-    pub clock: Sysvar<'info, Clock>,
-}
-
-#[derive(Accounts)]
-pub struct SendButton<'info> {
-    #[account(
-        mut,
-        seeds = [
-                game_data.key().as_ref(),
-                b"game_state", 
-                game_data.executed_states_count.to_string().as_ref()
-            ],
-        bump
-    )]
-    pub game_state: Account<'info, GameStateV4>,
-    #[account(mut)]
-    pub game_data: Account<'info, GameData>,
-    #[account(
-        mut,
-        seeds = [
-            b"current_participants",
-            game_data.key().as_ref(),
-        ],
-        bump
-    )]
-    pub current_participants: Account<'info, CurrentParticipants>,
-    #[account(mut)]
-    pub player: Signer<'info>,
-    pub system_program: Program<'info, System>,
-    pub clock: Sysvar<'info, Clock>,
-}
-
-#[derive(Accounts)]
-#[instruction(
-    frames_image_cid: String,
-    save_state_cid: String,
-)]
-pub struct UpdateGameState<'info> {
-    #[account(
-        mut,
-        seeds = [
-            game_data.key().as_ref(),
-            b"game_state",
-            (game_data.executed_states_count).to_string().as_ref()
-        ],
-        bump,
-        realloc = 8 + GameStateV4::BASE_LEN + 4 + frames_image_cid.len() + 4 + save_state_cid.len(),
-        realloc::payer = authority,
-        realloc::zero = true,
-    )]
-    pub game_state: Account<'info, GameStateV4>,
-    #[account(
-        init,
-        payer = authority,
-        space = 8 + GameStateV4::BASE_LEN + 4 + 59 + 4 + 59, // nft.storage cids are 59 characters long by default
-        seeds = [
-                game_data.key().as_ref(),
-                b"game_state", 
-                (game_data.executed_states_count.checked_add(1).unwrap()).to_string().as_ref()
-            ],
-        bump
-    )]
-    pub next_game_state: Account<'info, GameStateV4>,
-    #[account(mut, has_one = authority)]
-    pub game_data: Account<'info, GameData>,
-    #[account(
-        mut,
-        seeds = [
-            b"current_participants",
-            game_data.key().as_ref(),
-        ],
-        bump
-    )]
-    pub current_participants: Account<'info, CurrentParticipants>,
-    #[account(mut)]
-    pub authority: Signer<'info>,
-    pub system_program: Program<'info, System>,
-    pub clock: Sysvar<'info, Clock>,
-}
-
-#[derive(Accounts)]
-pub struct InitializeCurrentParticipants<'info> {
-    #[account(
-        init,
-        payer = authority,
-        seeds = [
-            b"current_participants",
-            game_data.key().as_ref(),
-        ],
-        space = 8 + CurrentParticipants::LEN,
-        bump
-    )]
-    pub current_participants: Account<'info, CurrentParticipants>,
-    #[account(mut, has_one = authority)]
-    pub game_data: Account<'info, GameData>,
-    #[account(mut)]
-    pub authority: Signer<'info>,
-    pub system_program: Program<'info, System>,
-}
-
-#[derive(Accounts)]
-#[instruction(
-    game_state_index: u32
-)]
-pub struct MintFramesNft<'info> {
-    #[account(
-        init,
-        seeds = [
-            b"nft_mint",
-            game_data.key().as_ref(),
-            user.key().as_ref(),
-            game_state_index.to_string().as_ref()
-        ],
-        bump,
-        payer = user,
-        mint::decimals = 0,
-        mint::authority = authority,
-        mint::freeze_authority = authority
-    )]
-    pub mint: Account<'info, Mint>,
-    #[account(mut)]
-    pub user: Signer<'info>,
-    pub authority: Signer<'info>,
-    #[account(mut, has_one = authority)]
-    pub game_data: Account<'info, GameData>,
-    pub system_program: Program<'info, System>,
-    pub token_program: Program<'info, Token>,
-
-    #[account(
-        init,
-        payer = user,
-        seeds = [
-            b"minted_nft",
-            game_data.key().as_ref(),
-            game_data.nfts_minted.to_string().as_ref()
-        ],
-        bump,
-        space = 8 + MintedNft::LEN
-    )]
-    pub minted_nft: Account<'info, MintedNft>,
-
-    #[account(
-        init_if_needed,
-        payer = user,
-        associated_token::mint = mint,
-        associated_token::authority = user
-    )]
-    pub token_account: Account<'info, TokenAccount>,
-    pub associated_token_program: Program<'info, AssociatedToken>,
-    pub rent: Sysvar<'info, Rent>,
-
-    #[account(
-        mut,
-        seeds = [
-            b"metadata",
-            token_metadata_program.key().as_ref(),
-            mint.key().as_ref()
-        ],
-        bump,
-        seeds::program = token_metadata_program.key()
-    )]
-    /// CHECK: token metadata pda is checked
-    pub token_metadata_account: UncheckedAccount<'info>,
-    pub token_metadata_program: Program<'info, Metadata>,
-
-    pub collection_mint: Account<'info, Mint>,
-    #[account(
-        mut,
-        seeds = [
-            b"metadata",
-            token_metadata_program.key().as_ref(),
-            collection_mint.key().as_ref(),
-        ],
-        bump,
-        seeds::program = token_metadata_program.key()
-    )]
-    /// CHECK: token metadata pda is checked
-    pub collection_metadata: UncheckedAccount<'info>,
-    #[account(
-        seeds = [
-            b"metadata",
-            token_metadata_program.key().as_ref(),
-            collection_mint.key().as_ref(),
-            b"edition",
-        ],
-        bump,
-        seeds::program = token_metadata_program.key()
-    )]
-    /// CHECK: token metadata pda is checked
-    pub collection_master_edition: UncheckedAccount<'info>,
-
-    #[account(
-        mut,
-        seeds = [
-            b"metadata",
-            token_metadata_program.key().as_ref(),
-            mint.key().as_ref(),
-            b"edition",
-        ],
-        bump,
-        seeds::program = token_metadata_program.key()
-    )]
-    /// CHECK: token metadata pda is checked
-    pub master_edition: UncheckedAccount<'info>,
-}
-
-#[derive(Accounts)]
-#[instruction(gas_mint: Pubkey)]
-pub struct InitializePrices<'info> {
-    #[account(mut)]
-    pub authority: Signer<'info>,
-    #[account(
-        init,
-        seeds = [
-            b"spl_prices",
-            gas_mint.key().as_ref()
-        ], 
-        bump,
-        payer = authority,
-        space = 8 + SplPrices::LEN
-    )]
-    pub spl_prices: Account<'info, SplPrices>,
-    #[account(constraint = program.programdata_address()? == Some(program_data.key()))]
-    pub program: Program<'info, SolanaPlaysPokemonProgram>,
-    #[account(constraint = program_data.upgrade_authority_address == Some(authority.key()))]
-    pub program_data: Account<'info, ProgramData>,
-    pub system_program: Program<'info, System>
-}
-
-#[derive(Accounts)]
-#[instruction(gas_mint: Pubkey)]
-pub struct UpdatePrices<'info> {
-    pub authority: Signer<'info>,
-    #[account(
-        mut,
-        seeds = [
-            b"spl_prices",
-            gas_mint.key().as_ref()
-        ], 
-        bump
-    )]
-    pub spl_prices: Account<'info, SplPrices>,
-    #[account(constraint = program.programdata_address()? == Some(program_data.key()))]
-    pub program: Program<'info, SolanaPlaysPokemonProgram>,
-    #[account(constraint = program_data.upgrade_authority_address == Some(authority.key()))]
-    pub program_data: Account<'info, ProgramData>,
-}
-
 #[event]
 pub struct ExecuteGameState {
     pub button_presses: [u8; MAX_BUTTONS_PER_ROUND],
     pub index: u32,
     pub game_data_id: Pubkey,
     pub participants: [Pubkey; MAX_BUTTONS_PER_ROUND],
-}
-
-#[error_code]
-pub enum ErrorCode {
-    #[msg("Button presses are not allowed when the game is executing.")]
-    GameIsExecuting,
-    #[msg("Game state cannot be updated when the game is not executing.")]
-    NoUpdatesIfNotExecuting,
-    #[msg("Invalid button sent.")]
-    InvalidButton,
-    #[msg("Invalid button press count.")]
-    InvalidButtonPressCount,
 }

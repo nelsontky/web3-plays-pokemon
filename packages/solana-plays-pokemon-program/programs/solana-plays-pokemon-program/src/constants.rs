@@ -20,3 +20,5 @@ pub const BUTTON_MAPPINGS: [&str; 15] = [
     "Turbo A",
     "Turbo B",
 ];
+
+pub const WRAPPED_SOL_PUBKEY: &[u8; 43] = b"So11111111111111111111111111111111111111112";
