@@ -96,6 +96,7 @@ pub mod solana_plays_pokemon_program {
             &ctx.accounts.clock,
             joypad_button,
             press_count,
+            false,
         )
     }
 
@@ -137,6 +138,7 @@ pub mod solana_plays_pokemon_program {
             &ctx.accounts.clock,
             joypad_button,
             press_count,
+            true,
         )
     }
 
