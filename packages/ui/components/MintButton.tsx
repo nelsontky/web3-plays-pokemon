@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { useReadonlyProgram } from "../hooks/useProgram";
 import useTxSnackbar from "../hooks/useTxSnackbar";
 import { SnackbarKey } from "notistack";
-import SimpleButton from "./SImpleButton";
+import SimpleButton from "./SimpleButton";
 import { useConfig } from "../contexts/ConfigProvider";
 
 const styles = {
