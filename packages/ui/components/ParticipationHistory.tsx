@@ -6,7 +6,7 @@ import tw from "twin.macro";
 import { SIGNATURE_MESSAGE_FOR_ROUNDS } from "../constants";
 import { useConfig } from "../contexts/ConfigProvider";
 import useTxSnackbar from "../hooks/useTxSnackbar";
-import SimpleButton from "./SImpleButton";
+import SimpleButton from "./SimpleButton";
 
 const styles = {
   root: tw`
