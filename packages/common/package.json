@@ -24,6 +24,7 @@
     "typescript": "^4.5.2"
   },
   "dependencies": {
+    "@raydium-io/raydium-sdk": "1.1.0-beta.55",
     "@solana/web3.js": "^1.73.0",
     "axios": "^1.2.1"
   }

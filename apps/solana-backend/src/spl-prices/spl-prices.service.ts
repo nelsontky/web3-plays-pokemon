@@ -2,12 +2,12 @@ import { HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
 import { Cron } from "@nestjs/schedule";
 import { Liquidity, Percent } from "@raydium-io/raydium-sdk";
 import * as anchor from "@project-serum/anchor";
-import { PROGRAM_ID } from "common";
 import {
   FRONK_CURRENCY,
   FRONK_POOL_KEY,
   ONE_LAMPORT_OF_SOL,
-} from "./constants";
+  PROGRAM_ID,
+} from "common";
 import { AnchorService } from "../anchor/anchor.service";
 
 @Injectable()
