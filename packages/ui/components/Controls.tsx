@@ -14,9 +14,7 @@ import { joypadEnumToButtonId } from "../utils/gameUtils";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import axios, { AxiosError } from "axios";
 import { useAppSelector } from "../hooks/redux";
-import { PublicKey } from "@solana/web3.js";
 import { SnackbarKey } from "notistack";
-import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 import SelectGasCurrency from "./SelectGasCurrency";
 
 const styles = {
@@ -137,10 +135,6 @@ export default function Controls() {
             anchor.web3.VersionedTransaction.deserialize(
               Buffer.from(response.data.result, "base64")
             );
-          const splGasSourceTokenAccount = getAssociatedTokenAddressSync(
-            new PublicKey(selectedGasCurrency),
-            publicKey
-          );
           const { blockhash, lastValidBlockHeight } =
             await connection.getLatestBlockhash();
           txId = await sendTransaction(recoveredTransaction, connection, {

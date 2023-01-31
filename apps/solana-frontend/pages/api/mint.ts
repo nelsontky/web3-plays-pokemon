@@ -21,7 +21,12 @@ import { NFTStorage, Blob } from "nft.storage";
 import GIFEncoder from "gifencoder";
 import { createCanvas } from "@napi-rs/canvas";
 import * as mplTokenMetadata from "@metaplex-foundation/mpl-token-metadata";
-import { PublicKey, Transaction } from "@solana/web3.js";
+import {
+  PublicKey,
+  Transaction,
+  TransactionMessage,
+  VersionedTransaction,
+} from "@solana/web3.js";
 import axios from "axios";
 import runCorsMiddleware from "../../utils/cors";
 import { fetchIpfsCid } from "ui/utils/fetchIpfsCid";
@@ -99,20 +104,26 @@ export default async function handler(
       gameState.framesImageCid
     );
 
-    const serializedTransaction = await buildMintNftTx(
-      connection,
-      keypair,
-      program,
-      publicKey,
-      gameStateIndex,
-      metadataUri,
-      GAME_DATA_ACCOUNT_PUBLIC_KEY,
-      splMint
-    );
+    try {
+      const serializedTransaction = await buildMintNftTx(
+        connection,
+        keypair,
+        program,
+        publicKey,
+        gameStateIndex,
+        metadataUri,
+        GAME_DATA_ACCOUNT_PUBLIC_KEY,
+        splMint
+      );
 
-    return res
-      .status(200)
-      .json({ result: serializedTransaction.toString("base64") });
+      return res.status(200).json({
+        result: Buffer.from(serializedTransaction).toString("base64"),
+      });
+    } catch (e) {
+      return res
+        .status(400)
+        .json({ result: e instanceof Error ? e.message : "Bad request" });
+    }
   } catch (e) {
     return res.status(500).json({
       result:
@@ -356,21 +367,28 @@ async function buildMintNftTx(
   }
 
   // sign and serialize transaction
-  const transaction = new Transaction().add(mintIx).add(
-    anchor.web3.ComputeBudgetProgram.setComputeUnitLimit({
-      units: 350000,
-    })
-  );
-  transaction.feePayer = splMint === undefined ? pkey : keypair.publicKey;
-  const { blockhash, lastValidBlockHeight } =
-    await connection.getLatestBlockhash();
-  transaction.recentBlockhash = blockhash;
-  transaction.lastValidBlockHeight = lastValidBlockHeight;
+  const { blockhash } = await connection.getLatestBlockhash();
+  const messageV0 = new TransactionMessage({
+    payerKey: splMint === undefined ? pkey : keypair.publicKey,
+    instructions: [
+      mintIx,
+      anchor.web3.ComputeBudgetProgram.setComputeUnitLimit({
+        units: 350000,
+      }),
+    ],
+    recentBlockhash: blockhash,
+  }).compileToV0Message();
+  const transaction = new VersionedTransaction(messageV0);
 
-  transaction.partialSign(keypair);
-  const serializedTransaction = transaction.serialize({
-    requireAllSignatures: false,
+  const status = await connection.simulateTransaction(transaction, {
+    sigVerify: false,
   });
+  if (status.value.err) {
+    throw new Error(JSON.stringify(status.value.err));
+  }
+
+  transaction.sign([keypair]);
+  const serializedTransaction = transaction.serialize();
   return serializedTransaction;
 }
 

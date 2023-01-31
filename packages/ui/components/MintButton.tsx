@@ -9,6 +9,9 @@ import useTxSnackbar from "../hooks/useTxSnackbar";
 import { SnackbarKey } from "notistack";
 import SimpleButton from "./SimpleButton";
 import { useConfig } from "../contexts/ConfigProvider";
+import { VersionedTransaction } from "@solana/web3.js";
+import SelectGasCurrency from "./SelectGasCurrency";
+import { useAppSelector } from "../hooks/redux";
 
 const styles = {
   root: tw`
@@ -22,6 +25,7 @@ const styles = {
   explainer: tw`
     text-lg
     text-center
+    mb-8
   `,
 };
 
@@ -42,6 +46,7 @@ export default function MintButton({ stateIndex, history }: MintButtonProps) {
   );
   const [hasMintedBefore, setHasMintedBefore] = useState<boolean | undefined>();
   const [loading, setLoading] = useState(false);
+  const selectedGasCurrency = useAppSelector((state) => state.gasCurrency);
 
   useEffect(
     function checkIfIsParticipant() {
@@ -111,6 +116,7 @@ export default function MintButton({ stateIndex, history }: MintButtonProps) {
           autoHideDuration: null,
         }
       );
+      console.log((stateIndex ?? 0) + 100);
       const response = await axios.post(
         process.env.NODE_ENV === "development"
           ? "http://localhost:3000/api/mint"
@@ -119,6 +125,9 @@ export default function MintButton({ stateIndex, history }: MintButtonProps) {
           publicKey: publicKey.toBase58(),
           gameStateIndex: stateIndex,
           gameDataAccountId: gameDataAccountPublicKey.toBase58(),
+          ...(selectedGasCurrency === null
+            ? {}
+            : { splMint: selectedGasCurrency }),
         }
       );
       closeSnackbar(snackbarId);
@@ -131,10 +140,9 @@ export default function MintButton({ stateIndex, history }: MintButtonProps) {
           autoHideDuration: null,
         }
       );
-      const recoveredTransaction = anchor.web3.Transaction.from(
+      const recoveredTransaction = VersionedTransaction.deserialize(
         Buffer.from(response.data.result, "base64")
       );
-
       const { blockhash, lastValidBlockHeight } =
         await connection.getLatestBlockhash();
       const txId = await sendTransaction(recoveredTransaction, connection);
@@ -168,6 +176,7 @@ export default function MintButton({ stateIndex, history }: MintButtonProps) {
           },
           {
             variant: "error",
+            autoHideDuration: null,
           }
         );
       } else if (e instanceof Error) {
@@ -219,6 +228,7 @@ export default function MintButton({ stateIndex, history }: MintButtonProps) {
             ? "Minting your NFT... This might take up to 1 minute please do not leave the page!"
             : "You are eligible for mint :)"}
         </p>
+        <SelectGasCurrency css={tw`justify-center`} />
       </div>
     </div>
   );

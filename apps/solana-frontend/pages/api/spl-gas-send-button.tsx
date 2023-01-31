@@ -107,8 +107,7 @@ export default async function handler(
       })
       .instruction();
 
-    const { blockhash, lastValidBlockHeight } =
-      await connection.getLatestBlockhash();
+    const { blockhash } = await connection.getLatestBlockhash();
     const messageV0 = new TransactionMessage({
       payerKey: keypair.publicKey,
       instructions: [ix],
@@ -117,8 +116,9 @@ export default async function handler(
     const transaction = new VersionedTransaction(messageV0);
 
     try {
-      const status = await connection.simulateTransaction(transaction);
-
+      const status = await connection.simulateTransaction(transaction, {
+        sigVerify: false,
+      });
       if (status.value.err) {
         throw new Error(JSON.stringify(status.value.err));
       }
