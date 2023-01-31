@@ -51,9 +51,7 @@ export default async function handler(
     ) {
       return res.status(400).json({ result: "Bad request" });
     }
-    const gameDataAccount = new PublicKey(
-      gameDataAccountId as string
-    );
+    const gameDataAccount = new PublicKey(gameDataAccountId as string);
     const gasMint = new PublicKey(splMint);
     const player = new PublicKey(publicKey);
 
@@ -68,10 +66,7 @@ export default async function handler(
     );
     const [currentParticipantsPda] =
       anchor.web3.PublicKey.findProgramAddressSync(
-        [
-          Buffer.from("current_participants"),
-          gameDataAccount.toBuffer(),
-        ],
+        [Buffer.from("current_participants"), gameDataAccount.toBuffer()],
         program.programId
       );
     const [splPricesPda] = anchor.web3.PublicKey.findProgramAddressSync(
@@ -116,7 +111,9 @@ export default async function handler(
     const serializedTransaction = transaction.serialize({
       requireAllSignatures: false,
     });
-    return serializedTransaction;
+    return res
+      .status(200)
+      .json({ result: serializedTransaction.toString("base64") });
   } catch {
     return res.status(500).end();
   }

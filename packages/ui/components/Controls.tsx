@@ -11,6 +11,11 @@ import { useState } from "react";
 import HelpfulCheckbox from "./HelpfulCheckbox";
 import { useConfig } from "../contexts/ConfigProvider";
 import { joypadEnumToButtonId } from "../utils/gameUtils";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import axios, { AxiosError } from "axios";
+import { useAppSelector } from "../hooks/redux";
+import { PublicKey } from "@solana/web3.js";
+import { SnackbarKey } from "notistack";
 
 const styles = {
   root: tw`
@@ -58,16 +63,107 @@ const styles = {
 
 export default function Controls() {
   const program = useMutableProgram();
+  const { publicKey, sendTransaction } = useWallet();
   const { enqueueSnackbar, closeSnackbar } = useTxSnackbar();
   const [pressCount, setPressCount] = useState<1 | 2>(1);
   const { gameDataAccountPublicKey } = useConfig();
+  const executedStatesCount = useAppSelector(
+    (state) => state.gameData.executedStatesCount
+  );
+  const { connection } = useConnection();
+
+  const executeGameFronk = async (joypadButton: JoypadButton) => {
+    if (publicKey) {
+      let snackbarId: SnackbarKey | undefined = undefined;
+      try {
+        snackbarId = enqueueSnackbar(
+          {
+            title: "Sending transaction",
+          },
+          {
+            variant: "info",
+            autoHideDuration: null,
+          }
+        );
+        const response = await axios.post(
+          process.env.NODE_ENV === "development"
+            ? "http://localhost:3000/api/gasless-transactions/send-button"
+            : "https://red.playspokemon.xyz/api/gasless-transactions/send-button",
+          {
+            publicKey: publicKey.toBase58(),
+            executedStatesCount,
+            gameDataAccountId: gameDataAccountPublicKey.toBase58(),
+            buttonId: joypadEnumToButtonId(joypadButton),
+            splMint: new PublicKey(
+              "5yxNbU8DgYJZNi3mPD9rs4XLh9ckXrhPjJ5VCujUWg5H"
+            ),
+            isTurbo: pressCount === 2,
+          }
+        );
+        const recoveredTransaction = anchor.web3.Transaction.from(
+          Buffer.from(response.data.result, "base64")
+        );
+
+        const { blockhash, lastValidBlockHeight } =
+          await connection.getLatestBlockhash();
+        const txId = await sendTransaction(recoveredTransaction, connection, {
+          skipPreflight: true,
+        });
+        const status = await connection.confirmTransaction({
+          blockhash: blockhash,
+          lastValidBlockHeight,
+          signature: txId,
+        });
+
+        if (status.value.err) {
+          throw new Error(
+            `Transaction failed: ${JSON.stringify(status.value)}`
+          );
+        }
+
+        closeSnackbar(snackbarId);
+
+        enqueueSnackbar(
+          {
+            title: "Success",
+            txId,
+          },
+          {
+            variant: "success",
+          }
+        );
+      } catch (e) {
+        if (e instanceof AxiosError && e.response) {
+          enqueueSnackbar(
+            {
+              title: "Error",
+              errorMessage: e.response.data.result,
+            },
+            {
+              variant: "error",
+            }
+          );
+        } else if (e instanceof Error) {
+          enqueueSnackbar(
+            {
+              title: "Error",
+              errorMessage: e.message,
+            },
+            {
+              variant: "error",
+            }
+          );
+        }
+      } finally {
+        if (snackbarId !== undefined) {
+          closeSnackbar(snackbarId);
+        }
+      }
+    }
+  };
 
   const executeGame = async (joypadButton: JoypadButton) => {
     if (program) {
-      const gameDataAccount = await program.account.gameData.fetch(
-        gameDataAccountPublicKey
-      );
-      const executedStatesCount = gameDataAccount.executedStatesCount;
       const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
         [
           gameDataAccountPublicKey.toBuffer(),
@@ -164,7 +260,7 @@ export default function Controls() {
               <div css={styles.padUpNeighbor} />
               <ControlButton
                 onClick={() => {
-                  executeGame(JoypadButton.Up);
+                  executeGameFronk(JoypadButton.Up);
                 }}
               >
                 ↑
@@ -174,21 +270,21 @@ export default function Controls() {
             <div css={tw`flex`}>
               <ControlButton
                 onClick={() => {
-                  executeGame(JoypadButton.Left);
+                  executeGameFronk(JoypadButton.Left);
                 }}
               >
                 ←
               </ControlButton>
               <ControlButton
                 onClick={() => {
-                  executeGame(JoypadButton.Down);
+                  executeGameFronk(JoypadButton.Down);
                 }}
               >
                 ↓
               </ControlButton>
               <ControlButton
                 onClick={() => {
-                  executeGame(JoypadButton.Right);
+                  executeGameFronk(JoypadButton.Right);
                 }}
               >
                 →
@@ -198,14 +294,14 @@ export default function Controls() {
           <div css={styles.actionButtons}>
             <ControlButton
               onClick={() => {
-                executeGame(JoypadButton.B);
+                executeGameFronk(JoypadButton.B);
               }}
             >
               B
             </ControlButton>
             <ControlButton
               onClick={() => {
-                executeGame(JoypadButton.A);
+                executeGameFronk(JoypadButton.A);
               }}
             >
               A
@@ -215,21 +311,21 @@ export default function Controls() {
         <div css={styles.menuButtons}>
           <ControlButton
             onClick={() => {
-              executeGame(JoypadButton.Select);
+              executeGameFronk(JoypadButton.Select);
             }}
           >
             SELECT
           </ControlButton>
           <ControlButton
             onClick={() => {
-              executeGame(JoypadButton.Nothing);
+              executeGameFronk(JoypadButton.Nothing);
             }}
           >
             DO NOTHING
           </ControlButton>
           <ControlButton
             onClick={() => {
-              executeGame(JoypadButton.Start);
+              executeGameFronk(JoypadButton.Start);
             }}
           >
             START
