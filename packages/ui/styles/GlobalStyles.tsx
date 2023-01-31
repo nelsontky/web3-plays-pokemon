@@ -27,6 +27,7 @@ const customStyles = css({
   },
   ".custom-snackbar-root": {
     "&& > .SnackbarContent-root": {
+      ...POKEMON_PIXEL_FONT.style,
       background: "#ffffff",
       color: "#000000",
       boxShadow: "none",
