@@ -3,18 +3,20 @@ import {
   SystemProgram,
   SYSVAR_CLOCK_PUBKEY,
   Transaction,
+  TransactionMessage,
+  VersionedTransaction,
 } from "@solana/web3.js";
 import { GAME_DATAS } from "common";
 import { NextApiRequest, NextApiResponse } from "next";
-import runCorsMiddleware from "../../../utils/cors";
-import initSolana from "../../../utils/init-solana";
+import runCorsMiddleware from "../../utils/cors";
+import initSolana from "../../utils/init-solana";
 import * as anchor from "@project-serum/anchor";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   getAssociatedTokenAddressSync,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
-import getIsValidSplMint from "../../../utils/get-is-valid-spl-mint";
+import getIsValidSplMint from "../../utils/get-is-valid-spl-mint";
 
 export default async function handler(
   req: NextApiRequest,
@@ -33,34 +35,30 @@ export default async function handler(
       buttonId,
       splMint,
       isTurbo,
+      executedStatesCount,
     }: {
       publicKey?: string;
       gameDataAccountId?: string;
       buttonId?: number;
       splMint?: string;
       isTurbo?: boolean;
+      executedStatesCount?: number;
     } = req.body;
 
     const { connection, keypair, program } = initSolana();
-
-    const gameDataAccount = new PublicKey(gameDataAccountId as string);
-    const gameData = await program.account.gameData.fetch(gameDataAccount);
-    const executedStatesCount = gameData.executedStatesCount;
-
-    const isValidButton =
-      buttonId === undefined
-        ? false
-        : buttonId < 5 || (buttonId > 8 && buttonId < 13);
-
     if (
       publicKey === undefined ||
-      !isValidButton ||
       splMint === undefined ||
+      executedStatesCount === undefined ||
+      buttonId === undefined ||
       !getIsValidSplMint(splMint) ||
       !GAME_DATAS[gameDataAccountId as string]
     ) {
       return res.status(400).json({ result: "Bad request" });
     }
+
+    const gameDataAccount = new PublicKey(gameDataAccountId as string);
+
     const gasMint = new PublicKey(splMint);
     const player = new PublicKey(publicKey);
 
@@ -109,19 +107,33 @@ export default async function handler(
       })
       .instruction();
 
-    const transaction = new Transaction().add(ix);
-    transaction.feePayer = keypair.publicKey;
     const { blockhash, lastValidBlockHeight } =
       await connection.getLatestBlockhash();
-    transaction.recentBlockhash = blockhash;
-    transaction.lastValidBlockHeight = lastValidBlockHeight;
-    transaction.partialSign(keypair);
-    const serializedTransaction = transaction.serialize({
-      requireAllSignatures: false,
-    });
+    const messageV0 = new TransactionMessage({
+      payerKey: keypair.publicKey,
+      instructions: [ix],
+      recentBlockhash: blockhash,
+    }).compileToV0Message();
+    const transaction = new VersionedTransaction(messageV0);
+
+    try {
+      const status = await connection.simulateTransaction(transaction);
+
+      if (status.value.err) {
+        throw new Error(JSON.stringify(status.value.err));
+      }
+    } catch (e) {
+      return res
+        .status(400)
+        .json({ result: e instanceof Error ? e.message : "Bad request" });
+    }
+
+    transaction.sign([keypair]);
+    const serializedTransaction = transaction.serialize();
+
     return res
       .status(200)
-      .json({ result: serializedTransaction.toString("base64") });
+      .json({ result: Buffer.from(serializedTransaction).toString("base64") });
   } catch {
     return res.status(500).end();
   }

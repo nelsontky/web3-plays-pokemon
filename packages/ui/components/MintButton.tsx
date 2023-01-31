@@ -145,7 +145,7 @@ export default function MintButton({ stateIndex, history }: MintButtonProps) {
       });
 
       if (status.value.err) {
-        throw new Error(`Transaction failed: ${JSON.stringify(status.value)}`);
+        throw new Error(JSON.stringify(status.value.err));
       }
 
       enqueueSnackbar(

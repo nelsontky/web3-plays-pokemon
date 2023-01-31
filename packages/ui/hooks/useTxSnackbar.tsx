@@ -6,7 +6,7 @@ import CloseIcon from "@mui/icons-material/Close";
 
 const styles = {
   root: tw`
-    max-w-[280px]
+    max-w-[230px]
   `,
   title: tw`
     text-xl
