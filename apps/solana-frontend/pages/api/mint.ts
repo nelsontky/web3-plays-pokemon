@@ -11,7 +11,10 @@ import {
   GAME_DATAS,
   GAME_DATA_ACCOUNT_ID,
 } from "common";
-import { getAssociatedTokenAddress } from "@solana/spl-token";
+import {
+  getAssociatedTokenAddress,
+  getAssociatedTokenAddressSync,
+} from "@solana/spl-token";
 import { inflate } from "pako";
 import streamBuffers from "stream-buffers";
 import { NFTStorage, Blob } from "nft.storage";
@@ -41,10 +44,12 @@ export default async function handler(
       publicKey,
       gameStateIndex,
       gameDataAccountId,
+      splMint,
     }: {
       publicKey?: string;
       gameStateIndex?: number;
       gameDataAccountId?: string;
+      splMint?: string;
     } = req.body;
 
     if (
@@ -99,7 +104,8 @@ export default async function handler(
       publicKey,
       gameStateIndex,
       metadataUri,
-      GAME_DATA_ACCOUNT_PUBLIC_KEY
+      GAME_DATA_ACCOUNT_PUBLIC_KEY,
+      splMint
     );
 
     return res
@@ -219,7 +225,8 @@ async function buildMintNftTx(
   publicKey: string,
   gameStateIndex: number,
   metadataUri: string,
-  gameDataAccountPublicKey: PublicKey
+  gameDataAccountPublicKey: PublicKey,
+  splMint: string | undefined
 ) {
   const pkey = new anchor.web3.PublicKey(publicKey);
 
@@ -284,35 +291,75 @@ async function buildMintNftTx(
     program.programId
   );
 
-  const mintIx = await program.methods
-    .mintFramesNft(
-      gameStateIndex,
-      `Solana Plays Pokemon #${gameStateIndex}`,
-      metadataUri
-    )
-    .accounts({
-      gameData: gameDataAccountPublicKey,
-      mint,
-      tokenAccount,
-      authority: keypair.publicKey,
-      user: pkey,
-      tokenMetadataAccount,
-      tokenMetadataProgram: mplTokenMetadata.PROGRAM_ID,
-      collectionMetadata: collectionMetadata,
-      collectionMasterEdition,
-      collectionMint: COLLECTION_PUBLIC_KEY,
-      masterEdition,
-      mintedNft: mintedNftPda,
-    })
-    .instruction();
+  let mintIx: anchor.web3.TransactionInstruction;
+  if (splMint === undefined) {
+    mintIx = await program.methods
+      .mintFramesNft(
+        gameStateIndex,
+        `Solana Plays Pokemon #${gameStateIndex}`,
+        metadataUri
+      )
+      .accounts({
+        gameData: gameDataAccountPublicKey,
+        mint,
+        tokenAccount,
+        authority: keypair.publicKey,
+        user: pkey,
+        tokenMetadataAccount,
+        tokenMetadataProgram: mplTokenMetadata.PROGRAM_ID,
+        collectionMetadata: collectionMetadata,
+        collectionMasterEdition,
+        collectionMint: COLLECTION_PUBLIC_KEY,
+        masterEdition,
+        mintedNft: mintedNftPda,
+      })
+      .instruction();
+  } else {
+    const gasMint = new PublicKey(splMint);
+    const [splPricesPda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("spl_prices"), gasMint.toBuffer()],
+      program.programId
+    );
+    const gasDepositTokenAccount = getAssociatedTokenAddressSync(
+      gasMint,
+      keypair.publicKey
+    );
+    const gasSourceTokenAccount = getAssociatedTokenAddressSync(gasMint, pkey);
+
+    mintIx = await program.methods
+      .mintFramesNftSplGas(
+        gameStateIndex,
+        `Solana Plays Pokemon #${gameStateIndex}`,
+        metadataUri
+      )
+      .accounts({
+        gameData: gameDataAccountPublicKey,
+        mint,
+        tokenAccount,
+        authority: keypair.publicKey,
+        user: pkey,
+        tokenMetadataAccount,
+        tokenMetadataProgram: mplTokenMetadata.PROGRAM_ID,
+        collectionMetadata: collectionMetadata,
+        collectionMasterEdition,
+        collectionMint: COLLECTION_PUBLIC_KEY,
+        masterEdition,
+        mintedNft: mintedNftPda,
+        gasMint,
+        gasSourceTokenAccount,
+        splPrices: splPricesPda,
+        gasDepositTokenAccount,
+      })
+      .instruction();
+  }
 
   // sign and serialize transaction
   const transaction = new Transaction().add(mintIx).add(
     anchor.web3.ComputeBudgetProgram.setComputeUnitLimit({
-      units: 300000,
+      units: 350000,
     })
   );
-  transaction.feePayer = pkey;
+  transaction.feePayer = splMint === undefined ? pkey : keypair.publicKey;
   const { blockhash, lastValidBlockHeight } =
     await connection.getLatestBlockhash();
   transaction.recentBlockhash = blockhash;
