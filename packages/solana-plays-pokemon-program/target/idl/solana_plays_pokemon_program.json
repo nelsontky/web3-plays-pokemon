@@ -3,56 +3,6 @@
   "name": "solana_plays_pokemon_program",
   "instructions": [
     {
-      "name": "initialize",
-      "accounts": [
-        {
-          "name": "gameData",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "gameState",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "nextGameState",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "currentParticipants",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "authority",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "clock",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "framesImageCid",
-          "type": "string"
-        },
-        {
-          "name": "saveStateCid",
-          "type": "string"
-        }
-      ]
-    },
-    {
       "name": "sendButton",
       "accounts": [
         {
@@ -228,32 +178,6 @@
       ]
     },
     {
-      "name": "initializeCurrentParticipants",
-      "accounts": [
-        {
-          "name": "currentParticipants",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "gameData",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "authority",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": []
-    },
-    {
       "name": "mintFramesNft",
       "accounts": [
         {
@@ -353,42 +277,121 @@
       ]
     },
     {
-      "name": "initializeSplPrices",
+      "name": "mintFramesNftSplGas",
       "accounts": [
+        {
+          "name": "mint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "user",
+          "isMut": false,
+          "isSigner": true
+        },
         {
           "name": "authority",
           "isMut": true,
           "isSigner": true
         },
         {
-          "name": "splPrices",
+          "name": "gameData",
           "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "program",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "programData",
-          "isMut": false,
           "isSigner": false
         },
         {
           "name": "systemProgram",
           "isMut": false,
           "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "mintedNft",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenMetadataAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenMetadataProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "collectionMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "collectionMetadata",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "collectionMasterEdition",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "masterEdition",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "gasDepositTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "gasSourceTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "gasMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "splPrices",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": [
         {
-          "name": "gasMint",
-          "type": "publicKey"
+          "name": "gameStateIndex",
+          "type": "u32"
         },
         {
-          "name": "amountForOneLamport",
-          "type": "u64"
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "metadataUri",
+          "type": "string"
         }
       ]
     },
