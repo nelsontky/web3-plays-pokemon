@@ -21,4 +21,4 @@ pub const BUTTON_MAPPINGS: [&str; 15] = [
     "Turbo B",
 ];
 
-pub const SEND_BUTTON_SPL_GAS_TRANSACTION_FEE_LAMPORTS: f64 = 5000.0 * 2.0; // 2 signers
+pub const SEND_BUTTON_SPL_GAS_TRANSACTION_FEE_LAMPORTS: u64 = 5000 * 2; // 2 signers

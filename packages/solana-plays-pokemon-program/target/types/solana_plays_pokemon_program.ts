@@ -388,7 +388,7 @@ export type SolanaPlaysPokemonProgram = {
         },
         {
           "name": "amountForOneLamport",
-          "type": "f64"
+          "type": "u64"
         }
       ]
     },
@@ -423,7 +423,7 @@ export type SolanaPlaysPokemonProgram = {
         },
         {
           "name": "amountForOneLamport",
-          "type": "f64"
+          "type": "u64"
         }
       ]
     }
@@ -435,9 +435,9 @@ export type SolanaPlaysPokemonProgram = {
         "kind": "struct",
         "fields": [
           {
-            "name": "prices",
+            "name": "nonHumanReadablePrices",
             "type": {
-              "vec": "f64"
+              "vec": "u64"
             }
           }
         ]
@@ -1154,7 +1154,7 @@ export const IDL: SolanaPlaysPokemonProgram = {
         },
         {
           "name": "amountForOneLamport",
-          "type": "f64"
+          "type": "u64"
         }
       ]
     },
@@ -1189,7 +1189,7 @@ export const IDL: SolanaPlaysPokemonProgram = {
         },
         {
           "name": "amountForOneLamport",
-          "type": "f64"
+          "type": "u64"
         }
       ]
     }
@@ -1201,9 +1201,9 @@ export const IDL: SolanaPlaysPokemonProgram = {
         "kind": "struct",
         "fields": [
           {
-            "name": "prices",
+            "name": "nonHumanReadablePrices",
             "type": {
-              "vec": "f64"
+              "vec": "u64"
             }
           }
         ]

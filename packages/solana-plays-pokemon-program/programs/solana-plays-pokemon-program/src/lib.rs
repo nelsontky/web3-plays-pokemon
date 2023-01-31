@@ -106,17 +106,16 @@ pub mod solana_plays_pokemon_program {
     ) -> Result<()> {
         // transfer gas fee
         let spl_prices = &ctx.accounts.spl_prices;
-        let mut human_readable_gas_transfer_amount: f64 = 0.0;
-        for price in spl_prices.prices.iter() {
-            human_readable_gas_transfer_amount += price;
+        let mut gas_transfer_amount: u64 = 0;
+        for price in spl_prices.non_human_readable_prices.iter() {
+            gas_transfer_amount += price;
         }
-        human_readable_gas_transfer_amount = (human_readable_gas_transfer_amount
-            / (spl_prices.prices.len() as f64))
+        gas_transfer_amount = ((gas_transfer_amount
+            / (spl_prices.non_human_readable_prices.len() as u64))
+            + u64::from(
+                gas_transfer_amount % (spl_prices.non_human_readable_prices.len() as u64) == 0, // round up
+            ))
             * SEND_BUTTON_SPL_GAS_TRANSACTION_FEE_LAMPORTS;
-
-        let gas_transfer_amount: u64 = ((human_readable_gas_transfer_amount
-            * (ctx.accounts.gas_mint.decimals as f64))
-            .ceil()) as u64;
 
         transfer(
             CpiContext::new(
@@ -287,23 +286,27 @@ pub mod solana_plays_pokemon_program {
     pub fn initialize_spl_prices(
         ctx: Context<InitializePrices>,
         _gas_mint: Pubkey,
-        amount_for_one_lamport: f64,
+        amount_for_one_lamport: u64,
     ) -> Result<()> {
         let spl_prices = &mut ctx.accounts.spl_prices;
-        spl_prices.prices.push(amount_for_one_lamport);
+        spl_prices
+            .non_human_readable_prices
+            .push(amount_for_one_lamport);
         Ok(())
     }
 
     pub fn update_spl_prices(
         ctx: Context<UpdatePrices>,
         _gas_mint: Pubkey,
-        amount_for_one_lamport: f64,
+        amount_for_one_lamport: u64,
     ) -> Result<()> {
         let spl_prices = &mut ctx.accounts.spl_prices;
-        if spl_prices.prices.len() >= SplPrices::NUMBER_OF_PRICES {
-            spl_prices.prices.remove(0);
+        if spl_prices.non_human_readable_prices.len() >= SplPrices::NUMBER_OF_PRICES {
+            spl_prices.non_human_readable_prices.remove(0);
         }
-        spl_prices.prices.push(amount_for_one_lamport);
+        spl_prices
+            .non_human_readable_prices
+            .push(amount_for_one_lamport);
         Ok(())
     }
 }
