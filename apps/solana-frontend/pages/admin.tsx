@@ -95,17 +95,17 @@ export default function Admin() {
       const SAVE_STATE_CID = "";
 
       if (FRAMES_IMAGES_CID.length > 0 && SAVE_STATE_CID.length > 0) {
-        await program.methods
-          .migrateGameStateToV4(FRAMES_IMAGES_CID, SAVE_STATE_CID)
-          .accounts({
-            gameData: gameDataAccountPublicKey,
-            gameState: oldGameStatesPdas[0],
-            nextGameState: nextGameStatePda,
-            nextNextGameState: nextNextGameStatePda,
-            systemProgram: anchor.web3.SystemProgram.programId,
-            clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
-          })
-          .rpc();
+        // await program.methods
+        //   .migrateGameStateToV4(FRAMES_IMAGES_CID, SAVE_STATE_CID)
+        //   .accounts({
+        //     gameData: gameDataAccountPublicKey,
+        //     gameState: oldGameStatesPdas[0],
+        //     nextGameState: nextGameStatePda,
+        //     nextNextGameState: nextNextGameStatePda,
+        //     systemProgram: anchor.web3.SystemProgram.programId,
+        //     clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+        //   })
+        //   .rpc();
         console.log("sent");
       }
     }
@@ -123,13 +123,13 @@ export default function Admin() {
         );
 
       console.log("sending");
-      await program.methods
-        .initializeCurrentParticipants()
-        .accounts({
-          currentParticipants: currentParticipantsPda,
-          gameData: gameDataAccountPublicKey,
-        })
-        .rpc();
+      // await program.methods
+      //   .initializeCurrentParticipants()
+      //   .accounts({
+      //     currentParticipants: currentParticipantsPda,
+      //     gameData: gameDataAccountPublicKey,
+      //   })
+      //   .rpc();
       console.log("done");
     }
   };
@@ -165,18 +165,18 @@ export default function Admin() {
                 program.programId
               );
             console.log("sending");
-            await program.methods
-              .initialize(FRAMES_IMAGES_CID, SAVE_STATE_CID)
-              .accounts({
-                gameData: gameData.publicKey,
-                gameState: gameStatePda,
-                nextGameState: nextGameStatePda,
-                systemProgram: anchor.web3.SystemProgram.programId,
-                clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
-                currentParticipants: currentParticipantsPda,
-              })
-              .signers([gameData])
-              .rpc();
+            // await program.methods
+            //   .initialize(FRAMES_IMAGES_CID, SAVE_STATE_CID)
+            //   .accounts({
+            //     gameData: gameData.publicKey,
+            //     gameState: gameStatePda,
+            //     nextGameState: nextGameStatePda,
+            //     systemProgram: anchor.web3.SystemProgram.programId,
+            //     clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+            //     currentParticipants: currentParticipantsPda,
+            //   })
+            //   .signers([gameData])
+            //   .rpc();
             console.log("sent");
           }
         }}
