@@ -3,7 +3,6 @@ use std::cmp;
 use crate::ExecuteGameState;
 use crate::account::*;
 use crate::constants::*;
-use crate::context::SendButton;
 use crate::errors::*;
 
 use anchor_lang::prelude::*;
@@ -23,7 +22,15 @@ pub fn init_game_state(
     game_state.save_state_cid = save_state_cid.to_string();
 }
 
-pub fn process_button_send(ctx: Context<SendButton>, joypad_button: u8, press_count: u8) -> Result<()> {
+pub fn process_button_send(
+    game_data: &mut Account<GameData>,
+    game_state: &mut Account<GameStateV4>,
+    current_participants: &mut Account<CurrentParticipants>,
+    player: &Signer,
+    clock: &Sysvar<Clock>,
+    joypad_button: u8,
+    press_count: u8,
+) -> Result<()> {
     // disable turbo buttons in anarchy mode
     let is_valid_button = joypad_button < 5 || (joypad_button > 8 && joypad_button < 13);
     if !is_valid_button {
@@ -35,22 +42,19 @@ pub fn process_button_send(ctx: Context<SendButton>, joypad_button: u8, press_co
         return err!(ProgramErrorCode::InvalidButtonPressCount);
     }
 
-    let game_data = &mut ctx.accounts.game_data;
     if game_data.is_executing {
         return err!(ProgramErrorCode::GameIsExecuting);
     }
 
-    let game_state = &mut ctx.accounts.game_state;
     let max_presses_left = MAX_BUTTONS_PER_ROUND - game_state.button_presses.len();
     let computed_press_count = cmp::min(max_presses_left, usize::from(press_count));
     for _ in 0..computed_press_count {
         game_state.button_presses.push(joypad_button);
     }
 
-    let current_participants = &mut ctx.accounts.current_participants;
     current_participants
         .participants
-        .push(ctx.accounts.player.key());
+        .push(player.key());
 
     msg!(
         "{{ \"button\": \"{}\", \"pressCount\": {} }}",
@@ -60,7 +64,7 @@ pub fn process_button_send(ctx: Context<SendButton>, joypad_button: u8, press_co
 
     // execute if game state is at least 10 seconds old or we have hit 10 button presses
     let should_execute = game_state.button_presses.len() >= MAX_BUTTONS_PER_ROUND
-        || (ctx.accounts.clock.unix_timestamp - game_state.created_at >= VOTE_SECONDS);
+        || (clock.unix_timestamp - game_state.created_at >= VOTE_SECONDS);
     if should_execute {
         game_data.is_executing = true;
 
@@ -78,7 +82,7 @@ pub fn process_button_send(ctx: Context<SendButton>, joypad_button: u8, press_co
         emit!(ExecuteGameState {
             button_presses,
             index: game_data.executed_states_count,
-            game_data_id: ctx.accounts.game_data.key(),
+            game_data_id: game_data.key(),
             participants
         });
     }

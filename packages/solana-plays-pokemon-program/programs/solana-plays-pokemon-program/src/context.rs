@@ -66,9 +66,61 @@ pub struct SendButton<'info> {
         bump
     )]
     pub current_participants: Account<'info, CurrentParticipants>,
-    #[account(mut)]
     pub player: Signer<'info>,
     pub system_program: Program<'info, System>,
+    pub clock: Sysvar<'info, Clock>,
+}
+
+#[derive(Accounts)]
+pub struct SendButtonSplGas<'info> {
+    #[account(
+        mut,
+        seeds = [
+                game_data.key().as_ref(),
+                b"game_state", 
+                game_data.executed_states_count.to_string().as_ref()
+            ],
+        bump
+    )]
+    pub game_state: Account<'info, GameStateV4>,
+    #[account(mut, has_one = authority)]
+    pub game_data: Account<'info, GameData>,
+    #[account(
+        mut,
+        seeds = [
+            b"current_participants",
+            game_data.key().as_ref(),
+        ],
+        bump
+    )]
+    pub current_participants: Account<'info, CurrentParticipants>,
+    #[account(
+        seeds = [
+            b"spl_prices",
+            gas_mint.key().as_ref()
+        ], 
+        bump,
+    )]
+    pub spl_prices: Account<'info, SplPrices>,
+    pub gas_mint: Account<'info, Mint>,
+    #[account(
+        init_if_needed,
+        payer = authority,
+        associated_token::mint = gas_mint,
+        associated_token::authority = authority,
+    )]
+    pub gas_deposit_token_account: Account<'info, TokenAccount>,
+    #[account(
+        associated_token::mint = gas_mint,
+        associated_token::authority = player,
+    )]
+    pub gas_source_token_account: Account<'info, TokenAccount>,
+    pub player: Signer<'info>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    pub system_program: Program<'info, System>,
+    pub token_program: Program<'info, Token>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
     pub clock: Sysvar<'info, Clock>,
 }
 

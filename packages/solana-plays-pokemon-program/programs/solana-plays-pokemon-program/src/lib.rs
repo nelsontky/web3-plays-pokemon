@@ -9,7 +9,7 @@ use anchor_spl::metadata::{
     create_master_edition_v3, create_metadata_accounts_v3, verify_sized_collection_item,
     CreateMasterEditionV3, CreateMetadataAccountsV3, VerifySizedCollectionItem,
 };
-use anchor_spl::token::{mint_to, MintTo};
+use anchor_spl::token::{mint_to, transfer, MintTo};
 use mpl_token_metadata::state::{Collection, Creator, DataV2};
 
 pub mod account;
@@ -43,6 +43,8 @@ declare_id!("pkmNUoVrc8m4DkvQkKDHrffDEPJwVhuXqQv3hegbVyg");
 
 #[program]
 pub mod solana_plays_pokemon_program {
+    use anchor_spl::token::Transfer;
+
     use super::*;
 
     pub fn initialize(
@@ -86,7 +88,57 @@ pub mod solana_plays_pokemon_program {
     }
 
     pub fn send_button(ctx: Context<SendButton>, joypad_button: u8, press_count: u8) -> Result<()> {
-        process_button_send(ctx, joypad_button, press_count)
+        process_button_send(
+            &mut ctx.accounts.game_data,
+            &mut ctx.accounts.game_state,
+            &mut ctx.accounts.current_participants,
+            &ctx.accounts.player,
+            &ctx.accounts.clock,
+            joypad_button,
+            press_count,
+        )
+    }
+
+    pub fn send_button_spl_gas(
+        ctx: Context<SendButtonSplGas>,
+        joypad_button: u8,
+        press_count: u8,
+    ) -> Result<()> {
+        // transfer gas fee
+        let spl_prices = &ctx.accounts.spl_prices;
+        let mut human_readable_gas_transfer_amount: f64 = 0.0;
+        for price in spl_prices.prices.iter() {
+            human_readable_gas_transfer_amount += price;
+        }
+        human_readable_gas_transfer_amount = (human_readable_gas_transfer_amount
+            / (spl_prices.prices.len() as f64))
+            * SEND_BUTTON_SPL_GAS_TRANSACTION_FEE_LAMPORTS;
+
+        let gas_transfer_amount: u64 = ((human_readable_gas_transfer_amount
+            * (ctx.accounts.gas_mint.decimals as f64))
+            .ceil()) as u64;
+
+        transfer(
+            CpiContext::new(
+                ctx.accounts.token_program.to_account_info(),
+                Transfer {
+                    authority: ctx.accounts.player.to_account_info(),
+                    from: ctx.accounts.gas_source_token_account.to_account_info(),
+                    to: ctx.accounts.gas_deposit_token_account.to_account_info(),
+                },
+            ),
+            gas_transfer_amount,
+        )?;
+
+        process_button_send(
+            &mut ctx.accounts.game_data,
+            &mut ctx.accounts.game_state,
+            &mut ctx.accounts.current_participants,
+            &ctx.accounts.player,
+            &ctx.accounts.clock,
+            joypad_button,
+            press_count,
+        )
     }
 
     pub fn update_game_state(
