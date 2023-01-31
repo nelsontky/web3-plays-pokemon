@@ -32,47 +32,16 @@ export class SplPricesService {
           "BPFLoaderUpgradeab1e11111111111111111111111",
         ),
       );
-      try {
-        await this.anchorService.program.methods
-          .initializeSplPrices(FRONK_POOL_KEY.baseMint, maxAmountIn)
-          .accounts({
-            splPrices: splPricesPda,
-            program: this.anchorService.program.programId,
-            programData: programDataAddress,
-          })
-          .rpc();
-      } catch (e) {
-        console.log(e);
-      }
+      const txid = await this.anchorService.program.methods
+        .initializeSplPrices(FRONK_POOL_KEY.baseMint, maxAmountIn)
+        .accounts({
+          splPrices: splPricesPda,
+          program: this.anchorService.program.programId,
+          programData: programDataAddress,
+        })
+        .rpc();
 
-      try {
-        // init wrapped SOL
-        const [wrappedSolPricesPda] =
-          anchor.web3.PublicKey.findProgramAddressSync(
-            [
-              Buffer.from("spl_prices"),
-              new anchor.web3.PublicKey(
-                "So11111111111111111111111111111111111111112",
-              ).toBuffer(),
-            ],
-            new anchor.web3.PublicKey(PROGRAM_ID),
-          );
-        await this.anchorService.program.methods
-          .initializeSplPrices(
-            new anchor.web3.PublicKey(
-              "So11111111111111111111111111111111111111112",
-            ),
-            1,
-          )
-          .accounts({
-            splPrices: wrappedSolPricesPda,
-            program: this.anchorService.program.programId,
-            programData: programDataAddress,
-          })
-          .rpc();
-      } catch (e) {
-        console.log(e);
-      }
+      return txid;
     } else {
       throw new HttpException(
         "Endpoint only works in dev environment",
@@ -88,7 +57,8 @@ export class SplPricesService {
     const maxAmountIn = await this.getMaxAmountIn();
 
     this.logger.log(
-      `Max amount in (${FRONK_POOL_KEY.baseMint.toBase58()}): ${maxAmountIn}`,
+      `Max amount in (${FRONK_POOL_KEY.baseMint.toBase58()}):`,
+      maxAmountIn,
     );
 
     const [splPricesPda] = anchor.web3.PublicKey.findProgramAddressSync(
