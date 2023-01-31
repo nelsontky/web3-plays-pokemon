@@ -5,9 +5,6 @@ import tw from "twin.macro";
 import CloseIcon from "@mui/icons-material/Close";
 
 const styles = {
-  root: tw`
-    max-w-[230px]
-  `,
   title: tw`
     text-xl
   `,
@@ -36,7 +33,7 @@ export default function useTxSnackbar() {
       options?: OptionsObject
     ) => {
       const toastId = enqueueSnackbarBase(
-        <div css={styles.root}>
+        <div css={tw`min-w-0`}>
           <h1 css={styles.title}>{title}</h1>
           {errorMessage && (
             <p title={errorMessage} css={styles.errorMessage}>

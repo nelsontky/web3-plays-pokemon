@@ -37,6 +37,7 @@ const customStyles = css({
     "&& .SnackbarItem-message": {
       display: "flex",
       gap: 12,
+      minWidth: 0,
     },
     "& .MuiSvgIcon-root": {
       marginInlineEnd: "0px !important",

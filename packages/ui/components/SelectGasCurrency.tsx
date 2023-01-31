@@ -21,7 +21,14 @@ const menuItemStyles = {
   },
 };
 
-export default function SelectGasCurrency() {
+interface SelectGasCurrencyProps {
+  css?: any;
+}
+
+export default function SelectGasCurrency({
+  css,
+  ...rest
+}: SelectGasCurrencyProps) {
   const selectedGasCurrency = useAppSelector((state) => state.gasCurrency);
   const dispatch = useAppDispatch();
 
@@ -32,7 +39,7 @@ export default function SelectGasCurrency() {
   };
 
   return (
-    <div css={tw`flex items-center`}>
+    <div css={[tw`flex items-center`, css]} {...rest}>
       <FormControl
         size="small"
         css={styles.root}
@@ -52,9 +59,7 @@ export default function SelectGasCurrency() {
         <Select
           label="Gas currency"
           value={
-            (selectedGasCurrency === null
-              ? 0
-              : selectedGasCurrency) as any
+            (selectedGasCurrency === null ? 0 : selectedGasCurrency) as any
           }
           onChange={handleChange}
           style={POKEMON_PIXEL_FONT.style}
