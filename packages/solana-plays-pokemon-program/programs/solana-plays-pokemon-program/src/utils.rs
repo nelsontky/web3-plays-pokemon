@@ -1,9 +1,9 @@
 use std::cmp;
 
-use crate::ExecuteGameState;
 use crate::account::*;
 use crate::constants::*;
 use crate::errors::*;
+use crate::ExecuteGameState;
 
 use anchor_lang::prelude::*;
 
@@ -30,20 +30,36 @@ pub fn process_button_send(
     clock: &Sysvar<Clock>,
     joypad_button: u8,
     press_count: u8,
+    log_instead_of_error: bool,
 ) -> Result<()> {
     // disable turbo buttons in anarchy mode
     let is_valid_button = joypad_button < 5 || (joypad_button > 8 && joypad_button < 13);
     if !is_valid_button {
-        return err!(ProgramErrorCode::InvalidButton);
+        if !log_instead_of_error {
+            return err!(ProgramErrorCode::InvalidButton);
+        } else {
+            msg!("Error: Invalid button sent.");
+            return Ok(());
+        }
     }
 
     let is_valid_press_count = press_count > 0 && press_count <= MAX_BUTTON_PRESS_COUNT;
     if !is_valid_press_count {
-        return err!(ProgramErrorCode::InvalidButtonPressCount);
+        if !log_instead_of_error {
+            return err!(ProgramErrorCode::InvalidButtonPressCount);
+        } else {
+            msg!("Error: Invalid button press count.");
+            return Ok(());
+        }
     }
 
     if game_data.is_executing {
-        return err!(ProgramErrorCode::GameIsExecuting);
+        if !log_instead_of_error {
+            return err!(ProgramErrorCode::GameIsExecuting);
+        } else {
+            msg!("Error: Invalid button press count.");
+            return Ok(());
+        }
     }
 
     let max_presses_left = MAX_BUTTONS_PER_ROUND - game_state.button_presses.len();
@@ -52,9 +68,7 @@ pub fn process_button_send(
         game_state.button_presses.push(joypad_button);
     }
 
-    current_participants
-        .participants
-        .push(player.key());
+    current_participants.participants.push(player.key());
 
     msg!(
         "{{ \"button\": \"{}\", \"pressCount\": {} }}",

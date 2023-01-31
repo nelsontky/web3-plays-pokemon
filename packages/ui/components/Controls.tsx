@@ -16,6 +16,8 @@ import axios, { AxiosError } from "axios";
 import { useAppSelector } from "../hooks/redux";
 import { PublicKey } from "@solana/web3.js";
 import { SnackbarKey } from "notistack";
+import confirmGaslessTransaction from "../utils/confirmGaslessTransaction";
+import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 
 const styles = {
   root: tw`
@@ -85,6 +87,7 @@ export default function Controls() {
             autoHideDuration: null,
           }
         );
+
         const response = await axios.post(
           process.env.NODE_ENV === "development"
             ? "http://localhost:3000/api/gasless-transactions/send-button"
@@ -93,7 +96,7 @@ export default function Controls() {
             publicKey: publicKey.toBase58(),
             executedStatesCount,
             gameDataAccountId: gameDataAccountPublicKey.toBase58(),
-            buttonId: joypadEnumToButtonId(joypadButton),
+            buttonId: joypadEnumToButtonId(joypadButton) /*13*/,
             splMint: new PublicKey(
               "5yxNbU8DgYJZNi3mPD9rs4XLh9ckXrhPjJ5VCujUWg5H"
             ),
@@ -106,6 +109,16 @@ export default function Controls() {
 
         const { blockhash, lastValidBlockHeight } =
           await connection.getLatestBlockhash();
+
+        const splGasSourceTokenAccount = getAssociatedTokenAddressSync(
+          new PublicKey("5yxNbU8DgYJZNi3mPD9rs4XLh9ckXrhPjJ5VCujUWg5H"),
+          publicKey
+        );
+        const confirmGaslessTransactionPromise = confirmGaslessTransaction(
+          connection,
+          splGasSourceTokenAccount
+        );
+
         const txId = await sendTransaction(recoveredTransaction, connection, {
           skipPreflight: true,
         });
@@ -114,6 +127,7 @@ export default function Controls() {
           lastValidBlockHeight,
           signature: txId,
         });
+        await confirmGaslessTransactionPromise;
 
         if (status.value.err) {
           throw new Error(
