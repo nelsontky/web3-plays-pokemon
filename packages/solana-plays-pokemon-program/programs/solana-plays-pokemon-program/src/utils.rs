@@ -45,36 +45,20 @@ pub fn process_button_send(
     clock: &Sysvar<Clock>,
     joypad_button: u8,
     press_count: u8,
-    log_instead_of_error: bool,
 ) -> Result<()> {
     // disable turbo buttons in anarchy mode
     let is_valid_button = joypad_button < 5 || (joypad_button > 8 && joypad_button < 13);
     if !is_valid_button {
-        if !log_instead_of_error {
-            return err!(ProgramErrorCode::InvalidButton);
-        } else {
-            msg!("Error: Invalid button sent.");
-            return Ok(());
-        }
+        return err!(ProgramErrorCode::InvalidButton);
     }
 
     let is_valid_press_count = press_count > 0 && press_count <= MAX_BUTTON_PRESS_COUNT;
     if !is_valid_press_count {
-        if !log_instead_of_error {
-            return err!(ProgramErrorCode::InvalidButtonPressCount);
-        } else {
-            msg!("Error: Invalid button press count.");
-            return Ok(());
-        }
+        return err!(ProgramErrorCode::InvalidButtonPressCount);
     }
 
     if game_data.is_executing {
-        if !log_instead_of_error {
-            return err!(ProgramErrorCode::GameIsExecuting);
-        } else {
-            msg!("Error: Invalid button press count.");
-            return Ok(());
-        }
+        return err!(ProgramErrorCode::GameIsExecuting);
     }
 
     let max_presses_left = MAX_BUTTONS_PER_ROUND - game_state.button_presses.len();
