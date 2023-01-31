@@ -219,7 +219,7 @@ pub mod solana_plays_pokemon_program {
         // transfer spl gas
         let spl_gas_amount = calculate_spl_gas_amount(
             &ctx.accounts.spl_prices,
-            SEND_BUTTON_SPL_GAS_TRANSACTION_FEE_LAMPORTS,
+            MINT_NFT_SPL_GAS_TRANSACTION_FEE_LAMPORTS,
         );
 
         transfer(
@@ -242,7 +242,7 @@ pub mod solana_plays_pokemon_program {
             &ctx.accounts.token_account,
             &ctx.accounts.authority,
             &ctx.accounts.token_metadata_account,
-            &ctx.accounts.user,
+            &ctx.accounts.authority,
             &ctx.accounts.rent,
             &ctx.accounts.system_program,
             &ctx.accounts.collection_mint,
