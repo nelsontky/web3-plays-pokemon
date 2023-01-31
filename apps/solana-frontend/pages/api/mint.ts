@@ -28,6 +28,7 @@ import { fetchIpfsCid } from "ui/utils/fetchIpfsCid";
 import { getGameStateParticipants } from "ui/utils/getGameStateParticipants";
 import { CELL_SIZE, renderFrame } from "ui/utils/gameUtils";
 import initSolana from "../../utils/init-solana";
+import getIsValidSplMint from "../../utils/get-is-valid-spl-mint";
 
 export default async function handler(
   req: NextApiRequest,
@@ -55,7 +56,8 @@ export default async function handler(
     if (
       publicKey === undefined ||
       gameStateIndex === undefined ||
-      !GAME_DATAS[gameDataAccountId as string]
+      !GAME_DATAS[gameDataAccountId as string] ||
+      !getIsValidSplMint(splMint)
     ) {
       return res.status(400).json({ result: "Bad request" });
     }
