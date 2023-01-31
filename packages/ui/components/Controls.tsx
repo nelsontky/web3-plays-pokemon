@@ -18,6 +18,7 @@ import { PublicKey } from "@solana/web3.js";
 import { SnackbarKey } from "notistack";
 import confirmGaslessTransaction from "../utils/confirmGaslessTransaction";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
+import SelectGasCurrency from "./SelectGasCurrency";
 
 const styles = {
   root: tw`
@@ -246,7 +247,7 @@ export default function Controls() {
 
   return (
     <>
-      <div>
+      <div css={tw`flex justify-between items-center`}>
         <HelpfulCheckbox
           checked={pressCount === 2}
           setChecked={(isChecked) => {
@@ -264,6 +265,7 @@ export default function Controls() {
         >
           Turbo mode
         </HelpfulCheckbox>
+        <SelectGasCurrency />
       </div>
       <div css={styles.root}>
         <ControlsBackdrop />

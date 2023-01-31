@@ -44,5 +44,4 @@ export const FRONK_CURRENCY = new Currency(5, "FRONK");
 
 export const SUPPORTED_SPL_TOKENS = {
   [FRONK_POOL_KEY.baseMint.toBase58()]: "FRONK",
-  So11111111111111111111111111111111111111112: "SOL",
 };
