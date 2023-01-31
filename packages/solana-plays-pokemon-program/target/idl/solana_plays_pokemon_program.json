@@ -72,11 +72,91 @@
         },
         {
           "name": "player",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "clock",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "joypadButton",
+          "type": "u8"
+        },
+        {
+          "name": "pressCount",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "sendButtonSplGas",
+      "accounts": [
+        {
+          "name": "gameState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "gameData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "currentParticipants",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "splPrices",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "gasMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "gasDepositTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "gasSourceTokenAccount",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "player",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "authority",
           "isMut": true,
           "isSigner": true
         },
         {
           "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
           "isMut": false,
           "isSigner": false
         },

@@ -5,8 +5,10 @@ members = [
 
 [profile.release]
 overflow-checks = true
-lto = "fat"
 codegen-units = 1
+strip = true
+opt-level = "z"
+lto = true
 [profile.release.build-override]
 opt-level = 3
 incremental = false
