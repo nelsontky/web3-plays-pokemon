@@ -11,7 +11,7 @@ import AppBar from "ui/components/AppBar";
 
 const App = ({ Component, pageProps }: AppProps) => (
   <Provider store={store}>
-    <SolanaContext>
+    <SolanaContext isXnft>
       <ConfigProvider
         gameDataAccountId={V2_GAME_DATA_ACCOUNT_ID}
         messagesCollection="crystal"
