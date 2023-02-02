@@ -17,6 +17,7 @@ interface ConfigContextState {
   gameDataAccountPublicKey: PublicKey;
   messagesCollection: string;
   hideStats: boolean; // Hide stats before I write code to read game memory
+  isXnft: boolean;
 }
 
 const ConfigContext = createContext<ConfigContextState>(
@@ -62,11 +63,11 @@ export default function ConfigProvider({
         gameDataAccountPublicKey: new PublicKey(gameDataAccountId),
         messagesCollection,
         hideStats: !!hideStats,
+        isXnft: !!isXnft,
       }}
     >
       <CacheProvider value={cache}>
         <GlobalStyles />
-        <AnchorSetup />
         <ProgramListenersSetup />
         {children}
       </CacheProvider>

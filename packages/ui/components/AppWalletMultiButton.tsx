@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic";
 import { CSSProperties } from "react";
 import { POKEMON_PIXEL_FONT } from "../constants";
+import { useConfig } from "../contexts/ConfigProvider";
 
 const WalletMultiButtonDynamic = dynamic(
   async () =>
@@ -13,8 +14,11 @@ export default function AppWalletMultiButton({
 }: {
   style?: CSSProperties;
 }) {
+  const { isXnft } = useConfig();
+
   return (
     <WalletMultiButtonDynamic
+      {...(isXnft ? { disabled: true } : {})}
       style={{
         border: "2px solid #000000",
         color: "#000000",
