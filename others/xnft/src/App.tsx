@@ -9,6 +9,7 @@ import { useFonts, Inter_900Black } from "@expo-google-fonts/dev";
 import { ExamplesScreens } from "./screens/ExamplesScreen";
 import { HomeScreen } from "./screens/HomeScreen";
 import { TokenListNavigator } from "./screens/TokenNavigator";
+import XnftContextProvider from "./contexts/XnftProvider";
 
 const Tab = createBottomTabNavigator();
 
@@ -70,9 +71,11 @@ function App() {
 
   return (
     <RecoilRoot>
-      <NavigationContainer>
-        <TabNavigator />
-      </NavigationContainer>
+      <XnftContextProvider>
+        <NavigationContainer>
+          <TabNavigator />
+        </NavigationContainer>
+      </XnftContextProvider>
     </RecoilRoot>
   );
 }
