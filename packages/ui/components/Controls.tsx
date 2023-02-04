@@ -16,6 +16,7 @@ import axios, { AxiosError } from "axios";
 import { useAppSelector } from "../hooks/redux";
 import { SnackbarKey } from "notistack";
 import SelectGasCurrency from "./SelectGasCurrency";
+import { Transaction } from "@solana/web3.js";
 
 const styles = {
   root: tw`
@@ -63,7 +64,7 @@ const styles = {
 
 export default function Controls() {
   const program = useMutableProgram();
-  const { publicKey, sendTransaction } = useWallet();
+  const { publicKey, sendTransaction, signTransaction } = useWallet();
   const { enqueueSnackbar, closeSnackbar } = useTxSnackbar();
   const [pressCount, setPressCount] = useState<1 | 2>(1);
   const { gameDataAccountPublicKey } = useConfig();
@@ -74,7 +75,7 @@ export default function Controls() {
   const selectedGasCurrency = useAppSelector((state) => state.gasCurrency);
 
   const executeGame = async (joypadButton: JoypadButton) => {
-    if (program && publicKey) {
+    if (program && publicKey && signTransaction) {
       const [gameStatePda] = anchor.web3.PublicKey.findProgramAddressSync(
         [
           gameDataAccountPublicKey.toBuffer(),
@@ -104,19 +105,27 @@ export default function Controls() {
       );
 
       try {
-        let txId: string;
+        let transaction: Transaction;
+
+        const { blockhash, lastValidBlockHeight } =
+          await connection.getLatestBlockhash();
+
         if (selectedGasCurrency === null) {
-          txId = await program.methods
+          const ix = await program.methods
             .sendButton(joypadEnumToButtonId(joypadButton), pressCount)
             .accounts({
               gameState: gameStatePda,
               gameData: gameDataAccountPublicKey,
-              player: anchor.getProvider().publicKey,
+              player: publicKey,
               systemProgram: anchor.web3.SystemProgram.programId,
               clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
               currentParticipants: currentParticipantsPda,
             })
-            .rpc();
+            .instruction();
+          transaction = new Transaction().add(ix);
+          transaction.recentBlockhash = blockhash;
+          transaction.lastValidBlockHeight = lastValidBlockHeight;
+          transaction.feePayer = publicKey;
         } else {
           const response = await axios.post(
             process.env.NODE_ENV === "development"
@@ -131,24 +140,20 @@ export default function Controls() {
               executedStatesCount,
             }
           );
-          const recoveredTransaction =
-            anchor.web3.VersionedTransaction.deserialize(
-              Buffer.from(response.data.result, "base64")
-            );
-          const { blockhash, lastValidBlockHeight } =
-            await connection.getLatestBlockhash();
-          txId = await sendTransaction(recoveredTransaction, connection, {
-            skipPreflight: true,
-          });
-          const status = await connection.confirmTransaction({
-            blockhash: blockhash,
-            lastValidBlockHeight,
-            signature: txId,
-          });
+          transaction = Transaction.from(
+            Buffer.from(response.data.result, "base64")
+          );
+        }
 
-          if (status.value.err) {
-            throw new Error(JSON.stringify(status.value.err));
-          }
+        const txId = await sendTransaction(transaction, connection);
+        const status = await connection.confirmTransaction({
+          blockhash: blockhash,
+          lastValidBlockHeight,
+          signature: txId,
+        });
+
+        if (status.value.err) {
+          throw new Error(JSON.stringify(status.value.err));
         }
 
         closeSnackbar(snackbarId);

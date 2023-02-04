@@ -6,9 +6,11 @@ export function HomeScreen() {
 
   return (
     <iframe
-      src={`http://localhost:3002?publicKey=${encodeURIComponent(
-        backpack.publicKey.toBase58()
-      )}`}
+      src={`${
+        process.env.NODE_ENV === "development"
+          ? "http://localhost:3002"
+          : "https://xnft.playspokemon.xyz"
+      }?publicKey=${encodeURIComponent(backpack.publicKey.toBase58())}`}
       style={tw`border-0 w-full h-full`}
       ref={(node) => {
         if (node) {
