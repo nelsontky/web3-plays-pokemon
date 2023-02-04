@@ -5,6 +5,7 @@ import {
   Signer,
   Transaction,
   TransactionSignature,
+  VersionedTransaction,
 } from "@solana/web3.js";
 import {
   createContext,
@@ -19,13 +20,13 @@ interface BackpackWallet {
   publicKey: PublicKey;
   isConnected: boolean;
   signTransaction(
-    transaction: Transaction,
+    transaction: Transaction | VersionedTransaction,
     publicKey?: PublicKey | null
-  ): Promise<Transaction>;
+  ): Promise<Transaction | VersionedTransaction>;
   signAllTransactions(
-    transactions: Transaction[],
+    transactions: Transaction[] | VersionedTransaction[],
     publicKey?: PublicKey | null
-  ): Promise<Transaction[]>;
+  ): Promise<Transaction[] | VersionedTransaction[]>;
   send(
     transaction: Transaction,
     signers?: Signer[],
@@ -54,7 +55,10 @@ interface XnftContextProviderProps {
   children: ReactNode;
 }
 
-const IFRAME_ORIGIN = "http://localhost:3002";
+const IFRAME_ORIGIN =
+  process.env.NODE_ENV === "development"
+    ? "http://localhost:3002"
+    : "https://solana.playspokemon.xyz";
 
 export default function XnftContextProvider({
   children,
@@ -87,10 +91,57 @@ export default function XnftContextProvider({
 
           switch (action) {
             case "signMessage":
-              const signedMessage = await backpack.signMessage(
-                toUint8Array(payload)
-              );
-              contentWindow.postMessage(toBase64(signedMessage), IFRAME_ORIGIN);
+              try {
+                const signedMessage = await backpack.signMessage(
+                  toUint8Array(payload)
+                );
+                contentWindow.postMessage(
+                  JSON.stringify({
+                    success: true,
+                    payload: toBase64(signedMessage),
+                  }),
+                  IFRAME_ORIGIN
+                );
+              } catch (e) {
+                if (e instanceof Error) {
+                  contentWindow.postMessage(
+                    JSON.stringify({
+                      success: false,
+                      payload:
+                        /*e.message*/ "An error has occurred. Please try again.",
+                    }),
+                    IFRAME_ORIGIN
+                  );
+                }
+              }
+              break;
+            case "signTransaction":
+              try {
+                const signedTransaction = await backpack.signTransaction(
+                  Transaction.from(toUint8Array(payload))
+                );
+                contentWindow.postMessage(
+                  JSON.stringify({
+                    success: true,
+                    payload: toBase64(
+                      Uint8Array.from(signedTransaction.serialize())
+                    ),
+                  }),
+                  IFRAME_ORIGIN
+                );
+              } catch (e) {
+                if (e instanceof Error) {
+                  contentWindow.postMessage(
+                    JSON.stringify({
+                      success: false,
+                      payload:
+                        /*e.message*/ "An error has occurred. Please try again.",
+                    }),
+                    IFRAME_ORIGIN
+                  );
+                }
+              }
+              break;
           }
         };
         window.addEventListener("message", listener);

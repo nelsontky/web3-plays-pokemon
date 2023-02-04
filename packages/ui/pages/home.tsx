@@ -24,7 +24,7 @@ const styles = {
   root: tw`
     px-4
     pb-8
-    max-w-3xl
+    max-w-full
     mx-auto
 
     xl:max-w-none
@@ -32,6 +32,7 @@ const styles = {
   `,
   section: tw`
     mx-auto
+    overflow-auto
 
     xl:grow 
     xl:w-1/3

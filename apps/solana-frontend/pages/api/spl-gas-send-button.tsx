@@ -107,18 +107,27 @@ export default async function handler(
       })
       .instruction();
 
-    const { blockhash } = await connection.getLatestBlockhash();
+    const { blockhash, lastValidBlockHeight } =
+      await connection.getLatestBlockhash();
     const messageV0 = new TransactionMessage({
       payerKey: keypair.publicKey,
       instructions: [ix],
       recentBlockhash: blockhash,
     }).compileToV0Message();
-    const transaction = new VersionedTransaction(messageV0);
+    const transactionForSimulation = new VersionedTransaction(messageV0);
+
+    const legacyTransaction = new Transaction().add(ix);
+    legacyTransaction.recentBlockhash = blockhash;
+    legacyTransaction.lastValidBlockHeight = lastValidBlockHeight;
+    legacyTransaction.feePayer = keypair.publicKey;
 
     try {
-      const status = await connection.simulateTransaction(transaction, {
-        sigVerify: false,
-      });
+      const status = await connection.simulateTransaction(
+        transactionForSimulation,
+        {
+          sigVerify: false,
+        }
+      );
       if (status.value.err) {
         throw new Error(JSON.stringify(status.value.err));
       }
@@ -128,13 +137,15 @@ export default async function handler(
         .json({ result: e instanceof Error ? e.message : "Bad request" });
     }
 
-    transaction.sign([keypair]);
-    const serializedTransaction = transaction.serialize();
+    legacyTransaction.partialSign(keypair);
+    const serializedTransaction = legacyTransaction.serialize({
+      verifySignatures: false,
+    });
 
     return res
       .status(200)
       .json({ result: Buffer.from(serializedTransaction).toString("base64") });
-  } catch {
+  } catch (e) {
     return res.status(500).end();
   }
 }

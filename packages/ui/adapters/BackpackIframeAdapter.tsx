@@ -1,15 +1,15 @@
 import {
   BaseMessageSignerWalletAdapter,
-  SupportedTransactionVersions,
-  TransactionOrVersionedTransaction,
+  isVersionedTransaction,
   WalletName,
   WalletReadyState,
 } from "@solana/wallet-adapter-base";
-import { BackpackWalletAdapter } from "@solana/wallet-adapter-wallets";
-import { PublicKey } from "@solana/web3.js";
+import { PublicKey, Transaction, VersionedTransaction } from "@solana/web3.js";
 
 const BACKPACK_ORIGIN =
-  /*"chrome-extension://aflkmfhebedbjioipglgcbcmnbpgliof"*/ "http://localhost:19006";
+  process.env.NODE_ENV === "development"
+    ? "http://localhost:19006"
+    : "chrome-extension://aflkmfhebedbjioipglgcbcmnbpgliof";
 
 export const BackpackIframeWalletName =
   "Backpack Iframe" as WalletName<"Backpack Iframe">;
@@ -47,34 +47,41 @@ export class BackpackIframeAdapter extends BaseMessageSignerWalletAdapter {
   }
 
   async signMessage(message: Uint8Array): Promise<Uint8Array> {
-    window.parent.postMessage(
-      JSON.stringify({
-        action: "signMessage",
-        payload: toBase64(message),
-      }),
-      BACKPACK_ORIGIN
-    );
+    try {
+      window.parent.postMessage(
+        JSON.stringify({
+          action: "signMessage",
+          payload: toBase64(message),
+        }),
+        BACKPACK_ORIGIN
+      );
 
-    const signedMessage: Uint8Array = await new Promise((resolve, reject) => {
-      const listener = (event: MessageEvent<any>) => {
-        if (event.origin !== BACKPACK_ORIGIN) {
-          return;
-        }
-        window.removeEventListener("message", listener);
-        resolve(toUint8Array(event.data));
-      };
-      window.addEventListener("message", listener);
-    });
-
-    return signedMessage;
+      const signedMessage = toUint8Array(await getXnftResultPromise<string>());
+      return signedMessage;
+    } catch (error: any) {
+      this.emit("error", error);
+      throw error;
+    }
   }
 
-  signTransaction<
-    T extends TransactionOrVersionedTransaction<
-      this["supportedTransactionVersions"]
-    >
-  >(transaction: T): Promise<T> {
-    throw new Error("Method not implemented.");
+  async signTransaction<T extends Transaction>(transaction: T): Promise<T> {
+    try {
+      window.parent.postMessage(
+        JSON.stringify({
+          action: "signTransaction",
+          payload: toBase64(
+            Uint8Array.from(transaction.serialize({ verifySignatures: false }))
+          ),
+        }),
+        BACKPACK_ORIGIN
+      );
+
+      const payload = await getXnftResultPromise<string>();
+      return Transaction.from(toUint8Array(payload)) as T;
+    } catch (error: any) {
+      this.emit("error", error);
+      throw error;
+    }
   }
 
   connect(): Promise<void> {
@@ -83,7 +90,8 @@ export class BackpackIframeAdapter extends BaseMessageSignerWalletAdapter {
   }
 
   disconnect(): Promise<void> {
-    throw new Error("Method not implemented.");
+    this.emit("disconnect");
+    return Promise.resolve();
   }
 }
 
@@ -91,3 +99,20 @@ const toBase64 = (uint8Array: Uint8Array) =>
   Buffer.from(uint8Array).toString("base64");
 
 const toUint8Array = (data: string) => Buffer.from(data, "base64");
+
+const getXnftResultPromise = <U,>(): Promise<U> =>
+  new Promise((resolve, reject) => {
+    const listener = (event: MessageEvent<any>) => {
+      if (event.origin !== BACKPACK_ORIGIN) {
+        return;
+      }
+      window.removeEventListener("message", listener);
+      const result = JSON.parse(event.data);
+      if (result.success) {
+        resolve(result.payload);
+      } else {
+        reject(new Error(result.payload));
+      }
+    };
+    window.addEventListener("message", listener);
+  });
