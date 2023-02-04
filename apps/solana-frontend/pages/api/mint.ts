@@ -367,7 +367,8 @@ async function buildMintNftTx(
   }
 
   // sign and serialize transaction
-  const { blockhash } = await connection.getLatestBlockhash();
+  const { blockhash, lastValidBlockHeight } =
+    await connection.getLatestBlockhash();
   const messageV0 = new TransactionMessage({
     payerKey: splMint === undefined ? pkey : keypair.publicKey,
     instructions: [
@@ -378,17 +379,31 @@ async function buildMintNftTx(
     ],
     recentBlockhash: blockhash,
   }).compileToV0Message();
-  const transaction = new VersionedTransaction(messageV0);
+  const transactionForSimulation = new VersionedTransaction(messageV0);
 
-  const status = await connection.simulateTransaction(transaction, {
-    sigVerify: false,
-  });
+  const status = await connection.simulateTransaction(
+    transactionForSimulation,
+    {
+      sigVerify: false,
+    }
+  );
   if (status.value.err) {
     throw new Error(JSON.stringify(status.value.err));
   }
 
-  transaction.sign([keypair]);
-  const serializedTransaction = transaction.serialize();
+  const legacyTransaction = new Transaction().add(mintIx).add(
+    anchor.web3.ComputeBudgetProgram.setComputeUnitLimit({
+      units: 350000,
+    })
+  );
+  legacyTransaction.recentBlockhash = blockhash;
+  legacyTransaction.lastValidBlockHeight = lastValidBlockHeight;
+  legacyTransaction.feePayer = keypair.publicKey;
+
+  legacyTransaction.partialSign(keypair);
+  const serializedTransaction = legacyTransaction.serialize({
+    verifySignatures: false,
+  });
   return serializedTransaction;
 }
 

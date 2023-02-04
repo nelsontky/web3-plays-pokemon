@@ -48,6 +48,7 @@ const styles = {
 };
 
 export default function Home() {
+  const { isXnft } = useConfig();
   const isWide = useMediaQuery("(min-width:1280px)");
   const { hideStats } = useConfig();
 
@@ -76,7 +77,7 @@ export default function Home() {
           href="/favicon-16x16.png"
         />
       </Head>
-      <SocialLinks />
+      {!isXnft && <SocialLinks />}
       {isWide ? (
         // Desktop
         <div css={styles.sectionsContainer}>

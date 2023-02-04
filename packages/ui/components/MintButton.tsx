@@ -9,7 +9,7 @@ import useTxSnackbar from "../hooks/useTxSnackbar";
 import { SnackbarKey } from "notistack";
 import SimpleButton from "./SimpleButton";
 import { useConfig } from "../contexts/ConfigProvider";
-import { VersionedTransaction } from "@solana/web3.js";
+import { Transaction, VersionedTransaction } from "@solana/web3.js";
 import SelectGasCurrency from "./SelectGasCurrency";
 import { useAppSelector } from "../hooks/redux";
 
@@ -116,7 +116,7 @@ export default function MintButton({ stateIndex, history }: MintButtonProps) {
           autoHideDuration: null,
         }
       );
-      console.log((stateIndex ?? 0) + 100);
+
       const response = await axios.post(
         process.env.NODE_ENV === "development"
           ? "http://localhost:3000/api/mint"
@@ -140,7 +140,7 @@ export default function MintButton({ stateIndex, history }: MintButtonProps) {
           autoHideDuration: null,
         }
       );
-      const recoveredTransaction = VersionedTransaction.deserialize(
+      const recoveredTransaction = Transaction.from(
         Buffer.from(response.data.result, "base64")
       );
       const { blockhash, lastValidBlockHeight } =

@@ -52,19 +52,28 @@ export default function HistoryExplorer() {
 
   useEffect(() => {
     if (router.isReady && router.query.index === undefined) {
-      router.replace(`/history?index=${latestStateIndex}`);
+      router.replace({
+        pathname: "/history",
+        query: { ...(router.query ?? {}), index: latestStateIndex },
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.isReady, router.query]);
 
   const handleChange = (_: Event, newValue: number | number[]) => {
-    router.replace(`/history?index=${newValue}`);
+    router.replace({
+      pathname: "/history",
+      query: { ...(router.query ?? {}), index: newValue },
+    });
   };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = +e.target.value;
     if (!isNaN(value) && value <= latestStateIndex && value >= 0) {
-      router.replace(`/history?index=${value}`);
+      router.replace({
+        pathname: "/history",
+        query: { ...(router.query ?? {}), index: value },
+      });
     }
   };
 
@@ -97,7 +106,10 @@ export default function HistoryExplorer() {
           disabled={stateIndex === 0}
           onClick={() => {
             if (stateIndex !== undefined) {
-              router.replace(`/history?index=${stateIndex - 1}`);
+              router.replace({
+                pathname: "/history",
+                query: { ...(router.query ?? {}), index: stateIndex - 1 },
+              });
             }
           }}
         >
@@ -118,7 +130,10 @@ export default function HistoryExplorer() {
           disabled={stateIndex === latestStateIndex}
           onClick={() => {
             if (stateIndex !== undefined) {
-              router.replace(`/history?index=${stateIndex + 1}`);
+              router.replace({
+                pathname: "/history",
+                query: { ...(router.query ?? {}), index: stateIndex + 1 },
+              });
             }
           }}
         >
@@ -130,9 +145,7 @@ export default function HistoryExplorer() {
           />
         </IconButton>
       </div>
-      {!isWide && (
-        <MintButton stateIndex={stateIndex} history={history} />
-      )}
+      {!isWide && <MintButton stateIndex={stateIndex} history={history} />}
       <HistoryParticipants history={history} />
       {!isWide && <ParticipationHistory />}
     </div>
