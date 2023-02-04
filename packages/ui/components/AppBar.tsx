@@ -63,7 +63,10 @@ export default function AppBar({ title }: AppBarProps) {
               How to play
             </button>
           )}
-          <Link css={tw`underline text-xl`} href="/history">
+          <Link
+            css={tw`underline text-xl`}
+            href={{ pathname: "/history", query: router.query }}
+          >
             History
           </Link>
           <AppWalletMultiButton />

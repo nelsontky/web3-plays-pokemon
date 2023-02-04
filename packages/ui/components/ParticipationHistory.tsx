@@ -1,6 +1,7 @@
 import { useWallet } from "@solana/wallet-adapter-react";
 import axios, { AxiosError } from "axios";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import tw from "twin.macro";
 import { SIGNATURE_MESSAGE_FOR_ROUNDS } from "../constants";
@@ -36,6 +37,7 @@ const styles = {
 };
 
 export default function ParticipationHistory() {
+  const router = useRouter();
   const { gameDataAccountPublicKey } = useConfig();
   const { signMessage, publicKey } = useWallet();
   const { enqueueSnackbar } = useTxSnackbar();
@@ -157,7 +159,10 @@ export default function ParticipationHistory() {
                 Round {round}{" "}
                 <Link
                   css={tw`underline`}
-                  href={{ pathname: "/history", query: { index: round } }}
+                  href={{
+                    pathname: "/history",
+                    query: { ...(router.query ?? {}), index: round },
+                  }}
                 >
                   (Jump)
                 </Link>
