@@ -3,6 +3,7 @@ import AppWalletMultiButton from "./AppWalletMultiButton";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 const styles = {
   root: tw`
@@ -21,9 +22,11 @@ const styles = {
     grow
   `,
   header: tw`
-    hidden
-    text-4xl
-    md:block
+    text-xl
+    underline
+    mr-4
+    md:text-4xl
+    md:no-underline
   `,
 };
 
@@ -32,15 +35,16 @@ interface AppBarProps {
 }
 
 export default function AppBar({ title }: AppBarProps) {
+  const isWide = useMediaQuery("(min-width:768px)");
   const router = useRouter();
-  const [showHowToPlay, setShowHowToPlay] = useState(false);
+  const [isHomePage, setIsHomePage] = useState(false);
 
   useEffect(
     function hideHowToPlay() {
       if (router.isReady && router.pathname === "/history") {
-        setShowHowToPlay(false);
+        setIsHomePage(false);
       } else {
-        setShowHowToPlay(true);
+        setIsHomePage(true);
       }
     },
     [router.isReady, router.pathname]
@@ -49,13 +53,23 @@ export default function AppBar({ title }: AppBarProps) {
   return (
     <div css={styles.root}>
       <div css={styles.inner}>
-        <Link href="/" css={styles.header}>
-          {title}
+        <Link
+          href={{
+            pathname: "/",
+            query: {
+              ...(router.query?.publicKey
+                ? { publicKey: router.query.publicKey }
+                : {}),
+            },
+          }}
+          css={styles.header}
+        >
+          {isWide ? title : !isHomePage ? "Home" : ""}
         </Link>
         <div css={tw`flex gap-4 items-center`}>
-          {showHowToPlay && (
+          {isHomePage && (
             <button
-              css={tw`xl:hidden underline text-xl cursor-pointer`}
+              css={tw`hidden sm:block xl:hidden underline text-xl cursor-pointer`}
               onClick={() => {
                 document.getElementById("how-to-play")?.scrollIntoView();
               }}
