@@ -6,10 +6,10 @@ import {
 } from "@solana/wallet-adapter-base";
 import { PublicKey, Transaction, VersionedTransaction } from "@solana/web3.js";
 
-const BACKPACK_ORIGIN =
-  process.env.NODE_ENV === "development"
-    ? "http://localhost:19006"
-    : "chrome-extension://aflkmfhebedbjioipglgcbcmnbpgliof";
+const BACKPACK_ORIGIN = "*";
+// process.env.NODE_ENV === "development"
+//   ? "http://localhost:19006"
+//   : "chrome-extension://aflkmfhebedbjioipglgcbcmnbpgliof";
 
 export const BackpackIframeWalletName =
   "Backpack Iframe" as WalletName<"Backpack Iframe">;
