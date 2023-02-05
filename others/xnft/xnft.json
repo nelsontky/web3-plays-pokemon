@@ -1,0 +1,23 @@
+{
+  "kind": "app",
+  "name": "Solana Plays Pokemon",
+  "version": "1.0.0",
+  "description": "Play Pokemon collaboratively on the Solana blockchain!",
+  "website": "https://solana.playspokemon.xyz/",
+  "tag": "game",
+  "entrypoints": {
+    "default": {
+      "web": "./dist/.artifacts/index.js"
+    }
+  },
+  "icon": {
+    "sm": "./manifest/icon.png",
+    "md": "./manifest/icon.png",
+    "lg": "./manifest/icon.png"
+  },
+  "screenshots": [
+    "./manifest/screenshot1.png",
+    "./manifest/screenshot2.png",
+    "./manifest/screenshot3.png"
+  ]
+}
