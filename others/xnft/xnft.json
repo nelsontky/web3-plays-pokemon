@@ -1,13 +1,13 @@
 {
   "kind": "app",
   "name": "Solana Plays Pokemon",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Play Pokemon collaboratively on the Solana blockchain!",
   "website": "https://solana.playspokemon.xyz/",
   "tag": "game",
   "entrypoints": {
     "default": {
-      "web": "./dist/.artifacts/index.js"
+      "web": "./dist/index.html"
     }
   },
   "icon": {
