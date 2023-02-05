@@ -84,7 +84,6 @@ export default function XnftContextProvider({
       const contentWindow = appIframeElement?.contentWindow;
       if (backpack && !!contentWindow) {
         const listener = async (event: MessageEvent<any>) => {
-          console.log({ event });
           if (event.origin !== IFRAME_ORIGIN) {
             return;
           }

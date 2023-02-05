@@ -1,6 +1,5 @@
 import {
   BaseMessageSignerWalletAdapter,
-  isVersionedTransaction,
   WalletName,
   WalletReadyState,
 } from "@solana/wallet-adapter-base";
