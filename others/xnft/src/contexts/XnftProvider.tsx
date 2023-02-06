@@ -57,7 +57,7 @@ interface XnftContextProviderProps {
 
 const IFRAME_ORIGIN =
   process.env.NODE_ENV === "development"
-    ? "http://localhost:3002"
+    ? "http://localhost:3001"
     : "https://solana.playspokemon.xyz";
 
 export default function XnftContextProvider({

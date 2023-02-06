@@ -8,7 +8,7 @@ export function HomeScreen() {
     <iframe
       src={`${
         process.env.NODE_ENV === "development"
-          ? "http://localhost:3002"
+          ? "http://localhost:3001"
           : "https://solana.playspokemon.xyz"
       }?publicKey=${encodeURIComponent(backpack.publicKey.toBase58())}`}
       style={tw`border-0 w-full h-full`}
