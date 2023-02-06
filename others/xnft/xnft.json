@@ -1,7 +1,7 @@
 {
   "kind": "app",
   "name": "Solana Plays Pokemon",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Play Pokemon collaboratively on the Solana blockchain!",
   "website": "https://solana.playspokemon.xyz/",
   "tag": "game",
