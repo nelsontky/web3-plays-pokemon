@@ -1,17 +1,11 @@
-import React, {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import React, { createContext, ReactNode, useContext } from "react";
 import { cache } from "@emotion/css";
 import { CacheProvider } from "@emotion/react";
 import GlobalStyles from "../styles/GlobalStyles";
-import AnchorSetup from "../components/AnchorSetup";
 import ProgramListenersSetup from "../components/ProgramListenersSetup";
 import { PublicKey } from "@solana/web3.js";
 import { REALTIME_DATABASE_MESSAGES_COLLECTIONS } from "common";
+import useIsXnft from "../hooks/useIsXnft";
 
 interface ConfigContextState {
   gameDataAccountPublicKey: PublicKey;
@@ -28,7 +22,6 @@ interface ConfigProviderProps {
   gameDataAccountId: string;
   messagesCollection: string;
   hideStats?: boolean;
-  isXnft?: boolean;
   children: ReactNode;
 }
 
@@ -37,15 +30,8 @@ export default function ConfigProvider({
   messagesCollection,
   hideStats,
   children,
-  isXnft,
 }: ConfigProviderProps) {
-  const [render, setRender] = useState(!isXnft);
-
-  useEffect(() => {
-    if (isXnft && window.self !== window.top) {
-      setRender(true);
-    }
-  }, [isXnft]);
+  const isXnft = useIsXnft();
 
   if (!REALTIME_DATABASE_MESSAGES_COLLECTIONS.includes(messagesCollection)) {
     throw new Error(
@@ -53,7 +39,7 @@ export default function ConfigProvider({
     );
   }
 
-  if (!render) {
+  if (isXnft && window.self === window.top) {
     return null;
   }
 

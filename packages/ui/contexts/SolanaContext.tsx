@@ -6,7 +6,6 @@ import {
 } from "@solana/wallet-adapter-react";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import {
-  BackpackWalletAdapter,
   PhantomWalletAdapter,
   SolflareWalletAdapter,
   SolletExtensionWalletAdapter,
@@ -20,18 +19,14 @@ import {
   BackpackIframeAdapter,
   BackpackIframeWalletName,
 } from "../adapters/BackpackIframeAdapter";
+import useIsXnft from "../hooks/useIsXnft";
 
 require("@solana/wallet-adapter-react-ui/styles.css");
 
-const SolanaContext = ({
-  children,
-  isXnft,
-}: {
-  children: ReactNode;
-  isXnft?: boolean;
-}) => {
+const SolanaContext = ({ children }: { children: ReactNode }) => {
   const network = WalletAdapterNetwork.Mainnet;
   const endpoint = process.env.NEXT_PUBLIC_RPC_URL ?? clusterApiUrl(network);
+  const isXnft = useIsXnft();
 
   const [backpackIframePublicKey, setBackpackIframePublicKey] =
     useState<PublicKey>();
@@ -63,6 +58,10 @@ const SolanaContext = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [network, backpackIframePublicKey]
   );
+
+  if (isXnft === undefined) {
+    return null;
+  }
 
   return (
     <ConnectionProvider
