@@ -8,7 +8,7 @@ import { PublicKey, Transaction, VersionedTransaction } from "@solana/web3.js";
 const BACKPACK_ORIGIN =
   process.env.NODE_ENV === "development"
     ? "http://localhost:19006"
-    : "https://xnfts-dev.s3.us-west-2.amazonaws.com";
+    : "https://embed.xnfts.dev";
 
 export const BackpackIframeWalletName =
   "Backpack Iframe" as WalletName<"Backpack Iframe">;
